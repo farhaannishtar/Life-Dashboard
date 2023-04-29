@@ -37,13 +37,8 @@ export default function Home({
 
       <main>
         <h1 className="title">
-          Life Dashboard
+          Life Dashboard.
         </h1>
-
-        <h1 className="text-3xl font-bold underline bg-red-700">
-          Hello world!
-        </h1>
-
         <div className="grid">
           <a href="https://nextjs.org/docs" className="card">
             <h3>Documentation &rarr;</h3>
