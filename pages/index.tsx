@@ -1,6 +1,23 @@
 import Head from 'next/head'
 import clientPromise from '../lib/mongodb'
 import { InferGetServerSidePropsType } from 'next'
+import { useSession, signIn, signOut } from "next-auth/react";
+
+function SessionStatus() {
+  const { data: session, status } = useSession();
+
+  if (status === "authenticated" && session?.user?.email) {
+    return (
+      <>
+        <p>Signed in as {session.user.email}</p>
+        <button onClick={() => signOut()}>Sign out</button>
+      </>
+    );
+  }
+
+  return <a href="/api/auth/signin">Sign in</a>;
+}
+
 
 export async function getServerSideProps(context: any) {
   try {
@@ -28,6 +45,7 @@ export async function getServerSideProps(context: any) {
 export default function Home({
   isConnected,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+
   return (
     <div className="container">
       <Head>
@@ -39,6 +57,9 @@ export default function Home({
         <h1 className="title">
           Life Dashboard.
         </h1>
+
+        <SessionStatus />
+
         <div className="grid">
           <a href="https://nextjs.org/docs" className="card">
             <h3>Documentation &rarr;</h3>
