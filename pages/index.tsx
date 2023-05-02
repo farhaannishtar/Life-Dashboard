@@ -1,23 +1,8 @@
 import Head from 'next/head'
+import { useState } from 'react'
 import clientPromise from '../lib/mongodb'
 import { InferGetServerSidePropsType } from 'next'
 import { useSession, signIn, signOut } from "next-auth/react";
-
-function SessionStatus() {
-  const { data: session, status } = useSession();
-
-  if (status === "authenticated" && session?.user?.email) {
-    return (
-      <>
-        <p>Signed in as {session.user.email}</p>
-        <button onClick={() => signOut()}>Sign out</button>
-      </>
-    );
-  }
-
-  return <a href="/api/auth/signin">Sign in</a>;
-}
-
 
 export async function getServerSideProps(context: any) {
   try {
@@ -46,6 +31,24 @@ export default function Home({
   isConnected,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
+  const [data, setData] = useState('No Data');
+
+    const fetchData = async () => {
+      console.log('I will figure this out')
+        const response = await fetch('http://localhost:3001/api/v2/usercollection/personal_info', {
+          headers: {
+            Authorization: 'Bearer 7FADD6MJ4TRXKFR33QOFYKGXH5P53T3J',
+          },
+        });
+        const data = await response.text();
+        // do something with data
+        setData(data);
+    }
+
+    const handleClick = () => {
+      fetchData();
+    };
+  
   return (
     <div className="container">
       <Head>
@@ -58,7 +61,15 @@ export default function Home({
           Life Dashboard.
         </h1>
 
-        <SessionStatus />
+        <div>
+          <button onClick={handleClick}>Fetch Data</button>
+          <div>{data}</div>
+        </div>
+
+
+        {/* <SessionStatus /> */}
+
+
 
         <div className="grid">
           <a href="https://nextjs.org/docs" className="card">
@@ -255,4 +266,20 @@ export default function Home({
       `}</style>
     </div>
   )
+}
+
+
+function SessionStatus() {
+  const { data: session, status } = useSession();
+
+  if (status === "authenticated" && session?.user?.email) {
+    return (
+      <>
+        <p>Signed in as {session.user.email}</p>
+        <button onClick={() => signOut()}>Sign out</button>
+      </>
+    );
+  }
+
+  return <a href="/api/auth/signin">Sign in</a>;
 }
