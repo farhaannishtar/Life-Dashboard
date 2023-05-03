@@ -33,21 +33,21 @@ export default function Home({
 
   const [data, setData] = useState('No Data');
 
-    const fetchData = async () => {
-      console.log('I will figure this out')
-        const response = await fetch('http://localhost:3001/api/v2/usercollection/personal_info', {
-          headers: {
-            Authorization: 'Bearer 7FADD6MJ4TRXKFR33QOFYKGXH5P53T3J',
-          },
-        });
-        const data = await response.text();
-        // do something with data
-        setData(data);
+  const fetchData = async (): Promise<void> => {
+    const startDate: string = '2023-04-30';
+    const endDate: string = '2023-05-01';
+    try {
+      const response = await fetch(`https://cloud.ouraring.com/v2/usercollection/daily_sleep`);
+      const result = await response.json();
+      console.log(result);
+    } catch (error) {
+      console.log('error', error);
     }
+  };
 
-    const handleClick = () => {
-      fetchData();
-    };
+  const handleClick = () => {
+    fetchData();
+  };
   
   return (
     <div className="container">
