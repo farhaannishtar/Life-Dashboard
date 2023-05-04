@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import clientPromise from '../lib/mongodb'
 import { InferGetServerSidePropsType } from 'next'
 import { useSession, signIn, signOut } from "next-auth/react";
@@ -31,89 +31,49 @@ export default function Home({
   isConnected,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
-  const [data, setData] = useState('No Data');
+  const [ouraRingData, setOuraRingData] = useState({});
 
-  const fetchData = async (): Promise<void> => {
-    const startDate: string = '2023-04-30';
-    const endDate: string = '2023-05-01';
-    try {
-      const response = await fetch(`https://cloud.ouraring.com/v2/usercollection/daily_sleep`);
-      const result = await response.json();
-      console.log(result);
-    } catch (error) {
-      console.log('error', error);
-    }
-  };
-
-  const handleClick = () => {
+  useEffect(() => {
+    const fetchData = async (): Promise<void> => {
+    fetch("https://api.ouraring.com/v1/sleep?start=2023-05-03", {
+      headers: {
+        'Authorization': 'Bearer 7FADD6MJ4TRXKFR33QOFYKGXH5P53T3J'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      setOuraRingData(data)
+      console.log(ouraRingData)
+    })
+    .catch(error => console.error(error))
+    };
     fetchData();
-  };
-  
+  }, []);
+
+  console.log(ouraRingData)
+
   return (
     <div className="container">
       <Head>
         <title>Create Next App</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <h1 className="title">Life Dashboard</h1>
 
       <main>
-        <h1 className="title">
-          Life Dashboard.
-        </h1>
 
         <div>
-          <button onClick={handleClick}>Fetch Data</button>
-          <div>{data}</div>
+          <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Oura Ring Data</h2>
+          <div className='flex gap-1'>
+            <h3 className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Last Night's Sleep Score:</h3>
+            <h3 className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingData.sleep[0].score}</h3>
+          </div>
+          <p></p>
         </div>
-
-
+        
         {/* <SessionStatus /> */}
 
-
-
-        <div className="grid">
-          <a href="https://nextjs.org/docs" className="card">
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className="card">
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className="card"
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="card"
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
       </main>
-
-      <footer>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className="logo" />
-        </a>
-      </footer>
 
       <style jsx>{`
         .container {
