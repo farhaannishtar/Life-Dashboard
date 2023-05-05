@@ -33,12 +33,14 @@ export default function Home({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
   const [ouraRingData, setOuraRingData] = useState({});
-
   const { date, time } = useDate();
 
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
-    fetch("https://api.ouraring.com/v1/sleep?start=2023-05-03", {
+    const [currentDate, previousDate] = getDates(date);
+    console.log("currentDate: ", currentDate)
+    console.log("previousDate: ", previousDate)
+    fetch(`https://api.ouraring.com/v1/sleep?start=2023-05-02&end=2023-05-03`, {
       headers: {
         'Authorization': 'Bearer 7FADD6MJ4TRXKFR33QOFYKGXH5P53T3J'
       }
@@ -54,8 +56,22 @@ export default function Home({
   }, []);
 
   console.log("ouraRingData: ", ouraRingData)
-  console.log("date: ", date)
-  console.log("time: ", time)
+
+  function getDates(inputDateString: string) {
+    const inputDate = new Date(inputDateString + ", " + new Date().getFullYear());
+    const year = inputDate.getFullYear();
+    const month = String(inputDate.getMonth() + 1).padStart(2, "0");
+    const day = String(inputDate.getDate()).padStart(2, "0");
+    const formattedDate = `${year}-${month}-${day}`;
+    const previousDate = new Date();
+    previousDate.setDate(new Date().getDate() - 1);
+    const previousYear = previousDate.getFullYear();
+    const previousMonth = String(previousDate.getMonth() + 1).padStart(2, '0');
+    const previousDay = String(previousDate.getDate()).padStart(2, '0');
+    const formattedPreviousDate = `${previousYear}-${previousMonth}-${previousDay}`;
+    return [formattedDate, formattedPreviousDate]
+  }
+
 
   return (
     <div className="container">
