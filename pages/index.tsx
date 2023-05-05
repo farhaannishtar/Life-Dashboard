@@ -1,8 +1,9 @@
 import Head from 'next/head'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import clientPromise from '../lib/mongodb'
 import { InferGetServerSidePropsType } from 'next'
 import { useSession, signIn, signOut } from "next-auth/react";
+import { useDate } from '../custom-hooks/useDate';
 
 export async function getServerSideProps(context: any) {
   try {
@@ -33,6 +34,8 @@ export default function Home({
 
   const [ouraRingData, setOuraRingData] = useState({});
 
+  const { date, time } = useDate();
+
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
     fetch("https://api.ouraring.com/v1/sleep?start=2023-05-03", {
@@ -50,23 +53,32 @@ export default function Home({
     fetchData();
   }, []);
 
-  console.log(ouraRingData)
+  console.log("ouraRingData: ", ouraRingData)
+  console.log("date: ", date)
+  console.log("time: ", time)
 
   return (
     <div className="container">
       <Head>
-        <title>Create Next App</title>
+        <title>Life Dashboard</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <h1 className="title">Life Dashboard</h1>
+      <div>
+        <h3>
+          {date}
+          <br />
+          {time}
+        </h3>
+      </div>
 
       <main>
 
         <div>
           <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Oura Ring Data</h2>
           <div className='flex gap-1'>
-            <h3 className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Last Night's Sleep Score:</h3>
-            <h3 className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingData.sleep[0].score}</h3>
+            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Last Night's Sleep Score:</p>
+            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingData.sleep && ouraRingData.sleep[0] ? ouraRingData.sleep[0].score : ''}</p>
           </div>
           <p></p>
         </div>
