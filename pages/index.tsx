@@ -36,43 +36,49 @@ export default function Home({
   const { date, time } = useDate();
 
   useEffect(() => {
-    const fetchData = async (): Promise<void> => {
-    const [currentDate, previousDate] = getDates(date);
-    console.log("currentDate: ", currentDate)
-    console.log("previousDate: ", previousDate)
-    fetch(`https://api.ouraring.com/v1/sleep?start=2023-05-02&end=2023-05-03`, {
-      headers: {
-        'Authorization': 'Bearer 7FADD6MJ4TRXKFR33QOFYKGXH5P53T3J'
+    const fetchData = async (currentDate: string, previousDate: string): Promise<void> => {
+      try {
+        const response = await fetch(`https://api.ouraring.com/v1/sleep?start=${previousDate}&end=${currentDate}`, {
+          headers: {
+            'Authorization': 'Bearer 7FADD6MJ4TRXKFR33QOFYKGXH5P53T3J'
+          }
+        });
+        const data = await response.json();
+        if (data.sleep.length === 0) {
+          let [newCurrentDate, newPreviousDate] = getDates(previousDate);
+          fetchData(newCurrentDate, newPreviousDate);
+        } else {
+          setOuraRingData(data);
+        }
+      } catch (error) {
+        console.error(error);
       }
-    })
-    .then(response => response.json())
-    .then(data => {
-      setOuraRingData(data)
-      console.log(ouraRingData)
-    })
-    .catch(error => console.error(error))
     };
-    fetchData();
-  }, []);
+    const [currentDate, previousDate] = getDates(date);
+    fetchData(currentDate, previousDate);
+  }, [date]);
+  
 
   console.log("ouraRingData: ", ouraRingData)
 
-  function getDates(inputDateString: string) {
+  function getDatesForAPICall(inputDateString: string) {
+    console.log("inputDateString: ", inputDateString)
     const inputDate = new Date(inputDateString + ", " + new Date().getFullYear());
-    const year = inputDate.getFullYear();
-    const month = String(inputDate.getMonth() + 1).padStart(2, "0");
-    const day = String(inputDate.getDate()).padStart(2, "0");
-    const formattedDate = `${year}-${month}-${day}`;
-    const previousDate = new Date();
-    previousDate.setDate(new Date().getDate() - 1);
-    const previousYear = previousDate.getFullYear();
-    const previousMonth = String(previousDate.getMonth() + 1).padStart(2, '0');
-    const previousDay = String(previousDate.getDate()).padStart(2, '0');
-    const formattedPreviousDate = `${previousYear}-${previousMonth}-${previousDay}`;
-    return [formattedDate, formattedPreviousDate]
+    const currentDate = new Date(inputDate.getTime()); // copy inputDate to currentDate
+    const previousDate = new Date(currentDate.getTime() - (24 * 60 * 60 * 1000)); // subtract one day in milliseconds
+    const year = previousDate.getFullYear();
+    const month = String(previousDate.getMonth() + 1).padStart(2, "0");
+    const day = String(previousDate.getDate()).padStart(2, "0");
+    const formattedPreviousDate = `${year}-${month}-${day}`;
+  
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = String(currentDate.getMonth() + 1).padStart(2, "0");
+    const currentDay = String(currentDate.getDate()).padStart(2, "0");
+    const formattedCurrentDate = `${currentYear}-${currentMonth}-${currentDay}`;
+  
+    return [formattedCurrentDate, formattedPreviousDate];
   }
-
-
+  
   return (
     <div className="container">
       <Head>
@@ -94,7 +100,7 @@ export default function Home({
           <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Oura Ring Data</h2>
           <div className='flex gap-1'>
             <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Last Night's Sleep Score:</p>
-            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingData.sleep && ouraRingData.sleep[0] ? ouraRingData.sleep[0].score : ''}</p>
+            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingData.sleep && ouraRingData.sleep[0] ? ouraRingData.sleep[ouraRingData.sleep.length - 1].score : ''}</p>
           </div>
           <p></p>
         </div>
