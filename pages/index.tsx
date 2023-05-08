@@ -4,6 +4,7 @@ import clientPromise from '../lib/mongodb'
 import { InferGetServerSidePropsType } from 'next'
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useDate } from '../custom-hooks/useDate';
+import TimeSinceAwake from '../components/TimeSinceAwake';
 
 export async function getServerSideProps(context: any) {
   try {
@@ -61,7 +62,7 @@ export default function Home({
 
   console.log("ouraRingData: ", ouraRingData)
 
-  function getDatesForAPICall(inputDateString: string) {
+  function getDates(inputDateString: string) {
     console.log("inputDateString: ", inputDateString)
     const inputDate = new Date(inputDateString + ", " + new Date().getFullYear());
     const currentDate = new Date(inputDate.getTime()); // copy inputDate to currentDate
@@ -95,14 +96,20 @@ export default function Home({
       </div>
 
       <main>
-
         <div>
           <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Oura Ring Data</h2>
           <div className='flex gap-1'>
             <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Last Night's Sleep Score:</p>
             <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingData.sleep && ouraRingData.sleep[0] ? ouraRingData.sleep[ouraRingData.sleep.length - 1].score : ''}</p>
           </div>
-          <p></p>
+          <div className='flex gap-1'>
+            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Time Since Awake:</p>
+            { ouraRingData.sleep && ouraRingData.sleep[0] 
+              ? <TimeSinceAwake bedTimeEnd={ouraRingData.sleep[ouraRingData.sleep.length - 1].bedtime_end} /> 
+              : <p>Effort is the Goal</p>
+            }
+          </div>
+
         </div>
         
         {/* <SessionStatus /> */}
