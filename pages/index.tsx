@@ -33,7 +33,12 @@ export default function Home({
   isConnected,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
-  const [ouraRingData, setOuraRingData] = useState({ sleep: []});
+  const [ouraRingSleepData, setOuraRingSleepData] = useState({ 
+    sleep: [{
+      score: '',
+      bedtime_end: '',
+    }],
+  });
   const { date, time } = useDate();
 
   useEffect(() => {
@@ -49,7 +54,7 @@ export default function Home({
           let [newCurrentDate, newPreviousDate] = getDates(previousDate);
           fetchData(newCurrentDate, newPreviousDate);
         } else {
-          setOuraRingData(data);
+          setOuraRingSleepData(data);
         }
       } catch (error) {
         console.error(error);
@@ -60,7 +65,7 @@ export default function Home({
   }, [date]);
   
 
-  console.log("ouraRingData: ", ouraRingData)
+  console.log("ouraRingSleepData: ", ouraRingSleepData)
 
   function getDates(inputDateString: string) {
     console.log("inputDateString: ", inputDateString)
@@ -100,12 +105,12 @@ export default function Home({
           <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Oura Ring Data</h2>
           <div className='flex gap-1'>
             <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Last Night's Sleep Score:</p>
-            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingData.sleep && ouraRingData.sleep[0] ? ouraRingData.sleep[ouraRingData.sleep.length - 1].score : ''}</p>
+            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingSleepData.sleep && ouraRingSleepData.sleep[0] ? ouraRingSleepData.sleep[ouraRingSleepData.sleep.length - 1].score : ''}</p>
           </div>
           <div className='flex gap-1'>
             <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Time Since Awake:</p>
-            { ouraRingData.sleep && ouraRingData.sleep[0] 
-              ? <TimeSinceAwake bedTimeEnd={ouraRingData.sleep[ouraRingData.sleep.length - 1].bedtime_end} /> 
+            { ouraRingSleepData.sleep && ouraRingSleepData.sleep[0] 
+              ? <TimeSinceAwake bedTimeEnd={ouraRingSleepData.sleep[ouraRingSleepData.sleep.length - 1].bedtime_end} /> 
               : <p>Effort is the Goal</p>
             }
           </div>
