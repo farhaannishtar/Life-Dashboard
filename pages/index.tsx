@@ -33,7 +33,7 @@ export default function Home({
   isConnected,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
-  const [ouraRingData, setOuraRingData] = useState({});
+  const [ouraRingData, setOuraRingData] = useState({ sleep: []});
   const { date, time } = useDate();
 
   useEffect(() => {
