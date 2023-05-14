@@ -117,7 +117,7 @@ export default function Home({
 
         </div>
         
-        {/* <SessionStatus /> */}
+        <SessionStatus />
 
       </main>
 
