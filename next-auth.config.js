@@ -3,15 +3,15 @@
 export default {
   providers: [
     {
-      id: 'fitbit',
-      name: 'Fitbit',
-      type: 'oauth',
-      version: '2.0',
-      scope: 'weight profile', // Add any additional scopes you need
-      params: { grant_type: 'authorization_code' },
-      accessTokenUrl: 'https://api.fitbit.com/oauth2/token',
-      authorizationUrl: 'https://www.fitbit.com/oauth2/authorize?response_type=code',
-      profileUrl: 'https://api.fitbit.com/1/user/-/profile.json',
+      id: "fitbit",
+      name: "Fitbit",
+      type: "oauth",
+      version: "2.0",
+      scope: "weight profile", // Add any additional scopes you need
+      params: { grant_type: "authorization_code" },
+      accessTokenUrl: "https://api.fitbit.com/oauth2/token",
+      authorizationUrl: "https://www.fitbit.com/oauth2/authorize",
+      profileUrl: "https://www.fitbit.com/user/6FCVD7",
       profile: (profile) => {
         return {
           id: profile.user.encodedId,
