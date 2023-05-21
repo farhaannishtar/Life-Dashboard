@@ -2,7 +2,8 @@ import Head from 'next/head'
 import React, { useState, useEffect } from 'react'
 import clientPromise from '../lib/mongodb'
 import { InferGetServerSidePropsType } from 'next'
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession } from 'next-auth/client';
+
 import { useDate } from '../custom-hooks/useDate';
 import TimeSinceAwake from '../components/TimeSinceAwake';
 
@@ -79,7 +80,46 @@ export default function Home({
   
     return [formattedCurrentDate, formattedPreviousDate];
   }
+
+  const [session, loading] = useSession();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!session) {
+    return <div>Not authenticated. Please sign in.</div>;
+  }
+
+  // Access the Fitbit data from the session object
+  const { user, accessToken } = session;
   
+  // Make an API request to retrieve weight and body fat percentage
+  const fetchFitbitData = async () => {
+    try {
+      const response = await fetch('https://api.fitbit.com/1/user/-/body/log/weight/date/today/1d.json', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const { weight, fat } = data['weight'][0];
+        // Use the weight and fat variables to update your UI or store the values
+      } else {
+        console.log('Failed to fetch Fitbit data:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching Fitbit data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchFitbitData();
+  }, []);
+
+
   return (
     <div className="container">
       <Head>
@@ -267,20 +307,4 @@ export default function Home({
       `}</style>
     </div>
   )
-}
-
-
-function SessionStatus() {
-  const { data: session, status } = useSession();
-
-  if (status === "authenticated" && session?.user?.email) {
-    return (
-      <>
-        <p>Signed in as {session.user.email}</p>
-        <button onClick={() => signOut()}>Sign out</button>
-      </>
-    );
-  }
-
-  return <a href="/api/auth/signin">Sign in</a>;
 }
