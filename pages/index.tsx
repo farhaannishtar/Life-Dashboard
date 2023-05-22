@@ -35,6 +35,8 @@ export default function Home({
 
   const [ouraRingData, setOuraRingData] = useState({});
   const { date, time } = useDate();
+  const [fitbitAccessToken, setFitbitAccessToken] = useState('');
+  const [fitbituserId, setFitbitUserId] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -86,7 +88,6 @@ export default function Home({
     const url = new URL(baseUrl + router.asPath);
     const searchParams = new URLSearchParams(url.search);
     const code = searchParams.get('code');
-    console.log("code: ", code);
     const postData = new URLSearchParams();
     postData.append('client_id', '23QWKZ');
     postData.append('grant_type', 'authorization_code');
@@ -115,11 +116,39 @@ export default function Home({
       })
       .then((data) => {
         console.log(data);
+        const parsedData = JSON.parse(data);
+        setFitbitAccessToken(parsedData.access_token);
+        setFitbitUserId(parsedData.user_id);
       })
       .catch((error) => {
         console.error(error);
       });
   }
+
+  function getFitBitWeightData() {
+    const url = `https://api.fitbit.com/1/user/-/devices.json`
+    const headers = {
+      "Authorization": `Bearer ${fitbitAccessToken}`
+    };
+
+    fetch(url, { headers })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Request failed.");
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Handle the response data
+        console.log(data);
+      })
+      .catch(error => {
+        // Handle any errors
+        console.error(error);
+      });
+  } 
+
+  console.log("fitbitAccessToken: ", fitbitAccessToken)
 
   return (
     <div className="container">
@@ -143,6 +172,9 @@ export default function Home({
         </button>
         <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={retrieveAccessToken}>
           Retrieve Access Token
+        </button>
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={getFitBitWeightData}>
+          Get Weight Data
         </button>
       </div>
 
