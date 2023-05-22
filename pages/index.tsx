@@ -2,8 +2,7 @@ import Head from 'next/head'
 import React, { useState, useEffect } from 'react'
 import clientPromise from '../lib/mongodb'
 import { InferGetServerSidePropsType } from 'next'
-import { useSession } from 'next-auth/client';
-
+import { useSession, signIn, signOut } from "next-auth/react"
 import { useDate } from '../custom-hooks/useDate';
 import TimeSinceAwake from '../components/TimeSinceAwake';
 
@@ -61,10 +60,10 @@ export default function Home({
   }, [date]);
   
 
-  console.log("ouraRingData: ", ouraRingData)
+  // console.log("ouraRingData: ", ouraRingData)
 
   function getDates(inputDateString: string) {
-    console.log("inputDateString: ", inputDateString)
+    // console.log("inputDateString: ", inputDateString)
     const inputDate = new Date(inputDateString + ", " + new Date().getFullYear());
     const currentDate = new Date(inputDate.getTime()); // copy inputDate to currentDate
     const previousDate = new Date(currentDate.getTime() - (24 * 60 * 60 * 1000)); // subtract one day in milliseconds
@@ -80,45 +79,6 @@ export default function Home({
   
     return [formattedCurrentDate, formattedPreviousDate];
   }
-
-  const [session, loading] = useSession();
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!session) {
-    return <div>Not authenticated. Please sign in.</div>;
-  }
-
-  // Access the Fitbit data from the session object
-  const { user, accessToken } = session;
-  
-  // Make an API request to retrieve weight and body fat percentage
-  const fetchFitbitData = async () => {
-    try {
-      const response = await fetch('https://api.fitbit.com/1/user/-/body/log/weight/date/today/1d.json', {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const { weight, fat } = data['weight'][0];
-        // Use the weight and fat variables to update your UI or store the values
-      } else {
-        console.log('Failed to fetch Fitbit data:', response.status);
-      }
-    } catch (error) {
-      console.error('Error fetching Fitbit data:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchFitbitData();
-  }, []);
-
 
   return (
     <div className="container">
