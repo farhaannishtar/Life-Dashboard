@@ -126,7 +126,7 @@ export default function Home({
   }
 
   function getFitBitWeightData() {
-    const url = `https://api.fitbit.com/1/user/-/devices.json`
+    const url = `https://api.fitbit.com/1/user/-/body/log/weight/date/2023-05-12.json`
     const headers = {
       "Authorization": `Bearer ${fitbitAccessToken}`
     };
