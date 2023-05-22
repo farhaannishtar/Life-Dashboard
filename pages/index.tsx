@@ -2,7 +2,6 @@ import Head from 'next/head'
 import React, { useState, useEffect } from 'react'
 import clientPromise from '../lib/mongodb'
 import { InferGetServerSidePropsType } from 'next'
-import { useSession, signIn, signOut } from "next-auth/react"
 import { useDate } from '../custom-hooks/useDate';
 import TimeSinceAwake from '../components/TimeSinceAwake';
 
@@ -80,6 +79,57 @@ export default function Home({
     return [formattedCurrentDate, formattedPreviousDate];
   }
 
+  function retrieveAccessToken() {
+    // URL for the POST request
+    const url = 'https://api.fitbit.com/oauth2/token';
+
+    // Create a URL object
+    var urlObj = new URL(url);
+
+    // Get the search parameters from the URL
+    var searchParams = new URLSearchParams(urlObj.search);
+
+    // Retrieve the value of the code parameter
+    var code = searchParams.get("code");
+
+    // Data to send in the request body
+    const data = {
+      client_id: '23QWKZ',
+      code: code,
+      code_verifier: '27381q5c3k622r1b2m254y5s053c1p5a352w0t423c1l1562215s211i3z5f1m5f4s6i14495v521b4p4s0a4y6c531z5q0a4b4q07455o592e2v4i6e3o6x2v226444',
+      grant_type: 'authorization_code'
+    };
+
+    // Options for the fetch request
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: JSON.stringify(data) // Convert the data to JSON string
+    };
+
+    // Make the POST request
+    fetch(url, options)
+      .then(response => {
+        // Handle the response
+        if (response.ok) {
+          return response.json(); // Parse the response body as JSON
+        } else {
+          throw new Error('Error: ' + response.status);
+        }
+      })
+      .then(data => {
+        // Handle the JSON data
+        console.log(data);
+      })
+      .catch(error => {
+        // Handle any errors
+        console.error(error);
+      });
+  }
+      
+
   return (
     <div className="container">
       <Head>
@@ -93,6 +143,15 @@ export default function Home({
           <br />
           {time}
         </h3>
+      </div>
+
+      <div>
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          <a href="https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23QWKZ&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=mAtEgBIJq6tvEX06CtUyLxU2XxaO9pE4qTnQtYgWZZY&code_challenge_method=S256&state=00344m0n4q2v0q5v3f3l6g2z575y3f0w&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2F">Login</a>  
+        </button>
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={retrieveAccessToken}>
+          Retrieve Access Token
+        </button>
       </div>
 
       <main>
@@ -111,9 +170,6 @@ export default function Home({
           </div>
 
         </div>
-        
-        {/* <SessionStatus /> */}
-
       </main>
 
       <style jsx>{`
