@@ -29,15 +29,28 @@ export async function getServerSideProps(context: any) {
   }
 }
 
+interface WeightData {
+  weight: number;
+  bmi: number;
+}
+
+interface ouraRingSleepData {
+  sleep: {
+    awake: number;
+  }[];
+}
+
 export default function Home({
   isConnected,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
-  const [ouraRingData, setOuraRingData] = useState({});
+  const [ouraRingSleepData, setOuraRingSleepData] = useState({});
   const { date, time } = useDate();
   const [fitbitAccessToken, setFitbitAccessToken] = useState(null);
-  const [fitbitWeightData, setFitbitWeightData] = useState(null);
+  const [fitbitWeightData, setFitbitWeightData] = useState<WeightData | null>(null);
   const router = useRouter();
+
+  console.log("ouraRingSleepData: ", ouraRingSleepData);
 
   useEffect(() => {
     const fetchData = async (currentDate: string, previousDate: string): Promise<void> => {
@@ -52,7 +65,7 @@ export default function Home({
           let [newCurrentDate, newPreviousDate] = getDates(previousDate);
           fetchData(newCurrentDate, newPreviousDate);
         } else {
-          setOuraRingData(data);
+          setOuraRingSleepData(data.sleep);
         }
       } catch (error) {
         console.error(error);
@@ -145,7 +158,7 @@ export default function Home({
       console.log("last sync time: ", devicesData[0].lastSyncTime)
       let lastSyncTime = devicesData[0].lastSyncTime.split("T")[0];
   
-      const weightUrl = `https://api.fitbit.com/1/user/-/body/log/weight/date/${lastSyncTime}.json`;
+      const weightUrl = `https://api.fitbit.com/1/user/-/body/log/weight/date/2023-05-22.json`;
       const weightHeaders = {
         "Authorization": `Bearer ${fitbitAccessToken}`
       };
@@ -191,12 +204,12 @@ export default function Home({
           <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Oura Ring Data</h2>
           <div className='flex gap-1'>
             <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Last Night's Sleep Score:</p>
-            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingData.sleep && ouraRingData.sleep[0] ? ouraRingData.sleep[ouraRingData.sleep.length - 1].score : ''}</p>
+            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingSleepData && ouraRingSleepData[0] ? ouraRingSleepData[ouraRingSleepData.length - 1].score : ''}</p>
           </div>
           <div className='flex gap-1'>
             <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Time Since Awake:</p>
-            { ouraRingData.sleep && ouraRingData.sleep[0] 
-              ? <TimeSinceAwake bedTimeEnd={ouraRingData.sleep[ouraRingData.sleep.length - 1].bedtime_end} /> 
+            { ouraRingSleepData
+              ? <TimeSinceAwake bedTimeEnd={ouraRingSleepData[0].bedtime_end} /> 
               : <p>Effort is the Goal</p>
             }
           </div>
