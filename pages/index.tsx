@@ -117,32 +117,53 @@ export default function Home({
           }
         })
         .then(async (data) => {
-          const parsedData = JSON.parse(data);
-          setFitbitAccessToken(parsedData.access_token);
-          setFitbitUserId(parsedData.user_id);
+          setFitbitAccessToken(data.access_token);
+          setFitbitUserId(data.user_id);
         })
         .catch((error) => {
           console.error(error);
         });
     }
   }, []);
+
+  useEffect(() => {
+    if (fitbitAccessToken) {
+      getFitBitWeightData();
+    }
+    console.log("Inside fitbitAccessToken useEffect")
+  }, [fitbitAccessToken]);
   
   async function getFitBitWeightData() {
     try {
-      const url = `https://api.fitbit.com/1/user/-/devices.json`;
-      const headers = {
+      const devicesUrl = 'https://api.fitbit.com/1/user/-/devices.json';
+      const devicesHeaders = {
         "Authorization": `Bearer ${fitbitAccessToken}`
       };
-      const response = await fetch(url, { headers });
-      if (!response.ok) {
+      const devicesResponse = await fetch(devicesUrl, { headers: devicesHeaders });
+      if (!devicesResponse.ok) {
         throw new Error("Request failed.");
       }
-      const deviceData = await response.json();
-      console.log(deviceData);
+      const devicesData = await devicesResponse.json();
+      console.log(devicesData);
+      console.log("last sync time: ", devicesData[0].lastSyncTime)
+      let lastSyncTime = devicesData[0].lastSyncTime.split("T")[0];
+  
+      const weightUrl = `https://api.fitbit.com/1/user/-/body/log/weight/date/${lastSyncTime}.json`;
+      const weightHeaders = {
+        "Authorization": `Bearer ${fitbitAccessToken}`
+      };
+      const weightResponse = await fetch(weightUrl, { headers: weightHeaders });
+      if (!weightResponse.ok) {
+        throw new Error("Request failed.");
+      }
+      const weightData = await weightResponse.json();
+      console.log(weightData);
+      setFitbitWeightData(weightData);
     } catch (error) {
       console.error(error);
     }
   }
+  
   
   function fitbitLoginHandler() {
     window.location.href = 'https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23QWKZ&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=gElACHZHC-JmCzGhzQCNGTdOvBSghEXJ3PnBP89p-zc&code_challenge_method=S256&state=3p1d1w0j05653q6i0t1e5w4t25325z46'
@@ -163,6 +184,7 @@ export default function Home({
           {date}
           <br />
           {time}
+          <br />
         </h3>
       </div>
 
@@ -171,6 +193,9 @@ export default function Home({
           <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={fitbitLoginHandler}>
             Login with Fitbit
           </button>
+        }
+        {
+          fitbitWeightData && <p>{fitbitWeightData.weight[0].weight} kilos!</p> 
         }
       </div>
 
