@@ -36,7 +36,6 @@ export default function Home({
   const [ouraRingData, setOuraRingData] = useState({});
   const { date, time } = useDate();
   const [fitbitAccessToken, setFitbitAccessToken] = useState(null);
-  const [fitbituserId, setFitbitUserId] = useState(null);
   const [fitbitWeightData, setFitbitWeightData] = useState(null);
   const router = useRouter();
 
@@ -63,9 +62,6 @@ export default function Home({
     fetchData(currentDate, previousDate);
   }, [date]);
   
-
-  // console.log("ouraRingData: ", ouraRingData)
-
   function getDates(inputDateString: string) {
     // console.log("inputDateString: ", inputDateString)
     const inputDate = new Date(inputDateString + ", " + new Date().getFullYear());
@@ -89,7 +85,9 @@ export default function Home({
     const url = new URL(baseUrl + router.asPath);
     const searchParams = new URLSearchParams(url.search);
     const code = searchParams.get('code');
-    if (code) {
+    if (!code) {
+      window.location.href = "https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23QWKZ&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=gElACHZHC-JmCzGhzQCNGTdOvBSghEXJ3PnBP89p-zc&code_challenge_method=S256&state=3p1d1w0j05653q6i0t1e5w4t25325z46";
+    } else {  
       const postData = new URLSearchParams();
       postData.append('client_id', '23QWKZ');
       postData.append('grant_type', 'authorization_code');
@@ -118,7 +116,6 @@ export default function Home({
         })
         .then(async (data) => {
           setFitbitAccessToken(data.access_token);
-          setFitbitUserId(data.user_id);
         })
         .catch((error) => {
           console.error(error);
@@ -157,21 +154,13 @@ export default function Home({
         throw new Error("Request failed.");
       }
       const weightData = await weightResponse.json();
-      console.log(weightData);
-      setFitbitWeightData(weightData);
+      console.log("weightData: ", weightData.weight[0].weight, typeof weightData);
+      setFitbitWeightData(weightData.weight[0]);
     } catch (error) {
       console.error(error);
     }
   }
   
-  
-  function fitbitLoginHandler() {
-    window.location.href = 'https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23QWKZ&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=gElACHZHC-JmCzGhzQCNGTdOvBSghEXJ3PnBP89p-zc&code_challenge_method=S256&state=3p1d1w0j05653q6i0t1e5w4t25325z46'
-  }
-
-
-  console.log("fitbitAccessToken: ", fitbitAccessToken)
-
   return (
     <div className="container">
       <Head>
@@ -188,18 +177,16 @@ export default function Home({
         </h3>
       </div>
 
-      <div>
-        { !fitbitAccessToken && 
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={fitbitLoginHandler}>
-            Login with Fitbit
-          </button>
-        }
-        {
-          fitbitWeightData && <p>{fitbitWeightData.weight[0].weight} kilos!</p> 
-        }
-      </div>
-
       <main>
+        <div className='mb-6'>
+          <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Fitbit Data</h2>
+          {
+            fitbitWeightData && <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Most recent weight: {fitbitWeightData.weight * 2.2} kilos</p> 
+          }
+          {
+            fitbitWeightData && <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Most recent BMI: {fitbitWeightData.bmi}</p> 
+          }
+        </div>
         <div>
           <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Oura Ring Data</h2>
           <div className='flex gap-1'>
