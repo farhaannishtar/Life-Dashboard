@@ -35,8 +35,9 @@ export default function Home({
 
   const [ouraRingData, setOuraRingData] = useState({});
   const { date, time } = useDate();
-  const [fitbitAccessToken, setFitbitAccessToken] = useState('');
-  const [fitbituserId, setFitbitUserId] = useState('');
+  const [fitbitAccessToken, setFitbitAccessToken] = useState(null);
+  const [fitbituserId, setFitbitUserId] = useState(null);
+  const [fitbitWeightData, setFitbitWeightData] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -83,70 +84,70 @@ export default function Home({
     return [formattedCurrentDate, formattedPreviousDate];
   }
 
-  function retrieveAccessToken() {
+  useEffect(() => {
     const baseUrl = window.location.origin;
     const url = new URL(baseUrl + router.asPath);
     const searchParams = new URLSearchParams(url.search);
     const code = searchParams.get('code');
-    const postData = new URLSearchParams();
-    postData.append('client_id', '23QWKZ');
-    postData.append('grant_type', 'authorization_code');
-    postData.append('redirect_uri', 'http://localhost:3000/');
-    postData.append('code', `${code}`);
-    postData.append(
-      'code_verifier',
-      '2i333a195t004x0b23082s5d2q186o2h2x732x4c2j725k450k2b5z481d6l091s5r5u102l1o0h2e1n4y2j6730020o3t076z0o1y5f0h0l4e2c5x5a57095d2m2o30'
-    );
+    if (code) {
+      const postData = new URLSearchParams();
+      postData.append('client_id', '23QWKZ');
+      postData.append('grant_type', 'authorization_code');
+      postData.append('redirect_uri', 'http://localhost:3000/');
+      postData.append('code', `${code}`);
+      postData.append(
+        'code_verifier',
+        '4q5t6c2j2d712n5u0c4q1q081d2i5b1b6z4p0e1i5a0g3u4y1w6065535y6f4r350u2w363q0c082w3l4t5j5x6g6r6s315j6o660f470t6d2p1l4p5a24376s3y2q2u'
+      );
 
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: postData.toString(),
-    };
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: postData.toString(),
+      };
 
-    fetch('https://api.fitbit.com/oauth2/token', requestOptions)
-      .then((response) => {
-        if (response.ok) {
-          return response.text();
-        } else {
-          throw new Error('Error: ' + response.status);
-        }
-      })
-      .then((data) => {
-        console.log(data);
-        const parsedData = JSON.parse(data);
-        setFitbitAccessToken(parsedData.access_token);
-        setFitbitUserId(parsedData.user_id);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+      fetch('https://api.fitbit.com/oauth2/token', requestOptions)
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error('Error: ' + response.status);
+          }
+        })
+        .then(async (data) => {
+          const parsedData = JSON.parse(data);
+          setFitbitAccessToken(parsedData.access_token);
+          setFitbitUserId(parsedData.user_id);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  }, []);
+  
+  async function getFitBitWeightData() {
+    try {
+      const url = `https://api.fitbit.com/1/user/-/devices.json`;
+      const headers = {
+        "Authorization": `Bearer ${fitbitAccessToken}`
+      };
+      const response = await fetch(url, { headers });
+      if (!response.ok) {
+        throw new Error("Request failed.");
+      }
+      const deviceData = await response.json();
+      console.log(deviceData);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  
+  function fitbitLoginHandler() {
+    window.location.href = 'https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23QWKZ&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=gElACHZHC-JmCzGhzQCNGTdOvBSghEXJ3PnBP89p-zc&code_challenge_method=S256&state=3p1d1w0j05653q6i0t1e5w4t25325z46'
   }
 
-  function getFitBitWeightData() {
-    const url = `https://api.fitbit.com/1/user/-/body/log/weight/date/2023-05-12.json`
-    const headers = {
-      "Authorization": `Bearer ${fitbitAccessToken}`
-    };
-
-    fetch(url, { headers })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Request failed.");
-        }
-        return response.json();
-      })
-      .then(data => {
-        // Handle the response data
-        console.log(data);
-      })
-      .catch(error => {
-        // Handle any errors
-        console.error(error);
-      });
-  } 
 
   console.log("fitbitAccessToken: ", fitbitAccessToken)
 
@@ -166,16 +167,11 @@ export default function Home({
       </div>
 
       <div>
-        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          <a href='https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23QWKZ&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=rx6h1_MPxbJi0yMWtHIFBjv-OlKhguc9BcjT7a1br60&code_challenge_method=S256&state=3j661d3s1x474260631t2k1n5n1q4o0b&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2F'
-          >Login with Fitbit</a>
-        </button>
-        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={retrieveAccessToken}>
-          Retrieve Access Token
-        </button>
-        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={getFitBitWeightData}>
-          Get Weight Data
-        </button>
+        { !fitbitAccessToken && 
+          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={fitbitLoginHandler}>
+            Login with Fitbit
+          </button>
+        }
       </div>
 
       <main>
