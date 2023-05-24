@@ -132,9 +132,6 @@ export default function Home({
           .then(async (data) => {
             setFitbitAccessToken(data.access_token);
             localStorage.setItem('fitbitAccessToken', data.access_token);
-
-            // Clear query parameters
-            router.replace(router.pathname, undefined, { shallow: true });
           })
           .catch((error) => {
             console.error(error);
@@ -146,6 +143,8 @@ export default function Home({
   useEffect(() => {
     if (fitbitAccessToken) {
       getFitBitWeightData();
+      // Clear query parameters
+      router.replace(router.pathname, undefined, { shallow: true });
     }
   }, [fitbitAccessToken]);
   
