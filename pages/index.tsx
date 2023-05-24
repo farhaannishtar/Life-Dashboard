@@ -45,7 +45,7 @@ export default function Home({
 
   const [ouraRingSleepData, setOuraRingSleepData] = useState<ouraRingSleepData | null>(null);
   const { date, time } = useDate();
-  const [fitbitAccessToken, setFitbitAccessToken] = useState(null);
+  const [fitbitAccessToken, setFitbitAccessToken] = useState<string | null>(null);
   const [fitbitWeightData, setFitbitWeightData] = useState<WeightData | null>(null);
   const router = useRouter();
 
@@ -73,7 +73,6 @@ export default function Home({
   }, [date]);
   
   function getDates(inputDateString: string) {
-    // console.log("inputDateString: ", inputDateString)
     const inputDate = new Date(inputDateString + ", " + new Date().getFullYear());
     const currentDate = new Date(inputDate.getTime()); // copy inputDate to currentDate
     const previousDate = new Date(currentDate.getTime() - (24 * 60 * 60 * 1000)); // subtract one day in milliseconds
@@ -95,41 +94,52 @@ export default function Home({
     const url = new URL(baseUrl + router.asPath);
     const searchParams = new URLSearchParams(url.search);
     const code = searchParams.get('code');
+
     if (!code) {
       window.location.href = "https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23QWKZ&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=gElACHZHC-JmCzGhzQCNGTdOvBSghEXJ3PnBP89p-zc&code_challenge_method=S256&state=3p1d1w0j05653q6i0t1e5w4t25325z46";
-    } else {  
-      const postData = new URLSearchParams();
-      postData.append('client_id', '23QWKZ');
-      postData.append('grant_type', 'authorization_code');
-      postData.append('redirect_uri', 'http://localhost:3000/');
-      postData.append('code', `${code}`);
-      postData.append(
-        'code_verifier',
-        '4q5t6c2j2d712n5u0c4q1q081d2i5b1b6z4p0e1i5a0g3u4y1w6065535y6f4r350u2w363q0c082w3l4t5j5x6g6r6s315j6o660f470t6d2p1l4p5a24376s3y2q2u'
-      );
+    } else {
+      const storedToken = localStorage.getItem('fitbitAccessToken');
 
-      const requestOptions = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: postData.toString(),
-      };
+      if (storedToken) {
+        setFitbitAccessToken(storedToken);
+      } else {
+        const postData = new URLSearchParams();
+        postData.append('client_id', '23QWKZ');
+        postData.append('grant_type', 'authorization_code');
+        postData.append('redirect_uri', 'http://localhost:3000/');
+        postData.append('code', `${code}`);
+        postData.append(
+          'code_verifier',
+          '4q5t6c2j2d712n5u0c4q1q081d2i5b1b6z4p0e1i5a0g3u4y1w6065535y6f4r350u2w363q0c082w3l4t5j5x6g6r6s315j6o660f470t6d2p1l4p5a24376s3y2q2u'
+        );
 
-      fetch('https://api.fitbit.com/oauth2/token', requestOptions)
-        .then((response) => {
-          if (response.ok) {
-            return response.json();
-          } else {
-            throw new Error('Error: ' + response.status);
-          }
-        })
-        .then(async (data) => {
-          setFitbitAccessToken(data.access_token);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+        const requestOptions = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: postData.toString(),
+        };
+
+        fetch('https://api.fitbit.com/oauth2/token', requestOptions)
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              throw new Error('Error: ' + response.status);
+            }
+          })
+          .then(async (data) => {
+            setFitbitAccessToken(data.access_token);
+            localStorage.setItem('fitbitAccessToken', data.access_token);
+
+            // Clear query parameters
+            router.replace(router.pathname, undefined, { shallow: true });
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      }
     }
   }, []);
 
@@ -137,7 +147,6 @@ export default function Home({
     if (fitbitAccessToken) {
       getFitBitWeightData();
     }
-    console.log("Inside fitbitAccessToken useEffect")
   }, [fitbitAccessToken]);
   
   async function getFitBitWeightData() {
@@ -151,8 +160,6 @@ export default function Home({
         throw new Error("Request failed.");
       }
       const devicesData = await devicesResponse.json();
-      console.log(devicesData);
-      console.log("last sync time: ", devicesData[0].lastSyncTime)
       let lastSyncTime = devicesData[0].lastSyncTime.split("T")[0];
   
       const weightUrl = `https://api.fitbit.com/1/user/-/body/log/weight/date/2023-05-22.json`;
@@ -164,7 +171,6 @@ export default function Home({
         throw new Error("Request failed.");
       }
       const weightData = await weightResponse.json();
-      console.log("weightData: ", weightData.weight[0].weight, typeof weightData);
       setFitbitWeightData(weightData.weight[0]);
     } catch (error) {
       console.error(error);
