@@ -29,24 +29,38 @@ export async function getServerSideProps(context: any) {
   }
 }
 
-interface WeightData {
-  weight: number;
-  bmi: number;
-}
-
-interface ouraRingSleepData {
+interface OuraRingSleepData {
   score: number;
   bedtime_end: string;
+}
+
+interface FitbitWeightEntry {
+  dateTime: string;
+  value: number;
+}
+
+interface FitbitBmiDataEntry {
+  dateTime: string;
+  value: number;
+}
+
+interface FitbitWeightResponse {
+  'body-weight': FitbitWeightEntry[];
+}  
+
+interface FitbitBmiResponse {
+  'body-bmi': FitbitBmiDataEntry[]
 }
 
 export default function Home({
   isConnected,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
-  const [ouraRingSleepData, setOuraRingSleepData] = useState<ouraRingSleepData | null>(null);
+  const [ouraRingSleepData, setOuraRingSleepData] = useState<OuraRingSleepData | null>(null);
   const { date, time } = useDate();
   const [fitbitAccessToken, setFitbitAccessToken] = useState<string | null>(null);
-  const [fitbitWeightData, setFitbitWeightData] = useState<WeightData | null>(null);
+  const [fitbitWeightData, setFitbitWeightData] = useState<FitbitWeightResponse | null>(null);
+  const [fitbitBmiData, setFitbitBmiData] = useState<FitbitBmiResponse | null>(null); 
   const router = useRouter();
 
   useEffect(() => {
@@ -89,6 +103,15 @@ export default function Home({
     return [formattedCurrentDate, formattedPreviousDate];
   }
 
+  const getCurrentNYCDate = (): string => {
+    const now = new Date();
+    const year = now.getFullYear().toString();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const currentDate = `${year}-${month}-${day}`;
+    return currentDate;
+  };
+
   useEffect(() => {
     const baseUrl = window.location.origin;
     const url = new URL(baseUrl + router.asPath);
@@ -96,7 +119,7 @@ export default function Home({
     const code = searchParams.get('code');
 
     if (!code) {
-      window.location.href = "https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23QWKZ&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=gElACHZHC-JmCzGhzQCNGTdOvBSghEXJ3PnBP89p-zc&code_challenge_method=S256&state=3p1d1w0j05653q6i0t1e5w4t25325z46";
+      window.location.href = "https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23QWKZ&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=hawedbatEat2aPlr-_77otnM1OEnRlbv-RkFv0hkkIs&code_challenge_method=S256&state=0l2a2i6r4b3z636u6k4k234e3s4b5y72&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2F";
     } else {
       const storedToken = localStorage.getItem('fitbitAccessToken');
 
@@ -110,7 +133,7 @@ export default function Home({
         postData.append('code', `${code}`);
         postData.append(
           'code_verifier',
-          '4q5t6c2j2d712n5u0c4q1q081d2i5b1b6z4p0e1i5a0g3u4y1w6065535y6f4r350u2w363q0c082w3l4t5j5x6g6r6s315j6o660f470t6d2p1l4p5a24376s3y2q2u'
+          '624p626c571z506e4x6q03586y563h5c2l4w163m6q220l1f1p0h3n215p6c6f096q3f65484k6z6q1v5k550i2x2f5i3901610a27101u3z2l0u2t5x4p49071c123z'
         );
 
         const requestOptions = {
@@ -130,6 +153,7 @@ export default function Home({
             }
           })
           .then(async (data) => {
+            console.log('Success:', data);
             setFitbitAccessToken(data.access_token);
             localStorage.setItem('fitbitAccessToken', data.access_token);
           })
@@ -142,40 +166,54 @@ export default function Home({
 
   useEffect(() => {
     if (fitbitAccessToken) {
-      getFitBitWeightData();
+      getFitbitWeightTimeSeries();
+      getFitbitBmiTimeSeries();
       // Clear query parameters
-      router.replace(router.pathname, undefined, { shallow: true });
+      // router.replace(router.pathname, undefined, { shallow: true });
     }
   }, [fitbitAccessToken]);
   
-  async function getFitBitWeightData() {
+  async function getFitbitBmiTimeSeries() {
     try {
-      const devicesUrl = 'https://api.fitbit.com/1/user/-/devices.json';
-      const devicesHeaders = {
+      const bmiTimeSeriesUrl = 'https://api.fitbit.com/1/user/-/body/bmi/date/2023-02-23/2023-05-23.json';
+      const bmiTimeSeriesHeaders = {
         "Authorization": `Bearer ${fitbitAccessToken}`
       };
-      const devicesResponse = await fetch(devicesUrl, { headers: devicesHeaders });
-      if (!devicesResponse.ok) {
+      const bmiTimeSeriesResponse = await fetch(bmiTimeSeriesUrl, { headers: bmiTimeSeriesHeaders });
+      if (!bmiTimeSeriesResponse.ok) {
         throw new Error("Request failed.");
       }
-      const devicesData = await devicesResponse.json();
-      let lastSyncTime = devicesData[0].lastSyncTime.split("T")[0];
-  
-      const weightUrl = `https://api.fitbit.com/1/user/-/body/log/weight/date/2023-05-22.json`;
-      const weightHeaders = {
+      const bmiTimeSeriesResponseData = await bmiTimeSeriesResponse.json();
+      console.log("bmi time series data", bmiTimeSeriesResponseData);
+      setFitbitBmiData(bmiTimeSeriesResponseData);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function getFitbitWeightTimeSeries() {
+    try {
+      let date = getCurrentNYCDate();
+      console.log("date: ", date);
+      const weightTimeSeriesUrl = `https://api.fitbit.com/1/user/-/body/weight/date/2023-02-23/${date}.json`;
+      const weightTimeSeriesHeaders = {
         "Authorization": `Bearer ${fitbitAccessToken}`
       };
-      const weightResponse = await fetch(weightUrl, { headers: weightHeaders });
-      if (!weightResponse.ok) {
+      const weightTimeSeriesResponse = await fetch(weightTimeSeriesUrl, { headers: weightTimeSeriesHeaders });
+      if (!weightTimeSeriesResponse.ok) {
         throw new Error("Request failed.");
       }
-      const weightData = await weightResponse.json();
-      setFitbitWeightData(weightData.weight[0]);
+      const weightTimeSeriesResponseData = await weightTimeSeriesResponse.json();
+      console.log("weight time series data: ", weightTimeSeriesResponseData);
+      setFitbitWeightData(weightTimeSeriesResponseData);
     } catch (error) {
       console.error(error);
     }
   }
   
+  // console.log("fitbit weight data: ", fitbitWeightData);
+  // console.log("fitbit bmi data: ", fitbitBmiData);
+
   return (
     <div className="container">
       <Head>
@@ -195,12 +233,10 @@ export default function Home({
       <main>
         <div className='mb-6'>
           <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Fitbit Data</h2>
-          {
-            fitbitWeightData && <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Most recent weight: {fitbitWeightData.weight * 2.2} kilos</p> 
-          }
-          {
-            fitbitWeightData && <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Most recent BMI: {fitbitWeightData.bmi}</p> 
-          }
+          <div className='flex gap-1'>
+            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Latest Weight Measurement:</p>
+            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{fitbitWeightData && fitbitWeightData["body-weight"] ? fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value : ''}</p>
+          </div>
         </div>
         <div>
           <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Oura Ring Data</h2>
