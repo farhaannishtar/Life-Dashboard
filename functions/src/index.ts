@@ -1,19 +1,57 @@
+import * as functions from "firebase-functions";
+import * as admin from "firebase-admin";
+
+interface Sample {
+  type: string;
+  date: string;
+  value: string;
+  unit: string;
+}
+
+interface SampleDocumentData extends Pick<Sample, "type" | "value" | "unit"> {
+  date: FirebaseFirestore.Timestamp;
+}
+
+interface Body {
+  data: Sample[];
+}
+
+admin.initializeApp();
+
+const db = admin.firestore();
+
 /**
- * Import function triggers from their respective submodules:
- *
- * import {onCall} from "firebase-functions/v2/https";
- * import {onDocumentWritten} from "firebase-functions/v2/firestore";
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
+ * @function
+ * @param {functions.https.Request} request
+ * @param {functions.Response<any>} response
+ * @returns {void}
  */
+export const appleHealth = functions
+  .region("asia-southeast1")
+  .https.onRequest(async (request, response) => {
+    // eslint-disable-next-line object-curly-spacing
+    const { data }: Body = request.body;
+    console.log(JSON.stringify(data));
+    const batch = db.batch();
+    const collection = db.collection("apple-health");
 
-import {onRequest} from "firebase-functions/v2/https";
-import * as logger from "firebase-functions/logger";
+    data.forEach((sample) => {
+      const sampleDocumentData = createSampleDocumentData(sample);
+      batch.set(collection.doc(), sampleDocumentData, {});
+      console.log(JSON.stringify(sample));
+    });
 
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
+    await batch.commit();
+    response.send("ok");
+  });
 
-// export const helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+/**
+ * @param {Sample} sample
+ * @return {SampleDocumentData}
+ */
+function createSampleDocumentData(sample: Sample): SampleDocumentData {
+  return {
+    ...sample,
+    date: admin.firestore.Timestamp.fromDate(new Date(sample.date)),
+  };
+}
