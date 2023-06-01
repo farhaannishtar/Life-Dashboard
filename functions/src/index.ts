@@ -31,14 +31,12 @@ export const appleHealth = functions
   .https.onRequest(async (request, response) => {
     // eslint-disable-next-line object-curly-spacing
     const { data }: Body = request.body;
-    console.log("Data which was from the Request Body:", JSON.stringify(data));
     const batch = db.batch();
     const collection = db.collection("apple-health");
 
     data.forEach((sample) => {
       const sampleDocumentData = createSampleDocumentData(sample);
       batch.set(collection.doc(), sampleDocumentData, {});
-      console.log("This is the sample: ", JSON.stringify(sample));
     });
 
     await batch.commit();
