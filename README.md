@@ -7,7 +7,7 @@ If you want to learn more about MongoDB, visit the following pages:
 - [MongoDB Atlas](https://mongodb.com/atlas)
 - [MongoDB Documentation](https://docs.mongodb.com/)
 
-## Deploy your own
+## Deploy
 
 Once you have access to the environment variables you'll need, deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example):
 
