@@ -1,4 +1,4 @@
-// pages/api/updateHealthData.ts
+// pages/api/updateAppleHealthData.ts
 
 import type { NextApiRequest, NextApiResponse } from "next";
 
