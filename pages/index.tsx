@@ -56,7 +56,12 @@ export default function Home({
   isConnected,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
-  const [ouraRingSleepData, setOuraRingSleepData] = useState<OuraRingSleepData | null>(null);
+  const [ouraRingSleepData, setOuraRingSleepData] = useState({ 
+    sleep: [{
+      score: '',
+      bedtime_end: '',
+    }],
+  });
   const { date, time } = useDate();
   const [fitbitAccessToken, setFitbitAccessToken] = useState<string | null>(null);
   const [fitbitWeightData, setFitbitWeightData] = useState<FitbitWeightResponse | null>(null);
@@ -76,7 +81,7 @@ export default function Home({
           let [newCurrentDate, newPreviousDate] = getDates(previousDate);
           fetchData(newCurrentDate, newPreviousDate);
         } else {
-          setOuraRingSleepData(data.sleep[0]);
+          setOuraRingSleepData(data);
         }
       } catch (error) {
         console.error(error);
@@ -85,7 +90,7 @@ export default function Home({
     const [currentDate, previousDate] = getDates(date);
     fetchData(currentDate, previousDate);
   }, [date]);
-  
+ 
   function getDates(inputDateString: string) {
     const inputDate = new Date(inputDateString + ", " + new Date().getFullYear());
     const currentDate = new Date(inputDate.getTime()); // copy inputDate to currentDate
@@ -242,12 +247,12 @@ export default function Home({
           <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Oura Ring Data</h2>
           <div className='flex gap-1'>
             <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Last Night's Sleep Score:</p>
-            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingSleepData && ouraRingSleepData ? ouraRingSleepData.score : ''}</p>
+            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingSleepData.sleep && ouraRingSleepData.sleep[0] ? ouraRingSleepData.sleep[ouraRingSleepData.sleep.length - 1].score : ''}</p>
           </div>
           <div className='flex gap-1'>
             <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Time Since Awake:</p>
-            { ouraRingSleepData
-              ? <TimeSinceAwake bedTimeEnd={ouraRingSleepData.bedtime_end} /> 
+            { ouraRingSleepData.sleep && ouraRingSleepData.sleep[0] 
+              ? <TimeSinceAwake bedTimeEnd={ouraRingSleepData.sleep[ouraRingSleepData.sleep.length - 1].bedtime_end} /> 
               : <p>Effort is the Goal</p>
             }
           </div>
