@@ -27,11 +27,6 @@ export async function getServerSideProps(context: any) {
   }
 }
 
-interface OuraRingSleepData {
-  score: number;
-  bedtime_end: string;
-}
-
 interface FitbitWeightEntry {
   dateTime: string;
   value: number;
@@ -54,24 +49,23 @@ export default function Home({
   isConnected,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
-  const [ouraRingSleepData, setOuraRingSleepData] = useState({ 
-    sleep: [{
-      score: '',
-      bedtime_end: '',
-    }],
-  });
+  const [ouraRingSleepData, setOuraRingSleepData] = useState(null);
   const [fitbitAccessToken, setFitbitAccessToken] = useState<string | null>(null);
   const [fitbitWeightData, setFitbitWeightData] = useState<FitbitWeightResponse | null>(null);
   const [fitbitBmiData, setFitbitBmiData] = useState<FitbitBmiResponse | null>(null); 
   const router = useRouter();
 
   useEffect(() => {
-    fetch('/api/ouraringpersonalinfo.ts')
+    fetch('/api/ouraringpersonalinfo')
     .then(response => response.json())
     .then(data => console.log("oura ring data:", data))
     .catch(error => console.error('Error:', error));
 
-    
+    fetch('/api/ouraringsleeplogs?start_date=2023-01-01&end_date=2023-07-11')
+    .then(response => response.json())
+    .then(data => console.log("sleep data: ", data))
+    .catch(error => console.error('Error:', error));
+
   }, []);
  
   function getDates(inputDateString: string) {
