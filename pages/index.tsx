@@ -124,7 +124,7 @@ export default function Home({
     const code = searchParams.get('code');
 
     if (!code) {
-      window.location.href = "https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23QWKZ&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=hawedbatEat2aPlr-_77otnM1OEnRlbv-RkFv0hkkIs&code_challenge_method=S256&state=0l2a2i6r4b3z636u6k4k234e3s4b5y72&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2F";
+      window.location.href = "https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23R3JP&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=VoZtdt3PCnvoKJwu1BIbSHAlHvezwW7KMwnU8WCuonU&code_challenge_method=S256&state=26151j3j5a0n38626l5q1l132d5x6o4g";
     } else {
       const storedToken = localStorage.getItem('fitbitAccessToken');
 
@@ -132,13 +132,13 @@ export default function Home({
         setFitbitAccessToken(storedToken);
       } else {
         const postData = new URLSearchParams();
-        postData.append('client_id', '23QWKZ');
+        postData.append('client_id', '23R3JP');
         postData.append('grant_type', 'authorization_code');
         postData.append('redirect_uri', 'http://localhost:3000/');
         postData.append('code', `${code}`);
         postData.append(
           'code_verifier',
-          '624p626c571z506e4x6q03586y563h5c2l4w163m6q220l1f1p0h3n215p6c6f096q3f65484k6z6q1v5k550i2x2f5i3901610a27101u3z2l0u2t5x4p49071c123z'
+          '4j713q6f1n1f3j4f5r56440f4x5i16284b4j4o5b201133225f0b4s6n1i3k02633g2p1w1x0o3c0m4o6p4t2k4u4t2k000e6c2l4i065t2u3z18613j4v5j012k531b'
         );
 
         const requestOptions = {
@@ -171,13 +171,32 @@ export default function Home({
 
   useEffect(() => {
     if (fitbitAccessToken) {
+      console.log(fitbitAccessToken);
       getFitbitWeightTimeSeries();
-      getFitbitBmiTimeSeries();
+      // getFitbitBmiTimeSeries();
       // Clear query parameters
       // router.replace(router.pathname, undefined, { shallow: true });
     }
   }, [fitbitAccessToken]);
   
+  async function getFitbitDeviceData() {
+    try {
+      const bmiTimeSeriesUrl = 'https://api.fitbit.com/1/user/-/body/bmi/date/2023-02-23/2023-05-23.json';
+      const bmiTimeSeriesHeaders = {
+        "Authorization": `Bearer ${fitbitAccessToken}`
+      };
+      const bmiTimeSeriesResponse = await fetch(bmiTimeSeriesUrl, { headers: bmiTimeSeriesHeaders });
+      if (!bmiTimeSeriesResponse.ok) {
+        throw new Error("Request failed.");
+      }
+      const bmiTimeSeriesResponseData = await bmiTimeSeriesResponse.json();
+      console.log("bmi time series data", bmiTimeSeriesResponseData);
+      setFitbitBmiData(bmiTimeSeriesResponseData);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   async function getFitbitBmiTimeSeries() {
     try {
       const bmiTimeSeriesUrl = 'https://api.fitbit.com/1/user/-/body/bmi/date/2023-02-23/2023-05-23.json';
@@ -240,7 +259,7 @@ export default function Home({
           <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Fitbit Data</h2>
           <div className='flex gap-1'>
             <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Latest Weight Measurement:</p>
-            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{fitbitWeightData && fitbitWeightData["body-weight"] ? fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value : ''}</p>
+            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{fitbitWeightData && fitbitWeightData["body-weight"] ? fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2 : ''}</p>
           </div>
         </div>
         <div>
