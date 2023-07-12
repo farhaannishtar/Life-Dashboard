@@ -158,7 +158,6 @@ export default function Home({
             }
           })
           .then(async (data) => {
-            console.log('Success:', data);
             setFitbitAccessToken(data.access_token);
             localStorage.setItem('fitbitAccessToken', data.access_token);
           })
