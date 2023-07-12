@@ -27,14 +27,12 @@ const db = admin.firestore();
  * @returns {void}
  */
 export const appleHealth = functions
-  .region("asia-southeast1")
+  .region("us-east4")
   .https.onRequest(async (request, response) => {
-    // eslint-disable-next-line object-curly-spacing
-    const { data }: Body = request.body;
     const batch = db.batch();
     const collection = db.collection("apple-health");
 
-    data.forEach((sample) => {
+    request.body.data.forEach((sample) => {
       const sampleDocumentData = createSampleDocumentData(sample);
       batch.set(collection.doc(), sampleDocumentData, {});
     });
@@ -45,7 +43,7 @@ export const appleHealth = functions
 
 /**
  * @param {Sample} sample
- * @return {SampleDocumentData}
+ * @returns {SampleDocumentData}
  */
 function createSampleDocumentData(sample: Sample): SampleDocumentData {
   return {
