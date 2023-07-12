@@ -45,11 +45,18 @@ interface FitbitBmiResponse {
   'body-bmi': FitbitBmiDataEntry[]
 }
 
+interface OuraRingSleepData {
+  data: Array<{
+    score: number;
+    // Add other fields as necessary
+  }>;
+}
+
 export default function Home({
   isConnected,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
-  const [ouraRingSleepData, setOuraRingSleepData] = useState(null);
+  const [ouraRingSleepData, setOuraRingSleepData] = useState<OuraRingSleepData | null>(null);
   const [fitbitAccessToken, setFitbitAccessToken] = useState<string | null>(null);
   const [fitbitWeightData, setFitbitWeightData] = useState<FitbitWeightResponse | null>(null);
   const [fitbitBmiData, setFitbitBmiData] = useState<FitbitBmiResponse | null>(null); 
@@ -63,7 +70,10 @@ export default function Home({
 
     fetch('/api/ouraringsleeplogs?start_date=2023-01-01&end_date=2023-07-11')
     .then(response => response.json())
-    .then(data => console.log("sleep data: ", data))
+    .then(data => {
+      console.log("sleep data: ", data)
+      setOuraRingSleepData(data);
+    })
     .catch(error => console.error('Error:', error));
 
   }, []);
@@ -206,6 +216,8 @@ export default function Home({
     }
   }
   
+  console.log("ouraRingSleepData: ", ouraRingSleepData);
+  
   return (
     <div className="container">
       <Head>
@@ -226,7 +238,7 @@ export default function Home({
           <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Oura Ring Data</h2>
           <div className='flex gap-1'>
             <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Last Night's Sleep Score:</p>
-            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingSleepData.sleep && ouraRingSleepData.sleep[0] ? ouraRingSleepData.sleep[ouraRingSleepData.sleep.length - 1].score : ''}</p>
+            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</p>
           </div>
           <div className='flex gap-1'>
             <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Time Since Awake:</p>
