@@ -3,8 +3,6 @@ import { useRouter } from 'next/router'
 import React, { useState, useEffect } from 'react'
 import clientPromise from '../lib/mongodb'
 import { InferGetServerSidePropsType } from 'next'
-import { useDate } from '../custom-hooks/useDate';
-import TimeSinceAwake from '../components/TimeSinceAwake';
 
 export async function getServerSideProps(context: any) {
   try {
@@ -29,11 +27,6 @@ export async function getServerSideProps(context: any) {
   }
 }
 
-interface OuraRingSleepData {
-  score: number;
-  bedtime_end: string;
-}
-
 interface FitbitWeightEntry {
   dateTime: string;
   value: number;
@@ -52,44 +45,38 @@ interface FitbitBmiResponse {
   'body-bmi': FitbitBmiDataEntry[]
 }
 
+interface OuraRingSleepData {
+  data: Array<{
+    score: number;
+    // Add other fields as necessary
+  }>;
+}
+
 export default function Home({
   isConnected,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
-  const [ouraRingSleepData, setOuraRingSleepData] = useState({ 
-    sleep: [{
-      score: '',
-      bedtime_end: '',
-    }],
-  });
-  const { date, time } = useDate();
+  const [ouraRingSleepData, setOuraRingSleepData] = useState<OuraRingSleepData | null>(null);
   const [fitbitAccessToken, setFitbitAccessToken] = useState<string | null>(null);
   const [fitbitWeightData, setFitbitWeightData] = useState<FitbitWeightResponse | null>(null);
   const [fitbitBmiData, setFitbitBmiData] = useState<FitbitBmiResponse | null>(null); 
   const router = useRouter();
 
   useEffect(() => {
-    const fetchData = async (currentDate: string, previousDate: string): Promise<void> => {
-      try {
-        const response = await fetch(`https://api.ouraring.com/v1/sleep?start=${previousDate}&end=${currentDate}`, {
-          headers: {
-            'Authorization': 'Bearer 7FADD6MJ4TRXKFR33QOFYKGXH5P53T3J'
-          }
-        });
-        const data = await response.json();
-        if (data.sleep.length === 0) {
-          let [newCurrentDate, newPreviousDate] = getDates(previousDate);
-          fetchData(newCurrentDate, newPreviousDate);
-        } else {
-          setOuraRingSleepData(data);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    const [currentDate, previousDate] = getDates(date);
-    fetchData(currentDate, previousDate);
-  }, [date]);
+    fetch('/api/ouraringpersonalinfo')
+    .then(response => response.json())
+    .then(data => console.log("oura ring data:", data))
+    .catch(error => console.error('Error:', error));
+
+    fetch('/api/ouraringsleeplogs?start_date=2023-01-01&end_date=2023-07-11')
+    .then(response => response.json())
+    .then(data => {
+      console.log("sleep data: ", data)
+      setOuraRingSleepData(data);
+    })
+    .catch(error => console.error('Error:', error));
+
+  }, []);
  
   function getDates(inputDateString: string) {
     const inputDate = new Date(inputDateString + ", " + new Date().getFullYear());
@@ -158,7 +145,6 @@ export default function Home({
             }
           })
           .then(async (data) => {
-            console.log('Success:', data);
             setFitbitAccessToken(data.access_token);
             localStorage.setItem('fitbitAccessToken', data.access_token);
           })
@@ -171,7 +157,6 @@ export default function Home({
 
   useEffect(() => {
     if (fitbitAccessToken) {
-      console.log(fitbitAccessToken);
       getFitbitWeightTimeSeries();
       // getFitbitBmiTimeSeries();
       // Clear query parameters
@@ -190,7 +175,6 @@ export default function Home({
         throw new Error("Request failed.");
       }
       const bmiTimeSeriesResponseData = await bmiTimeSeriesResponse.json();
-      console.log("bmi time series data", bmiTimeSeriesResponseData);
       setFitbitBmiData(bmiTimeSeriesResponseData);
     } catch (error) {
       console.error(error);
@@ -208,7 +192,6 @@ export default function Home({
         throw new Error("Request failed.");
       }
       const bmiTimeSeriesResponseData = await bmiTimeSeriesResponse.json();
-      console.log("bmi time series data", bmiTimeSeriesResponseData);
       setFitbitBmiData(bmiTimeSeriesResponseData);
     } catch (error) {
       console.error(error);
@@ -218,7 +201,6 @@ export default function Home({
   async function getFitbitWeightTimeSeries() {
     try {
       let date = getCurrentNYCDate();
-      console.log("date: ", date);
       const weightTimeSeriesUrl = `https://api.fitbit.com/1/user/-/body/weight/date/2023-02-23/${date}.json`;
       const weightTimeSeriesHeaders = {
         "Authorization": `Bearer ${fitbitAccessToken}`
@@ -228,16 +210,14 @@ export default function Home({
         throw new Error("Request failed.");
       }
       const weightTimeSeriesResponseData = await weightTimeSeriesResponse.json();
-      console.log("weight time series data: ", weightTimeSeriesResponseData);
       setFitbitWeightData(weightTimeSeriesResponseData);
     } catch (error) {
       console.error(error);
     }
   }
   
-  // console.log("fitbit weight data: ", fitbitWeightData);
-  // console.log("fitbit bmi data: ", fitbitBmiData);
-
+  console.log("ouraRingSleepData: ", ouraRingSleepData);
+  
   return (
     <div className="container">
       <Head>
@@ -245,35 +225,23 @@ export default function Home({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <h1 className="title">Life Dashboard</h1>
-      <div>
-        <h3>
-          {date}
-          <br />
-          {time}
-          <br />
-        </h3>
-      </div>
 
       <main>
         <div className='mb-6'>
           <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Fitbit Data</h2>
           <div className='flex gap-1'>
             <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Latest Weight Measurement:</p>
-            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{fitbitWeightData && fitbitWeightData["body-weight"] ? fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2 : ''}</p>
+            <p className='mb- 2mt-0 text-3xl font-medium leading-tight text-primary'>{fitbitWeightData && fitbitWeightData["body-weight"] ? fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2 : ''}</p>
           </div>
         </div>
         <div>
           <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Oura Ring Data</h2>
           <div className='flex gap-1'>
             <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Last Night's Sleep Score:</p>
-            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingSleepData.sleep && ouraRingSleepData.sleep[0] ? ouraRingSleepData.sleep[ouraRingSleepData.sleep.length - 1].score : ''}</p>
+            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</p>
           </div>
           <div className='flex gap-1'>
             <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Time Since Awake:</p>
-            { ouraRingSleepData.sleep && ouraRingSleepData.sleep[0] 
-              ? <TimeSinceAwake bedTimeEnd={ouraRingSleepData.sleep[ouraRingSleepData.sleep.length - 1].bedtime_end} /> 
-              : <p>Effort is the Goal</p>
-            }
           </div>
 
         </div>
