@@ -6,6 +6,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@firebase/firestore": "^4.0.0",
     "@types/next-auth": "^3.15.0",
     "axios": "^1.4.0",
     "express": "^4.18.2",
