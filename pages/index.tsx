@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import React, { useState, useEffect } from 'react'
 import clientPromise from '../lib/mongodb'
 import { InferGetServerSidePropsType } from 'next'
+import { AppleHealthData } from 'components/AppleHealthData'
 
 export async function getServerSideProps(context: any) {
   try {
@@ -227,7 +228,7 @@ export default function Home({
       <h1 className="title">Life Dashboard</h1>
 
       <main>
-        <div className='mb-6'>
+        <div>
           <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Fitbit Data</h2>
           <div className='flex gap-1'>
             <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Latest Weight Measurement:</p>
@@ -240,10 +241,7 @@ export default function Home({
             <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Last Night's Sleep Score:</p>
             <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</p>
           </div>
-          <div className='flex gap-1'>
-            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Time Since Awake:</p>
-          </div>
-
+          <AppleHealthData />
         </div>
       </main>
 
