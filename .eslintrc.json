@@ -1,4 +1,8 @@
 {
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
   "rules": {
     "object-curly-spacing": ["error", "never"]
   }
