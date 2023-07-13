@@ -29,10 +29,11 @@ const db = admin.firestore();
 export const appleHealth = functions
   .region("us-east4")
   .https.onRequest(async (request, response) => {
+    const { data }: Body = request.body;
     const batch = db.batch();
     const collection = db.collection("apple-health");
 
-    request.body.data.forEach((sample) => {
+    data.forEach((sample) => {
       const sampleDocumentData = createSampleDocumentData(sample);
       batch.set(collection.doc(), sampleDocumentData, {});
     });
