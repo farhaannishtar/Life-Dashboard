@@ -41,7 +41,7 @@ export const AppleHealthData = () => {
       )}
       {activeCalories && (
         <div className='flex gap-1'>
-          <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Active Calories</p>
+          <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Last 24-hour Burned Active Calories</p>
           <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{Math.round(Number(activeCalories.value))} {activeCalories.unit}</p>
         </div>
       )}

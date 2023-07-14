@@ -66,13 +66,11 @@ export default function Home({
   useEffect(() => {
     fetch('/api/ouraringpersonalinfo')
     .then(response => response.json())
-    .then(data => console.log("oura ring data:", data))
     .catch(error => console.error('Error:', error));
 
     fetch('/api/ouraringsleeplogs?start_date=2023-01-01&end_date=2023-07-11')
     .then(response => response.json())
     .then(data => {
-      console.log("sleep data: ", data)
       setOuraRingSleepData(data);
     })
     .catch(error => console.error('Error:', error));
@@ -105,56 +103,114 @@ export default function Home({
     return currentDate;
   };
 
-  useEffect(() => {
-    const baseUrl = window.location.origin;
-    const url = new URL(baseUrl + router.asPath);
-    const searchParams = new URLSearchParams(url.search);
-    const code = searchParams.get('code');
+  // Helper function to generate a cryptographically random string
+const generateRandomString = (length = 64) => {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let randomString = '';
+  const randomValues = new Uint8Array(length);
+  const crypto = window.crypto || window.crypto;
 
-    if (!code) {
-      window.location.href = "https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23R3JP&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=VoZtdt3PCnvoKJwu1BIbSHAlHvezwW7KMwnU8WCuonU&code_challenge_method=S256&state=26151j3j5a0n38626l5q1l132d5x6o4g";
-    } else {
-      const storedToken = localStorage.getItem('fitbitAccessToken');
-
-      if (storedToken) {
-        setFitbitAccessToken(storedToken);
-      } else {
-        const postData = new URLSearchParams();
-        postData.append('client_id', '23R3JP');
-        postData.append('grant_type', 'authorization_code');
-        postData.append('redirect_uri', 'http://localhost:3000/');
-        postData.append('code', `${code}`);
-        postData.append(
-          'code_verifier',
-          '4j713q6f1n1f3j4f5r56440f4x5i16284b4j4o5b201133225f0b4s6n1i3k02633g2p1w1x0o3c0m4o6p4t2k4u4t2k000e6c2l4i065t2u3z18613j4v5j012k531b'
-        );
-
-        const requestOptions = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: postData.toString(),
-        };
-
-        fetch('https://api.fitbit.com/oauth2/token', requestOptions)
-          .then((response) => {
-            if (response.ok) {
-              return response.json();
-            } else {
-              throw new Error('Error: ' + response.status);
-            }
-          })
-          .then(async (data) => {
-            setFitbitAccessToken(data.access_token);
-            localStorage.setItem('fitbitAccessToken', data.access_token);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      }
+  if (crypto && crypto.getRandomValues) {
+    crypto.getRandomValues(randomValues);
+    for (let i = 0; i < length; i++) {
+      randomString += characters[randomValues[i] % characters.length];
     }
-  }, []);
+  } else {
+    // Fallback for older browsers
+    for (let i = 0; i < length; i++) {
+      randomString += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+  }
+
+  return randomString;
+};
+
+// Helper function to generate the SHA-256 hash of a string
+const generateSHA256Hash = async (str: any) => {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const buffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(buffer));
+  const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+};
+
+// Helper function to base64 URL encode a string
+const base64UrlEncode = (str: string): Promise<string> => {
+  return new Promise((resolve) => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(str);
+    window.crypto.subtle.digest('SHA-256', data).then((buffer) => {
+      const hashArray = Array.from(new Uint8Array(buffer));
+      const hashHex = hashArray.map((byte) => byte.toString(16).padStart(2, '0')).join('');
+      const base64 = btoa(hashHex);
+      const encodedString = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      resolve(encodedString);
+    });
+  });
+};
+
+
+useEffect(() => {
+  const baseUrl = window.location.origin;
+  const url = new URL(baseUrl + window.location.pathname + window.location.search);
+  const searchParams = new URLSearchParams(url.search);
+  const code = searchParams.get('code');
+  const codeVerifier = generateRandomString();
+
+  if (!code) {
+    // Handle the case when the authorization code is not present
+    // Redirect the user to the authorization page
+    base64UrlEncode(codeVerifier).then((codeChallenge) => {
+      const state = generateRandomString();
+
+      const authorizationUrl = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23R3JP&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=${codeChallenge}&code_challenge_method=S256&state=${state}`;
+      window.location.href = authorizationUrl;
+    });
+  } else {
+    const storedToken = localStorage.getItem('fitbitAccessToken');
+
+    if (storedToken) {
+      setFitbitAccessToken(storedToken);
+    } else {
+      const postData = new URLSearchParams();
+      postData.append('client_id', '23R3JP');
+      postData.append('grant_type', 'authorization_code');
+      postData.append('redirect_uri', 'http://localhost:3000/');
+      postData.append('code', code);
+      postData.append('code_verifier', codeVerifier);
+
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': 'Basic ' + btoa('23R3JP:17b75d8e70602829e45562f196834dfc'),
+        },
+        body: postData.toString(),
+      };
+
+      fetch('https://api.fitbit.com/oauth2/token', requestOptions)
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error('Error: ' + response.status);
+          }
+        })
+        .then((data) => {
+          setFitbitAccessToken(data.access_token);
+          localStorage.setItem('fitbitAccessToken', data.access_token);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  }
+}, []);
+
+  
+
+  console.log("fitbitAccessToken: ", fitbitAccessToken);
 
   useEffect(() => {
     if (fitbitAccessToken) {
@@ -217,7 +273,7 @@ export default function Home({
     }
   }
   
-  console.log("ouraRingSleepData: ", ouraRingSleepData);
+  // console.log("ouraRingSleepData: ", ouraRingSleepData);
   
   return (
     <div className="container">
