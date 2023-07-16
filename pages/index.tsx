@@ -208,8 +208,6 @@ useEffect(() => {
   }
 }, []);
 
-  
-
   console.log("fitbitAccessToken: ", fitbitAccessToken);
 
   useEffect(() => {
