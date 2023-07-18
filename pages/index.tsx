@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useState, useEffect } from 'react'
+import crypto from 'crypto';
 import clientPromise from '../lib/mongodb'
 import { InferGetServerSidePropsType } from 'next'
 import { AppleHealthData } from 'components/AppleHealthData'
@@ -103,110 +104,23 @@ export default function Home({
     return currentDate;
   };
 
-  // Helper function to generate a cryptographically random string
-const generateRandomString = (length = 64) => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let randomString = '';
-  const randomValues = new Uint8Array(length);
-  const crypto = window.crypto || window.crypto;
-
-  if (crypto && crypto.getRandomValues) {
-    crypto.getRandomValues(randomValues);
-    for (let i = 0; i < length; i++) {
-      randomString += characters[randomValues[i] % characters.length];
-    }
-  } else {
-    // Fallback for older browsers
-    for (let i = 0; i < length; i++) {
-      randomString += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
+  function base64URLEncode(str: Buffer) {
+    return str.toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
   }
-
-  return randomString;
-};
-
-// Helper function to generate the SHA-256 hash of a string
-const generateSHA256Hash = async (str: any) => {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(str);
-  const buffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(buffer));
-  const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
-  return hashHex;
-};
-
-// Helper function to base64 URL encode a string
-const base64UrlEncode = (str: string): Promise<string> => {
-  return new Promise((resolve) => {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(str);
-    window.crypto.subtle.digest('SHA-256', data).then((buffer) => {
-      const hashArray = Array.from(new Uint8Array(buffer));
-      const hashHex = hashArray.map((byte) => byte.toString(16).padStart(2, '0')).join('');
-      const base64 = btoa(hashHex);
-      const encodedString = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-      resolve(encodedString);
-    });
-  });
-};
-
-
-useEffect(() => {
-  const baseUrl = window.location.origin;
-  const url = new URL(baseUrl + window.location.pathname + window.location.search);
-  const searchParams = new URLSearchParams(url.search);
-  const code = searchParams.get('code');
-  const codeVerifier = generateRandomString();
-
-  if (!code) {
-    // Handle the case when the authorization code is not present
-    // Redirect the user to the authorization page
-    base64UrlEncode(codeVerifier).then((codeChallenge) => {
-      const state = generateRandomString();
-
-      const authorizationUrl = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23R3JP&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=${codeChallenge}&code_challenge_method=S256&state=${state}`;
-      window.location.href = authorizationUrl;
-    });
-  } else {
-    const storedToken = localStorage.getItem('fitbitAccessToken');
-
-    if (storedToken) {
-      setFitbitAccessToken(storedToken);
-    } else {
-      const postData = new URLSearchParams();
-      postData.append('client_id', '23R3JP');
-      postData.append('grant_type', 'authorization_code');
-      postData.append('redirect_uri', 'http://localhost:3000/');
-      postData.append('code', code);
-      postData.append('code_verifier', codeVerifier);
-
-      const requestOptions = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': 'Basic ' + btoa('23R3JP:17b75d8e70602829e45562f196834dfc'),
-        },
-        body: postData.toString(),
-      };
-
-      fetch('https://api.fitbit.com/oauth2/token', requestOptions)
-        .then((response) => {
-          if (response.ok) {
-            return response.json();
-          } else {
-            throw new Error('Error: ' + response.status);
-          }
-        })
-        .then((data) => {
-          setFitbitAccessToken(data.access_token);
-          localStorage.setItem('fitbitAccessToken', data.access_token);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
+  
+  function sha256(buffer: Buffer) {
+    return crypto.createHash('sha256').update(buffer).digest();
   }
-}, []);
+  
+  let verifier = base64URLEncode(crypto.randomBytes(32));
+  let challenge = base64URLEncode(sha256(Buffer.from(verifier, 'base64')));
+
+
+  console.log('this: ', verifier, challenge);
+
 
   console.log("fitbitAccessToken: ", fitbitAccessToken);
 
