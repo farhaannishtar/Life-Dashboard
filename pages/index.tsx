@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import Image from 'next/image';
 import { useRouter } from 'next/router'
 import React, { useState, useEffect } from 'react'
 import crypto from 'crypto';
@@ -253,8 +254,16 @@ export default function Home({
       </Head>
       
       
-      <div>
-        <h1 className="title">Good Morning, Faraaz!</h1>
+      <div className='flex justify-between border border-red w-full'>
+        <p className="text-lg">Good Morning, Faraaz!</p>
+        <div>
+        <Image
+          src="/images/logo.png" // Path is relative to the public folder
+          alt="Life Dashboard"
+          width={200} // width and height are required, change as per your requirements
+          height={300}
+          />
+        </div>
       </div>
 
       <main>
