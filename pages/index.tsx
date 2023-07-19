@@ -170,6 +170,7 @@ export default function Home({
             const jsonData = await response.json();
             console.log("jsonData: ", jsonData);
             setFitbitAccessToken(jsonData.access_token)
+            localStorage.setItem('fitbitAccessToken', jsonData.access_token);
           } else {
             console.log('HTTP-Error: ' + response.status);
           }
@@ -250,7 +251,11 @@ export default function Home({
         <title>Life Dashboard</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <h1 className="title">Life Dashboard</h1>
+      
+      
+      <div>
+        <h1 className="title">Good Morning, Faraaz!</h1>
+      </div>
 
       <main>
         <div>
