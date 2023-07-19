@@ -255,12 +255,12 @@ export default function Home({
       
       
       <div className='flex justify-between border border-red w-full'>
-        <p className="text-lg">Good Morning, Faraaz!</p>
+        <p className="text-lg border border-red">Good Morning, Faraaz!</p>
         <div>
         <Image
-          src="/images/logo.png" // Path is relative to the public folder
+          src="/images/logo.png"
           alt="Life Dashboard"
-          width={200} // width and height are required, change as per your requirements
+          width={200} 
           height={300}
           />
         </div>
