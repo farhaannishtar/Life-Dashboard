@@ -1,6 +1,8 @@
 import Head from 'next/head'
+import Image from 'next/image';
 import { useRouter } from 'next/router'
 import React, { useState, useEffect } from 'react'
+import crypto from 'crypto';
 import clientPromise from '../lib/mongodb'
 import { InferGetServerSidePropsType } from 'next'
 import { AppleHealthData } from 'components/AppleHealthData'
@@ -66,13 +68,11 @@ export default function Home({
   useEffect(() => {
     fetch('/api/ouraringpersonalinfo')
     .then(response => response.json())
-    .then(data => console.log("oura ring data:", data))
     .catch(error => console.error('Error:', error));
 
     fetch('/api/ouraringsleeplogs?start_date=2023-01-01&end_date=2023-07-11')
     .then(response => response.json())
     .then(data => {
-      console.log("sleep data: ", data)
       setOuraRingSleepData(data);
     })
     .catch(error => console.error('Error:', error));
@@ -105,57 +105,84 @@ export default function Home({
     return currentDate;
   };
 
+  // Dependency: Node.js crypto module
+  // https://nodejs.org/api/crypto.html#crypto_crypto
+  function base64URLEncode(str: any) {
+    return str.toString('base64')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
+  }
+  
+  // Dependency: Node.js crypto module
+  // https://nodejs.org/api/crypto.html#crypto_crypto
+  function sha256(buffer: any) {
+    return crypto.createHash('sha256').update(buffer).digest();
+  }
+
   useEffect(() => {
     const baseUrl = window.location.origin;
     const url = new URL(baseUrl + router.asPath);
     const searchParams = new URLSearchParams(url.search);
     const code = searchParams.get('code');
+    console.log("code at beginning: ", code)
+    let verifier: any;
+    let challenge: any;
 
     if (!code) {
-      window.location.href = "https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23R3JP&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=VoZtdt3PCnvoKJwu1BIbSHAlHvezwW7KMwnU8WCuonU&code_challenge_method=S256&state=26151j3j5a0n38626l5q1l132d5x6o4g";
+      verifier = base64URLEncode(crypto.randomBytes(32));
+      challenge = base64URLEncode(sha256(verifier));
+      const fitbitAuthUrl = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23R3JP&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=${challenge}&code_challenge_method=S256`
+      console.log("fitbitAuthUrl: ", fitbitAuthUrl)
+      console.log("verifier: ", verifier)
+      localStorage.setItem('verifier', verifier);
+      router.push(fitbitAuthUrl);
+    }
+    const storedToken = localStorage.getItem('fitbitAccessToken');
+
+    if (storedToken) {
+      setFitbitAccessToken(storedToken);
+      console.log("token exists")
     } else {
-      const storedToken = localStorage.getItem('fitbitAccessToken');
-
-      if (storedToken) {
-        setFitbitAccessToken(storedToken);
-      } else {
-        const postData = new URLSearchParams();
-        postData.append('client_id', '23R3JP');
-        postData.append('grant_type', 'authorization_code');
-        postData.append('redirect_uri', 'http://localhost:3000/');
-        postData.append('code', `${code}`);
-        postData.append(
-          'code_verifier',
-          '4j713q6f1n1f3j4f5r56440f4x5i16284b4j4o5b201133225f0b4s6n1i3k02633g2p1w1x0o3c0m4o6p4t2k4u4t2k000e6c2l4i065t2u3z18613j4v5j012k531b'
-        );
-
-        const requestOptions = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: postData.toString(),
-        };
-
-        fetch('https://api.fitbit.com/oauth2/token', requestOptions)
-          .then((response) => {
-            if (response.ok) {
-              return response.json();
-            } else {
-              throw new Error('Error: ' + response.status);
-            }
-          })
-          .then(async (data) => {
-            setFitbitAccessToken(data.access_token);
-            localStorage.setItem('fitbitAccessToken', data.access_token);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      }
+        // console.log("code: ", code)
+        verifier = localStorage.getItem('verifier');
+        async function sendFitbitRequest() {
+          const clientId = '23R3JP';
+          const grantType = 'authorization_code';
+          const url = 'https://api.fitbit.com/oauth2/token';
+          const params = new URLSearchParams();
+        
+          params.append('client_id', clientId);
+          params.append('grant_type', grantType);
+          params.append('code', code || "");
+          params.append('code_verifier', verifier);
+        
+          const requestOptions: RequestInit = {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: params,
+          };
+        
+          const response = await fetch(url, requestOptions);
+        
+          if (response.ok) {
+            const jsonData = await response.json();
+            console.log("jsonData: ", jsonData);
+            setFitbitAccessToken(jsonData.access_token)
+            localStorage.setItem('fitbitAccessToken', jsonData.access_token);
+          } else {
+            console.log('HTTP-Error: ' + response.status);
+          }
+        }
+        console.log('I am gong to figure this out')
+        sendFitbitRequest();
     }
   }, []);
-
+  
+  console.log("fitbitAccessToken: ", fitbitAccessToken);
+  
   useEffect(() => {
     if (fitbitAccessToken) {
       getFitbitWeightTimeSeries();
@@ -217,7 +244,7 @@ export default function Home({
     }
   }
   
-  console.log("ouraRingSleepData: ", ouraRingSleepData);
+  // console.log("ouraRingSleepData: ", ouraRingSleepData);
   
   return (
     <div className="container">
@@ -225,7 +252,19 @@ export default function Home({
         <title>Life Dashboard</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <h1 className="title">Life Dashboard</h1>
+      
+      
+      <div className='flex justify-between border border-red w-full'>
+        <p className="text-lg border border-red">Good Morning, Faraaz!</p>
+        <div>
+        <Image
+          src="/images/logo.png"
+          alt="Life Dashboard"
+          width={200} 
+          height={300}
+          />
+        </div>
+      </div>
 
       <main>
         <div>
