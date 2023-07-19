@@ -104,26 +104,83 @@ export default function Home({
     return currentDate;
   };
 
-  function base64URLEncode(str: Buffer) {
+  // Dependency: Node.js crypto module
+  // https://nodejs.org/api/crypto.html#crypto_crypto
+  function base64URLEncode(str: any) {
     return str.toString('base64')
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '');
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
   }
   
-  function sha256(buffer: Buffer) {
+  // Dependency: Node.js crypto module
+  // https://nodejs.org/api/crypto.html#crypto_crypto
+  function sha256(buffer: any) {
     return crypto.createHash('sha256').update(buffer).digest();
   }
+
+  useEffect(() => {
+    const baseUrl = window.location.origin;
+    const url = new URL(baseUrl + router.asPath);
+    const searchParams = new URLSearchParams(url.search);
+    const code = searchParams.get('code');
+    console.log("code at beginning: ", code)
+    let verifier: any;
+    let challenge: any;
+
+    if (!code) {
+      verifier = base64URLEncode(crypto.randomBytes(32));
+      challenge = base64URLEncode(sha256(verifier));
+      const fitbitAuthUrl = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23R3JP&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=${challenge}&code_challenge_method=S256`
+      console.log("fitbitAuthUrl: ", fitbitAuthUrl)
+      console.log("verifier: ", verifier)
+      localStorage.setItem('verifier', verifier);
+      router.push(fitbitAuthUrl);
+    }
+    const storedToken = localStorage.getItem('fitbitAccessToken');
+
+    if (storedToken) {
+      setFitbitAccessToken(storedToken);
+      console.log("token exists")
+    } else {
+        // console.log("code: ", code)
+        verifier = localStorage.getItem('verifier');
+        async function sendFitbitRequest() {
+          const clientId = '23R3JP';
+          const grantType = 'authorization_code';
+          const url = 'https://api.fitbit.com/oauth2/token';
+          const params = new URLSearchParams();
+        
+          params.append('client_id', clientId);
+          params.append('grant_type', grantType);
+          params.append('code', code || "");
+          params.append('code_verifier', verifier);
+        
+          const requestOptions: RequestInit = {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: params,
+          };
+        
+          const response = await fetch(url, requestOptions);
+        
+          if (response.ok) {
+            const jsonData = await response.json();
+            console.log("jsonData: ", jsonData);
+            setFitbitAccessToken(jsonData.access_token)
+          } else {
+            console.log('HTTP-Error: ' + response.status);
+          }
+        }
+        console.log('I am gong to figure this out')
+        sendFitbitRequest();
+    }
+  }, []);
   
-  let verifier = base64URLEncode(crypto.randomBytes(32));
-  let challenge = base64URLEncode(sha256(Buffer.from(verifier, 'base64')));
-
-
-  console.log('this: ', verifier, challenge);
-
-
   console.log("fitbitAccessToken: ", fitbitAccessToken);
-
+  
   useEffect(() => {
     if (fitbitAccessToken) {
       getFitbitWeightTimeSeries();
