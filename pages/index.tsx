@@ -62,7 +62,6 @@ export default function Home({
   const [ouraRingSleepData, setOuraRingSleepData] = useState<OuraRingSleepData | null>(null);
   const [fitbitAccessToken, setFitbitAccessToken] = useState<string | null>(null);
   const [fitbitWeightData, setFitbitWeightData] = useState<FitbitWeightResponse | null>(null);
-  const [fitbitBmiData, setFitbitBmiData] = useState<FitbitBmiResponse | null>(null); 
   const router = useRouter();
 
   useEffect(() => {
@@ -79,34 +78,7 @@ export default function Home({
 
   }, []);
  
-  function getDates(inputDateString: string) {
-    const inputDate = new Date(inputDateString + ", " + new Date().getFullYear());
-    const currentDate = new Date(inputDate.getTime()); // copy inputDate to currentDate
-    const previousDate = new Date(currentDate.getTime() - (24 * 60 * 60 * 1000)); // subtract one day in milliseconds
-    const year = previousDate.getFullYear();
-    const month = String(previousDate.getMonth() + 1).padStart(2, "0");
-    const day = String(previousDate.getDate()).padStart(2, "0");
-    const formattedPreviousDate = `${year}-${month}-${day}`;
-  
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = String(currentDate.getMonth() + 1).padStart(2, "0");
-    const currentDay = String(currentDate.getDate()).padStart(2, "0");
-    const formattedCurrentDate = `${currentYear}-${currentMonth}-${currentDay}`;
-  
-    return [formattedCurrentDate, formattedPreviousDate];
-  }
-
-  const getCurrentNYCDate = (): string => {
-    const now = new Date();
-    const year = now.getFullYear().toString();
-    const month = (now.getMonth() + 1).toString().padStart(2, '0');
-    const day = now.getDate().toString().padStart(2, '0');
-    const currentDate = `${year}-${month}-${day}`;
-    return currentDate;
-  };
-
   // Dependency: Node.js crypto module
-  // https://nodejs.org/api/crypto.html#crypto_crypto
   function base64URLEncode(str: any) {
     return str.toString('base64')
         .replace(/\+/g, '-')
@@ -115,7 +87,6 @@ export default function Home({
   }
   
   // Dependency: Node.js crypto module
-  // https://nodejs.org/api/crypto.html#crypto_crypto
   function sha256(buffer: any) {
     return crypto.createHash('sha256').update(buffer).digest();
   }
@@ -125,7 +96,6 @@ export default function Home({
     const url = new URL(baseUrl + router.asPath);
     const searchParams = new URLSearchParams(url.search);
     const code = searchParams.get('code');
-    console.log("code at beginning: ", code)
     let verifier: any;
     let challenge: any;
 
@@ -133,8 +103,6 @@ export default function Home({
       verifier = base64URLEncode(crypto.randomBytes(32));
       challenge = base64URLEncode(sha256(verifier));
       const fitbitAuthUrl = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23R3JP&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=${challenge}&code_challenge_method=S256`
-      console.log("fitbitAuthUrl: ", fitbitAuthUrl)
-      console.log("verifier: ", verifier)
       localStorage.setItem('verifier', verifier);
       router.push(fitbitAuthUrl);
     }
@@ -169,19 +137,17 @@ export default function Home({
         
           if (response.ok) {
             const jsonData = await response.json();
-            console.log("jsonData: ", jsonData);
             setFitbitAccessToken(jsonData.access_token)
             localStorage.setItem('fitbitAccessToken', jsonData.access_token);
           } else {
             console.log('HTTP-Error: ' + response.status);
           }
         }
-        console.log('I am gong to figure this out')
         sendFitbitRequest();
     }
   }, []);
   
-  console.log("fitbitAccessToken: ", fitbitAccessToken);
+  // console.log("fitbitAccessToken: ", fitbitAccessToken);
   
   useEffect(() => {
     if (fitbitAccessToken) {
@@ -192,23 +158,6 @@ export default function Home({
     }
   }, [fitbitAccessToken]);
   
-  async function getFitbitDeviceData() {
-    try {
-      const bmiTimeSeriesUrl = 'https://api.fitbit.com/1/user/-/body/bmi/date/2023-02-23/2023-05-23.json';
-      const bmiTimeSeriesHeaders = {
-        "Authorization": `Bearer ${fitbitAccessToken}`
-      };
-      const bmiTimeSeriesResponse = await fetch(bmiTimeSeriesUrl, { headers: bmiTimeSeriesHeaders });
-      if (!bmiTimeSeriesResponse.ok) {
-        throw new Error("Request failed.");
-      }
-      const bmiTimeSeriesResponseData = await bmiTimeSeriesResponse.json();
-      setFitbitBmiData(bmiTimeSeriesResponseData);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
   async function getFitbitBmiTimeSeries() {
     try {
       const profileURL = 'https://api.fitbit.com/1/user/GGNJL9/profile.json';
