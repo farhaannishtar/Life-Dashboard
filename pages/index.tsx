@@ -244,56 +244,51 @@ export default function Home({
       </Head>
       
       
-      <div className='flex justify-between border border-red w-full'>
-        <div className='border border-yellow'>
-          <p className="text-lg border border-red">Good Morning, Faraaz!</p>
+      <div className='flex justify-between w-full'>
+        <div className='ml-10 mt-14'>
+          <p className="text-black font-[Red Hat Text] text-2xl font-bold leading-normal tracking-[0.02rem]">Good Morning, Faraaz !</p>
         </div>
-        <div>
-        <Image
-          src="/images/logo.png"
-          alt="Life Dashboard"
-          width={200} 
-          height={300}
-          />
+        <p className="flex items-center text-[#001EC0] font-[Red Hat Text] font-normal leading-normal tracking-[0.014rem] mt-10 mr-10">
+          <Image src="/images/logo.svg" alt="Logo" height={32} width={48} />
+          <span className="ml-1 text-2xl font-light">life</span>
+          <span className="ml-1 text-blue-800 font-red-hat text-2xl font-bold tracking-wide">dashboard</span>
+        </p>    
+      </div>
+
+      <div className="flex justify-around rounded-lg border-gray-200 bg-white shadow-2xl h-[10.25rem] flex-shrink-0 m-10">
+        <Time />
+        <div className='flex flex-col items-start border-red justify-center'>
+          <div>Latest Sleep Score</div>
+          <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</div>
+          <div> keep it up 💪🏾 </div>
+        </div>
+        <div className='flex flex-col items-start border-red justify-center'>
+          <div>Today's Steps</div>
+          <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>5,000</div>
+        </div>
+        <div className='flex flex-col items-start border-red justify-center'>
+          <div>Latest Weight</div>
+          <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>{fitbitWeightData && fitbitWeightData["body-weight"] ? Math.round(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2) : ''}lb</div>
+          <div>{calculateBMI()}% BMI</div>
         </div>
       </div>
 
-      <main>
-        <div className="flex justify-around rounded-lg border-gray-200 bg-white shadow-2xl h-[10.25rem] flex-shrink-0 m-14">
-          <Time />
-          <div className='flex flex-col items-start border-red justify-center'>
-            <div>Latest Sleep Score</div>
-            <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</div>
-            <div> keep it up 💪🏾 </div>
-          </div>
-          <div className='flex flex-col items-start border-red justify-center'>
-            <div>Today's Steps</div>
-            <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>5,000</div>
-          </div>
-          <div className='flex flex-col items-start border-red justify-center'>
-            <div>Latest Weight</div>
-            <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>{fitbitWeightData && fitbitWeightData["body-weight"] ? Math.round(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2) : ''} lb</div>
-            <div>{calculateBMI()}% BMI</div>
-          </div>
-        </div>
 
-
-        {/* <div>
-          <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Fitbit Data</h2>
-          <div className='flex gap-1'>
-            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Latest Weight Measurement:</p>
-            <p className='mb- 2mt-0 text-3xl font-medium leading-tight text-primary'>{fitbitWeightData && fitbitWeightData["body-weight"] ? fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2 : ''}</p>
-          </div>
+      {/* <div>
+        <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Fitbit Data</h2>
+        <div className='flex gap-1'>
+          <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Latest Weight Measurement:</p>
+          <p className='mb- 2mt-0 text-3xl font-medium leading-tight text-primary'>{fitbitWeightData && fitbitWeightData["body-weight"] ? fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2 : ''}</p>
         </div>
-        <div>
-          <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Oura Ring Data</h2>
-          <div className='flex gap-1'>
-            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Last Night's Sleep Score:</p>
-            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</p>
-          </div>
-          <AppleHealthData />
-        </div> */}
-      </main>
+      </div>
+      <div>
+        <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Oura Ring Data</h2>
+        <div className='flex gap-1'>
+          <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Last Night's Sleep Score:</p>
+          <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</p>
+        </div>
+        <AppleHealthData />
+      </div> */}
     </div>
   )
 }
