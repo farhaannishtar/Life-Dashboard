@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react'
 import crypto from 'crypto';
 import clientPromise from '../lib/mongodb'
 import { InferGetServerSidePropsType } from 'next'
+import Time from '../components/Time';
 import { AppleHealthData } from 'components/AppleHealthData'
 
 export async function getServerSideProps(context: any) {
@@ -259,21 +260,17 @@ export default function Home({
 
       <main>
         <div className="flex justify-around rounded-lg border-gray-200 bg-white shadow-2xl h-[10.25rem] flex-shrink-0 m-14">
-          <div className='flex flex-col item-start border-red justify-center'>
-            <div className='border-red text-left mb-1'>Time</div>
-            <div className=' text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest'>{getCurrentTime()}</div>
-            <div className='border-red font-extralight text-sm'> 6 hours till bed time</div>
-          </div>
-          <div className='flex flex-col item-start border-red justify-center'>
+          <Time />
+          <div className='flex flex-col items-start border-red justify-center'>
             <div>Latest Sleep Score</div>
             <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</div>
             <div> keep it up 💪🏾 </div>
           </div>
-          <div className='flex flex-col item-start border-red justify-center'>
+          <div className='flex flex-col items-start border-red justify-center'>
             <div>Today's Steps</div>
             <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>5,000</div>
           </div>
-          <div className='flex flex-col item-start border-red justify-center'>
+          <div className='flex flex-col items-start border-red justify-center'>
             <div>Latest Weight</div>
             <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>{fitbitWeightData && fitbitWeightData["body-weight"] ? Math.round(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2) : ''} lb</div>
             <div>{calculateBMI()}% BMI</div>
