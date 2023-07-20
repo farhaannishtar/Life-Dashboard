@@ -62,6 +62,7 @@ export default function Home({
   const [ouraRingSleepData, setOuraRingSleepData] = useState<OuraRingSleepData | null>(null);
   const [fitbitAccessToken, setFitbitAccessToken] = useState<string | null>(null);
   const [fitbitWeightData, setFitbitWeightData] = useState<FitbitWeightResponse | null>(null);
+  const [fitbitBmiData, setFitbitBmiData] = useState<FitbitBmiResponse | null>(null); 
   const router = useRouter();
 
   useEffect(() => {
@@ -78,7 +79,34 @@ export default function Home({
 
   }, []);
  
+  function getDates(inputDateString: string) {
+    const inputDate = new Date(inputDateString + ", " + new Date().getFullYear());
+    const currentDate = new Date(inputDate.getTime()); // copy inputDate to currentDate
+    const previousDate = new Date(currentDate.getTime() - (24 * 60 * 60 * 1000)); // subtract one day in milliseconds
+    const year = previousDate.getFullYear();
+    const month = String(previousDate.getMonth() + 1).padStart(2, "0");
+    const day = String(previousDate.getDate()).padStart(2, "0");
+    const formattedPreviousDate = `${year}-${month}-${day}`;
+  
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = String(currentDate.getMonth() + 1).padStart(2, "0");
+    const currentDay = String(currentDate.getDate()).padStart(2, "0");
+    const formattedCurrentDate = `${currentYear}-${currentMonth}-${currentDay}`;
+  
+    return [formattedCurrentDate, formattedPreviousDate];
+  }
+
+  const getCurrentNYCDate = (): string => {
+    const now = new Date();
+    const year = now.getFullYear().toString();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const currentDate = `${year}-${month}-${day}`;
+    return currentDate;
+  };
+
   // Dependency: Node.js crypto module
+  // https://nodejs.org/api/crypto.html#crypto_crypto
   function base64URLEncode(str: any) {
     return str.toString('base64')
         .replace(/\+/g, '-')
@@ -87,6 +115,7 @@ export default function Home({
   }
   
   // Dependency: Node.js crypto module
+  // https://nodejs.org/api/crypto.html#crypto_crypto
   function sha256(buffer: any) {
     return crypto.createHash('sha256').update(buffer).digest();
   }
@@ -110,7 +139,6 @@ export default function Home({
 
     if (storedToken) {
       setFitbitAccessToken(storedToken);
-      console.log("token exists")
     } else {
         // console.log("code: ", code)
         verifier = localStorage.getItem('verifier');
@@ -137,6 +165,7 @@ export default function Home({
         
           if (response.ok) {
             const jsonData = await response.json();
+            console.log("jsonData: ", jsonData);
             setFitbitAccessToken(jsonData.access_token)
             localStorage.setItem('fitbitAccessToken', jsonData.access_token);
           } else {
@@ -147,34 +176,14 @@ export default function Home({
     }
   }, []);
   
-  // console.log("fitbitAccessToken: ", fitbitAccessToken);
-  
   useEffect(() => {
     if (fitbitAccessToken) {
       getFitbitWeightTimeSeries();
-      getFitbitBmiTimeSeries();
       // Clear query parameters
       // router.replace(router.pathname, undefined, { shallow: true });
     }
   }, [fitbitAccessToken]);
   
-  async function getFitbitBmiTimeSeries() {
-    try {
-      const profileURL = 'https://api.fitbit.com/1/user/GGNJL9/profile.json';
-      const profileHeaders = {
-        "Authorization": `Bearer ${fitbitAccessToken}`
-      };
-      const profileResponse = await fetch(profileURL, { headers: profileHeaders });
-      if (!profileResponse.ok) {
-        throw new Error("Request failed.");
-      }
-      const profileResponseData = await profileResponse.json();
-      console.log("profileResponseData: ", profileResponseData);
-      setFitbitBmiData(profileResponseData);
-    } catch (error) {
-      console.error(error);
-    }
-  }
 
   async function getFitbitWeightTimeSeries() {
     try {
@@ -207,7 +216,21 @@ export default function Home({
     }
 
     return Math.round(Number(kilos) / (1.72 * 1.72)) 
+  }
 
+  function getCurrentTime(): string {
+    const date = new Date();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+
+    let hoursIn12HourFormat = hours % 12;
+    hoursIn12HourFormat = hoursIn12HourFormat ? hoursIn12HourFormat : 12; // the hour '0' should be '12'
+
+    const hoursStr = hoursIn12HourFormat.toString().padStart(2, '0');
+    const minutesStr = minutes.toString().padStart(2, '0');
+
+    return `${hoursStr}:${minutesStr} ${ampm}`;
   }
   
   // console.log("ouraRingSleepData: ", ouraRingSleepData);
@@ -238,7 +261,7 @@ export default function Home({
         <div className="flex justify-around rounded-lg border-2 border-gray-200 bg-white shadow-2xl h-[10.25rem] flex-shrink-0 m-14">
           <div>
             <div>Time</div>
-            <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>11:12am</div>
+            <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>{getCurrentTime()}</div>
             <div> 6 hours till bed time</div>
           </div>
           <div>
@@ -252,7 +275,7 @@ export default function Home({
           </div>
           <div>
             <div>Latest Weight</div>
-            <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>{fitbitWeightData && fitbitWeightData["body-weight"] ? Math.round(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2) : ''}lb</div>
+            <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>{fitbitWeightData && fitbitWeightData["body-weight"] ? Math.round(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2) : ''} lb</div>
             <div>{calculateBMI()}% BMI</div>
           </div>
         </div>
