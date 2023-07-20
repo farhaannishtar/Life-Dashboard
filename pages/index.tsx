@@ -258,11 +258,11 @@ export default function Home({
       </div>
 
       <main>
-        <div className="flex justify-around rounded-lg border-2 border-gray-200 bg-white shadow-2xl h-[10.25rem] flex-shrink-0 m-14">
-          <div>
-            <div>Time</div>
-            <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>{getCurrentTime()}</div>
-            <div> 6 hours till bed time</div>
+        <div className="flex justify-around rounded-lg border-gray-200 bg-white shadow-2xl h-[10.25rem] flex-shrink-0 m-14">
+          <div className='flex flex-col item-start border-red justify-center'>
+            <div className='border-red text-left mb-1'>Time</div>
+            <div className=' text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest'>{getCurrentTime()}</div>
+            <div className='border-red font-extralight text-sm'> 6 hours till bed time</div>
           </div>
           <div>
             <div>Latest Sleep Score</div>
