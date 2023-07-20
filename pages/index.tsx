@@ -257,7 +257,7 @@ export default function Home({
       kilos = fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value;
     }
 
-    return Number(kilos) / (1.72 * 1.72) 
+    return Math.round(Number(kilos) / (1.72 * 1.72)) 
 
   }
   
@@ -303,7 +303,7 @@ export default function Home({
           </div>
           <div>
             <div>Latest Weight</div>
-            <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>{fitbitWeightData && fitbitWeightData["body-weight"] ? fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2 : ''}lb</div>
+            <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>{fitbitWeightData && fitbitWeightData["body-weight"] ? Math.round(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2) : ''}lb</div>
             <div>{calculateBMI()}% BMI</div>
           </div>
         </div>
