@@ -186,7 +186,7 @@ export default function Home({
   useEffect(() => {
     if (fitbitAccessToken) {
       getFitbitWeightTimeSeries();
-      // getFitbitBmiTimeSeries();
+      getFitbitBmiTimeSeries();
       // Clear query parameters
       // router.replace(router.pathname, undefined, { shallow: true });
     }
@@ -211,16 +211,17 @@ export default function Home({
 
   async function getFitbitBmiTimeSeries() {
     try {
-      const bmiTimeSeriesUrl = 'https://api.fitbit.com/1/user/-/body/bmi/date/2023-02-23/2023-05-23.json';
-      const bmiTimeSeriesHeaders = {
+      const profileURL = 'https://api.fitbit.com/1/user/GGNJL9/profile.json';
+      const profileHeaders = {
         "Authorization": `Bearer ${fitbitAccessToken}`
       };
-      const bmiTimeSeriesResponse = await fetch(bmiTimeSeriesUrl, { headers: bmiTimeSeriesHeaders });
-      if (!bmiTimeSeriesResponse.ok) {
+      const profileResponse = await fetch(profileURL, { headers: profileHeaders });
+      if (!profileResponse.ok) {
         throw new Error("Request failed.");
       }
-      const bmiTimeSeriesResponseData = await bmiTimeSeriesResponse.json();
-      setFitbitBmiData(bmiTimeSeriesResponseData);
+      const profileResponseData = await profileResponse.json();
+      console.log("profileResponseData: ", profileResponseData);
+      setFitbitBmiData(profileResponseData);
     } catch (error) {
       console.error(error);
     }
@@ -242,6 +243,22 @@ export default function Home({
     } catch (error) {
       console.error(error);
     }
+  }
+
+  function calculateBMI() {
+    let kilos: number | null = null;
+
+    if (
+      fitbitWeightData &&
+      fitbitWeightData["body-weight"] &&
+      fitbitWeightData["body-weight"].length > 0 &&
+      fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value
+    ) {
+      kilos = fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value;
+    }
+
+    return Number(kilos) / (1.72 * 1.72) 
+
   }
   
   // console.log("ouraRingSleepData: ", ouraRingSleepData);
@@ -272,22 +289,22 @@ export default function Home({
         <div className="flex justify-around rounded-lg border-2 border-gray-200 bg-white shadow-2xl h-[10.25rem] flex-shrink-0 m-14">
           <div>
             <div>Time</div>
-            <div>11:12am</div>
+            <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>11:12am</div>
             <div> 6 hours till bed time</div>
           </div>
           <div>
             <div>Latest Sleep Score</div>
-            <div>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</div>
+            <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</div>
             <div> keep it up 💪🏾 </div>
           </div>
           <div>
             <div>Today's Steps</div>
-            <div>5,000</div>
+            <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>5,000</div>
           </div>
           <div>
             <div>Latest Weight</div>
-            <div>{fitbitWeightData && fitbitWeightData["body-weight"] ? fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2 : ''}lb</div>
-            <div>5% BMI</div>
+            <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>{fitbitWeightData && fitbitWeightData["body-weight"] ? fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2 : ''}lb</div>
+            <div>{calculateBMI()}% BMI</div>
           </div>
         </div>
 
