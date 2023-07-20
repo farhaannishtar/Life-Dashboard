@@ -269,7 +269,26 @@ export default function Home({
       </div>
 
       <main>
-        <div className="rounded-lg border-2 border-gray-200 bg-white shadow-2xl h-[10.25rem] flex-shrink-0 m-14">
+        <div className="flex justify-around rounded-lg border-2 border-gray-200 bg-white shadow-2xl h-[10.25rem] flex-shrink-0 m-14">
+          <div>
+            <div>Time</div>
+            <div>11:12am</div>
+            <div> 6 hours till bed time</div>
+          </div>
+          <div>
+            <div>Latest Sleep Score</div>
+            <div>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</div>
+            <div> keep it up 💪🏾 </div>
+          </div>
+          <div>
+            <div>Today's Steps</div>
+            <div>5,000</div>
+          </div>
+          <div>
+            <div>Latest Weight</div>
+            <div>{fitbitWeightData && fitbitWeightData["body-weight"] ? fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2 : ''}lb</div>
+            <div>5% BMI</div>
+          </div>
         </div>
 
 
