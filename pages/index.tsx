@@ -6,7 +6,7 @@ import crypto from 'crypto';
 import clientPromise from '../lib/mongodb'
 import { InferGetServerSidePropsType } from 'next'
 import Time from '../components/Time';
-import { AppleHealthData } from 'components/AppleHealthData'
+import { getCurrentDate, getPreviousDate, calculatePercentageChange } from 'helpers/helpers';
 
 export async function getServerSideProps(context: any) {
   try {
@@ -45,10 +45,6 @@ interface FitbitWeightResponse {
   'body-weight': FitbitWeightEntry[];
 }  
 
-interface FitbitBmiResponse {
-  'body-bmi': FitbitBmiDataEntry[]
-}
-
 interface OuraRingSleepData {
   data: Array<{
     score: number;
@@ -63,49 +59,47 @@ export default function Home({
   const [ouraRingSleepData, setOuraRingSleepData] = useState<OuraRingSleepData | null>(null);
   const [fitbitAccessToken, setFitbitAccessToken] = useState<string | null>(null);
   const [fitbitWeightData, setFitbitWeightData] = useState<FitbitWeightResponse | null>(null);
-  const [fitbitBmiData, setFitbitBmiData] = useState<FitbitBmiResponse | null>(null); 
+  const [sleepScorePercentageMarkers, setSleepScorePercentageMarkers] = useState({
+    arrow: 'bi_arrow-up.svg',
+    contentStyles: "bg-[#F4F6F6] text-black"
+  });
+  const [sleepPercentDiff, setSleepPercentDiff] = useState('')
+
   const router = useRouter();
 
   useEffect(() => {
+    let yesterday = getPreviousDate();
     fetch('/api/ouraringpersonalinfo')
     .then(response => response.json())
     .catch(error => console.error('Error:', error));
 
-    fetch('/api/ouraringsleeplogs?start_date=2023-01-01&end_date=2023-07-11')
+    fetch(`/api/ouraringsleeplogs?start_date=2023-01-01&end_date=${yesterday}`)
     .then(response => response.json())
     .then(data => {
+      // console.log("oura ring sleep data: ", data)
       setOuraRingSleepData(data);
+      calculateSleepScoreDifference(data);
     })
     .catch(error => console.error('Error:', error));
 
   }, []);
- 
-  function getDates(inputDateString: string) {
-    const inputDate = new Date(inputDateString + ", " + new Date().getFullYear());
-    const currentDate = new Date(inputDate.getTime()); // copy inputDate to currentDate
-    const previousDate = new Date(currentDate.getTime() - (24 * 60 * 60 * 1000)); // subtract one day in milliseconds
-    const year = previousDate.getFullYear();
-    const month = String(previousDate.getMonth() + 1).padStart(2, "0");
-    const day = String(previousDate.getDate()).padStart(2, "0");
-    const formattedPreviousDate = `${year}-${month}-${day}`;
-  
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = String(currentDate.getMonth() + 1).padStart(2, "0");
-    const currentDay = String(currentDate.getDate()).padStart(2, "0");
-    const formattedCurrentDate = `${currentYear}-${currentMonth}-${currentDay}`;
-  
-    return [formattedCurrentDate, formattedPreviousDate];
+
+  function calculateSleepScoreDifference(sleepData: any) {
+    let lastNightSleepScore = sleepData.data[sleepData.data.length - 1].score
+    let dayBeforeSleepScore = sleepData.data[sleepData.data.length - 2].score
+
+    let percentageChange = calculatePercentageChange(dayBeforeSleepScore, lastNightSleepScore);
+
+    setSleepPercentDiff(String(percentageChange))
+
+    if (percentageChange < 0) {
+      setSleepScorePercentageMarkers({
+        arrow: 'bi_arrow-down.svg',
+        contentStyles: 'bg-red-500 bg-opacity-10 text-red-600'
+      })
+    }
   }
-
-  const getCurrentNYCDate = (): string => {
-    const now = new Date();
-    const year = now.getFullYear().toString();
-    const month = (now.getMonth() + 1).toString().padStart(2, '0');
-    const day = now.getDate().toString().padStart(2, '0');
-    const currentDate = `${year}-${month}-${day}`;
-    return currentDate;
-  };
-
+ 
   // Dependency: Node.js crypto module
   // https://nodejs.org/api/crypto.html#crypto_crypto
   function base64URLEncode(str: any) {
@@ -188,7 +182,7 @@ export default function Home({
 
   async function getFitbitWeightTimeSeries() {
     try {
-      let date = getCurrentNYCDate();
+      let date = getCurrentDate();
       const weightTimeSeriesUrl = `https://api.fitbit.com/1/user/-/body/weight/date/2023-02-23/${date}.json`;
       const weightTimeSeriesHeaders = {
         "Authorization": `Bearer ${fitbitAccessToken}`
@@ -219,21 +213,6 @@ export default function Home({
     return Math.round(Number(kilos) / (1.72 * 1.72)) 
   }
 
-  function getCurrentTime(): string {
-    const date = new Date();
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-
-    let hoursIn12HourFormat = hours % 12;
-    hoursIn12HourFormat = hoursIn12HourFormat ? hoursIn12HourFormat : 12; // the hour '0' should be '12'
-
-    const hoursStr = hoursIn12HourFormat.toString().padStart(2, '0');
-    const minutesStr = minutes.toString().padStart(2, '0');
-
-    return `${hoursStr}:${minutesStr} ${ampm}`;
-  }
-  
   // console.log("ouraRingSleepData: ", ouraRingSleepData);
   
   return (
@@ -245,31 +224,41 @@ export default function Home({
       
       
       <div className='flex justify-between w-full'>
-        <div className='ml-10 mt-14'>
-          <p className="text-black font-[Red Hat Text] text-2xl font-bold leading-normal tracking-[0.02rem]">Good Morning, Faraaz !</p>
+        <div className='ml-10 mt-10'>
+          <p className="text-black font-[Red Hat Text] text-3xl font-bold leading-normal tracking-[0.02rem]">Good Morning, Faraaz !</p>
         </div>
-        <p className="flex items-center text-[#001EC0] font-[Red Hat Text] font-normal leading-normal tracking-[0.014rem] mt-10 mr-10">
+        <p className="flex items-center text-[#001EC0] font-[Red Hat Text] font-normal leading-normal tracking-[0.014rem] mt-6 mr-10">
           <Image src="/images/logo.svg" alt="Logo" height={32} width={48} />
           <span className="ml-1 text-2xl font-light">life</span>
           <span className="ml-1 text-blue-800 font-red-hat text-2xl font-bold tracking-wide">dashboard</span>
         </p>    
       </div>
 
-      <div className="flex justify-around rounded-lg border-gray-200 bg-white shadow-2xl h-[10.25rem] flex-shrink-0 m-10">
+      <div className="flex justify-around rounded-lg border-gray-200 bg-white shadow-2xl h-[11.25rem] flex-shrink-0 m-10">
         <Time />
-        <div className='flex flex-col items-start border-red justify-center'>
-          <div>Latest Sleep Score</div>
-          <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</div>
-          <div> keep it up 💪🏾 </div>
+        <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
+        <div className='flex flex-col font-light items-start border-red justify-center'>
+          <div className='font-extralight mb-2 flex items-center'>Latest Sleep Score
+            <span className={`inline-flex p-1 ml-2 justify-center items-center space-x-1 rounded-full ${sleepScorePercentageMarkers.contentStyles} font-extralight text-xs`}>
+            <span className='mr-px'>
+              <Image src={`/images/${sleepScorePercentageMarkers.arrow}`} alt="Arrow up" height={10} width={10} />
+            </span>
+              {sleepPercentDiff}
+            </span>
+          </div>
+          <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</div>
+          <div className='font-extralight text-sm mt-1'> keep it up 💪🏾 </div>
         </div>
+        <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
         <div className='flex flex-col items-start border-red justify-center'>
-          <div>Today's Steps</div>
-          <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>5,000</div>
+          <div className='font-extralight mb-2'>Today's Steps</div>
+          <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest mb-5'>5,000</div>
         </div>
-        <div className='flex flex-col items-start border-red justify-center'>
-          <div>Latest Weight</div>
-          <div className='text-[#1A2B88] text-lg font-bold leading-normal tracking-tightest'>{fitbitWeightData && fitbitWeightData["body-weight"] ? Math.round(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2) : ''}lb</div>
-          <div>{calculateBMI()}% BMI</div>
+        <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
+        <div className='flex flex-col items-start border-red justify-center mr-8'>
+          <div className='font-extralight mb-2'>Latest Weight</div>
+          <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest'>{fitbitWeightData && fitbitWeightData["body-weight"] ? Math.round(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2) : ''}lb</div>
+          <div className='font-extralight text-sm mt-1'>{calculateBMI()}% BMI</div>
         </div>
       </div>
 

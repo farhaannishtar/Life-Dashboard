@@ -76,9 +76,9 @@ export default function Time() {
 
   return (
     <div className='flex flex-col items-start justify-center'>
-      <div className='text-left font-light mb-1'>Time</div>
+      <div className='text-left font-extralight mb-2'>Time</div>
       <div className=' text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest'>{currentTime}</div>
-      <div className='font-extralight text-sm'>{timeUntil9PM}</div>
+      <div className='font-extralight text-sm mt-1'>{timeUntil9PM}</div>
     </div>
   )
 }
