@@ -3,14 +3,12 @@ import Image from 'next/image';
 import { useRouter } from 'next/router'
 import React, { useState, useEffect } from 'react'
 import crypto from 'crypto';
-import clientPromise from '../lib/mongodb'
 import { InferGetServerSidePropsType } from 'next'
 import Time from '../components/Time';
 import { getCurrentDate, getPreviousDate, calculatePercentageChange } from 'helpers/helpers';
 
 export async function getServerSideProps(context: any) {
   try {
-    await clientPromise
     // `await clientPromise` will use the default database passed in the MONGODB_URI
     // However you can use another database (e.g. myDatabase) by replacing the `await clientPromise` with the following code:
     //
@@ -101,7 +99,6 @@ export default function Home({
   }
  
   // Dependency: Node.js crypto module
-  // https://nodejs.org/api/crypto.html#crypto_crypto
   function base64URLEncode(str: any) {
     return str.toString('base64')
         .replace(/\+/g, '-')
@@ -110,7 +107,6 @@ export default function Home({
   }
   
   // Dependency: Node.js crypto module
-  // https://nodejs.org/api/crypto.html#crypto_crypto
   function sha256(buffer: any) {
     return crypto.createHash('sha256').update(buffer).digest();
   }
@@ -276,7 +272,6 @@ export default function Home({
           <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Last Night's Sleep Score:</p>
           <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</p>
         </div>
-        <AppleHealthData />
       </div> */}
     </div>
   )
