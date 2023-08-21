@@ -5,7 +5,8 @@ import React, { useState, useEffect } from 'react'
 import crypto from 'crypto';
 import clientPromise from '../lib/mongodb'
 import { InferGetServerSidePropsType } from 'next'
-import { AppleHealthData } from 'components/AppleHealthData'
+import Time from '../components/Time';
+import { getCurrentDate, getPreviousDate, calculatePercentageChange } from 'helpers/helpers';
 
 export async function getServerSideProps(context: any) {
   try {
@@ -44,10 +45,6 @@ interface FitbitWeightResponse {
   'body-weight': FitbitWeightEntry[];
 }  
 
-interface FitbitBmiResponse {
-  'body-bmi': FitbitBmiDataEntry[]
-}
-
 interface OuraRingSleepData {
   data: Array<{
     score: number;
@@ -62,49 +59,47 @@ export default function Home({
   const [ouraRingSleepData, setOuraRingSleepData] = useState<OuraRingSleepData | null>(null);
   const [fitbitAccessToken, setFitbitAccessToken] = useState<string | null>(null);
   const [fitbitWeightData, setFitbitWeightData] = useState<FitbitWeightResponse | null>(null);
-  const [fitbitBmiData, setFitbitBmiData] = useState<FitbitBmiResponse | null>(null); 
+  const [sleepScorePercentageMarkers, setSleepScorePercentageMarkers] = useState({
+    arrow: 'bi_arrow-up.svg',
+    contentStyles: "bg-[#F4F6F6] text-black"
+  });
+  const [sleepPercentDiff, setSleepPercentDiff] = useState('')
+
   const router = useRouter();
 
   useEffect(() => {
+    let yesterday = getPreviousDate();
     fetch('/api/ouraringpersonalinfo')
     .then(response => response.json())
     .catch(error => console.error('Error:', error));
 
-    fetch('/api/ouraringsleeplogs?start_date=2023-01-01&end_date=2023-07-11')
+    fetch(`/api/ouraringsleeplogs?start_date=2023-01-01&end_date=${yesterday}`)
     .then(response => response.json())
     .then(data => {
+      // console.log("oura ring sleep data: ", data)
       setOuraRingSleepData(data);
+      calculateSleepScoreDifference(data);
     })
     .catch(error => console.error('Error:', error));
 
   }, []);
- 
-  function getDates(inputDateString: string) {
-    const inputDate = new Date(inputDateString + ", " + new Date().getFullYear());
-    const currentDate = new Date(inputDate.getTime()); // copy inputDate to currentDate
-    const previousDate = new Date(currentDate.getTime() - (24 * 60 * 60 * 1000)); // subtract one day in milliseconds
-    const year = previousDate.getFullYear();
-    const month = String(previousDate.getMonth() + 1).padStart(2, "0");
-    const day = String(previousDate.getDate()).padStart(2, "0");
-    const formattedPreviousDate = `${year}-${month}-${day}`;
-  
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = String(currentDate.getMonth() + 1).padStart(2, "0");
-    const currentDay = String(currentDate.getDate()).padStart(2, "0");
-    const formattedCurrentDate = `${currentYear}-${currentMonth}-${currentDay}`;
-  
-    return [formattedCurrentDate, formattedPreviousDate];
+
+  function calculateSleepScoreDifference(sleepData: any) {
+    let lastNightSleepScore = sleepData.data[sleepData.data.length - 1].score
+    let dayBeforeSleepScore = sleepData.data[sleepData.data.length - 2].score
+
+    let percentageChange = calculatePercentageChange(dayBeforeSleepScore, lastNightSleepScore);
+
+    setSleepPercentDiff(String(percentageChange))
+
+    if (percentageChange < 0) {
+      setSleepScorePercentageMarkers({
+        arrow: 'bi_arrow-down.svg',
+        contentStyles: 'bg-red-500 bg-opacity-10 text-red-600'
+      })
+    }
   }
-
-  const getCurrentNYCDate = (): string => {
-    const now = new Date();
-    const year = now.getFullYear().toString();
-    const month = (now.getMonth() + 1).toString().padStart(2, '0');
-    const day = now.getDate().toString().padStart(2, '0');
-    const currentDate = `${year}-${month}-${day}`;
-    return currentDate;
-  };
-
+ 
   // Dependency: Node.js crypto module
   // https://nodejs.org/api/crypto.html#crypto_crypto
   function base64URLEncode(str: any) {
@@ -125,7 +120,6 @@ export default function Home({
     const url = new URL(baseUrl + router.asPath);
     const searchParams = new URLSearchParams(url.search);
     const code = searchParams.get('code');
-    console.log("code at beginning: ", code)
     let verifier: any;
     let challenge: any;
 
@@ -133,8 +127,6 @@ export default function Home({
       verifier = base64URLEncode(crypto.randomBytes(32));
       challenge = base64URLEncode(sha256(verifier));
       const fitbitAuthUrl = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23R3JP&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=${challenge}&code_challenge_method=S256`
-      console.log("fitbitAuthUrl: ", fitbitAuthUrl)
-      console.log("verifier: ", verifier)
       localStorage.setItem('verifier', verifier);
       router.push(fitbitAuthUrl);
     }
@@ -142,7 +134,6 @@ export default function Home({
 
     if (storedToken) {
       setFitbitAccessToken(storedToken);
-      console.log("token exists")
     } else {
         // console.log("code: ", code)
         verifier = localStorage.getItem('verifier');
@@ -176,59 +167,22 @@ export default function Home({
             console.log('HTTP-Error: ' + response.status);
           }
         }
-        console.log('I am gong to figure this out')
         sendFitbitRequest();
     }
   }, []);
   
-  console.log("fitbitAccessToken: ", fitbitAccessToken);
-  
   useEffect(() => {
     if (fitbitAccessToken) {
       getFitbitWeightTimeSeries();
-      // getFitbitBmiTimeSeries();
       // Clear query parameters
       // router.replace(router.pathname, undefined, { shallow: true });
     }
   }, [fitbitAccessToken]);
   
-  async function getFitbitDeviceData() {
-    try {
-      const bmiTimeSeriesUrl = 'https://api.fitbit.com/1/user/-/body/bmi/date/2023-02-23/2023-05-23.json';
-      const bmiTimeSeriesHeaders = {
-        "Authorization": `Bearer ${fitbitAccessToken}`
-      };
-      const bmiTimeSeriesResponse = await fetch(bmiTimeSeriesUrl, { headers: bmiTimeSeriesHeaders });
-      if (!bmiTimeSeriesResponse.ok) {
-        throw new Error("Request failed.");
-      }
-      const bmiTimeSeriesResponseData = await bmiTimeSeriesResponse.json();
-      setFitbitBmiData(bmiTimeSeriesResponseData);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async function getFitbitBmiTimeSeries() {
-    try {
-      const bmiTimeSeriesUrl = 'https://api.fitbit.com/1/user/-/body/bmi/date/2023-02-23/2023-05-23.json';
-      const bmiTimeSeriesHeaders = {
-        "Authorization": `Bearer ${fitbitAccessToken}`
-      };
-      const bmiTimeSeriesResponse = await fetch(bmiTimeSeriesUrl, { headers: bmiTimeSeriesHeaders });
-      if (!bmiTimeSeriesResponse.ok) {
-        throw new Error("Request failed.");
-      }
-      const bmiTimeSeriesResponseData = await bmiTimeSeriesResponse.json();
-      setFitbitBmiData(bmiTimeSeriesResponseData);
-    } catch (error) {
-      console.error(error);
-    }
-  }
 
   async function getFitbitWeightTimeSeries() {
     try {
-      let date = getCurrentNYCDate();
+      let date = getCurrentDate();
       const weightTimeSeriesUrl = `https://api.fitbit.com/1/user/-/body/weight/date/2023-02-23/${date}.json`;
       const weightTimeSeriesHeaders = {
         "Authorization": `Bearer ${fitbitAccessToken}`
@@ -243,196 +197,87 @@ export default function Home({
       console.error(error);
     }
   }
-  
+
+  function calculateBMI() {
+    let kilos: number | null = null;
+
+    if (
+      fitbitWeightData &&
+      fitbitWeightData["body-weight"] &&
+      fitbitWeightData["body-weight"].length > 0 &&
+      fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value
+    ) {
+      kilos = fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value;
+    }
+
+    return Math.round(Number(kilos) / (1.72 * 1.72)) 
+  }
+
   // console.log("ouraRingSleepData: ", ouraRingSleepData);
   
   return (
-    <div className="container">
+    <div className="bg-gray-100 h-screen">
       <Head>
         <title>Life Dashboard</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       
       
-      <div className='flex justify-between border border-red w-full'>
-        <p className="text-lg border border-red">Good Morning, Faraaz!</p>
-        <div>
-        <Image
-          src="/images/logo.png"
-          alt="Life Dashboard"
-          width={200} 
-          height={300}
-          />
+      <div className='flex justify-between w-full'>
+        <div className='ml-10 mt-10'>
+          <p className="text-black font-[Red Hat Text] text-3xl font-bold leading-normal tracking-[0.02rem]">Good Morning, Faraaz !</p>
+        </div>
+        <p className="flex items-center text-[#001EC0] font-[Red Hat Text] font-normal leading-normal tracking-[0.014rem] mt-6 mr-10">
+          <Image src="/images/logo.svg" alt="Logo" height={32} width={48} />
+          <span className="ml-1 text-2xl font-light">life</span>
+          <span className="ml-1 text-blue-800 font-red-hat text-2xl font-bold tracking-wide">dashboard</span>
+        </p>    
+      </div>
+
+      <div className="flex justify-around rounded-lg border-gray-200 bg-white shadow-2xl h-[11.25rem] flex-shrink-0 m-10">
+        <Time />
+        <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
+        <div className='flex flex-col font-light items-start border-red justify-center'>
+          <div className='font-extralight mb-2 flex items-center'>Latest Sleep Score
+            <span className={`inline-flex p-1 ml-2 justify-center items-center space-x-1 rounded-full ${sleepScorePercentageMarkers.contentStyles} font-extralight text-xs`}>
+            <span className='mr-px'>
+              <Image src={`/images/${sleepScorePercentageMarkers.arrow}`} alt="Arrow up" height={10} width={10} />
+            </span>
+              {sleepPercentDiff}
+            </span>
+          </div>
+          <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</div>
+          <div className='font-extralight text-sm mt-1'> keep it up 💪🏾 </div>
+        </div>
+        <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
+        <div className='flex flex-col items-start border-red justify-center'>
+          <div className='font-extralight mb-2'>Today's Steps</div>
+          <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest mb-5'>5,000</div>
+        </div>
+        <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
+        <div className='flex flex-col items-start border-red justify-center mr-8'>
+          <div className='font-extralight mb-2'>Latest Weight</div>
+          <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest'>{fitbitWeightData && fitbitWeightData["body-weight"] ? Math.round(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2) : ''}lb</div>
+          <div className='font-extralight text-sm mt-1'>{calculateBMI()}% BMI</div>
         </div>
       </div>
 
-      <main>
-        <div>
-          <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Fitbit Data</h2>
-          <div className='flex gap-1'>
-            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Latest Weight Measurement:</p>
-            <p className='mb- 2mt-0 text-3xl font-medium leading-tight text-primary'>{fitbitWeightData && fitbitWeightData["body-weight"] ? fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2 : ''}</p>
-          </div>
+
+      {/* <div>
+        <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Fitbit Data</h2>
+        <div className='flex gap-1'>
+          <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Latest Weight Measurement:</p>
+          <p className='mb- 2mt-0 text-3xl font-medium leading-tight text-primary'>{fitbitWeightData && fitbitWeightData["body-weight"] ? fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2 : ''}</p>
         </div>
-        <div>
-          <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Oura Ring Data</h2>
-          <div className='flex gap-1'>
-            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Last Night's Sleep Score:</p>
-            <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</p>
-          </div>
-          <AppleHealthData />
+      </div>
+      <div>
+        <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Oura Ring Data</h2>
+        <div className='flex gap-1'>
+          <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Last Night's Sleep Score:</p>
+          <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</p>
         </div>
-      </main>
-
-      <style jsx>{`
-        .container {
-          min-height: 100vh;
-          padding: 0 0.5rem;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-
-        main {
-          padding: 5rem 0;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-
-        footer {
-          width: 100%;
-          height: 100px;
-          border-top: 1px solid #eaeaea;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        footer img {
-          margin-left: 0.5rem;
-        }
-
-        footer a {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        a {
-          color: inherit;
-          text-decoration: none;
-        }
-
-        .title a {
-          color: #0070f3;
-          text-decoration: none;
-        }
-
-        .title a:hover,
-        .title a:focus,
-        .title a:active {
-          text-decoration: underline;
-        }
-
-        .title {
-          margin: 0;
-          line-height: 1.15;
-          font-size: 4rem;
-        }
-
-        .title,
-        .description {
-          text-align: center;
-        }
-
-        .subtitle {
-          font-size: 2rem;
-        }
-
-        .description {
-          line-height: 1.5;
-          font-size: 1.5rem;
-        }
-
-        code {
-          background: #fafafa;
-          border-radius: 5px;
-          padding: 0.75rem;
-          font-size: 1.1rem;
-          font-family: Menlo, Monaco, Lucida Console, Liberation Mono,
-            DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
-        }
-
-        .grid {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-wrap: wrap;
-
-          max-width: 800px;
-          margin-top: 3rem;
-        }
-
-        .card {
-          margin: 1rem;
-          flex-basis: 45%;
-          padding: 1.5rem;
-          text-align: left;
-          color: inherit;
-          text-decoration: none;
-          border: 1px solid #eaeaea;
-          border-radius: 10px;
-          transition: color 0.15s ease, border-color 0.15s ease;
-        }
-
-        .card:hover,
-        .card:focus,
-        .card:active {
-          color: #0070f3;
-          border-color: #0070f3;
-        }
-
-        .card h3 {
-          margin: 0 0 1rem 0;
-          font-size: 1.5rem;
-        }
-
-        .card p {
-          margin: 0;
-          font-size: 1.25rem;
-          line-height: 1.5;
-        }
-
-        .logo {
-          height: 1em;
-        }
-
-        @media (max-width: 600px) {
-          .grid {
-            width: 100%;
-            flex-direction: column;
-          }
-        }
-      `}</style>
-
-      <style jsx global>{`
-        html,
-        body {
-          padding: 0;
-          margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
-            Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-            sans-serif;
-        }
-
-        * {
-          box-sizing: border-box;
-        }
-      `}</style>
+        <AppleHealthData />
+      </div> */}
     </div>
   )
 }
