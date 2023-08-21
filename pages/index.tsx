@@ -3,7 +3,6 @@ import Image from 'next/image';
 import { useRouter } from 'next/router'
 import React, { useState, useEffect } from 'react'
 import crypto from 'crypto';
-import clientPromise from '../lib/mongodb'
 import { InferGetServerSidePropsType } from 'next'
 import Time from '../components/Time';
 import { getCurrentDate, getPreviousDate, calculatePercentageChange } from 'helpers/helpers';
