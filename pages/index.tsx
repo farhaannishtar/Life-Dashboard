@@ -9,7 +9,6 @@ import { getCurrentDate, getPreviousDate, calculatePercentageChange } from 'help
 
 export async function getServerSideProps(context: any) {
   try {
-    await clientPromise
     // `await clientPromise` will use the default database passed in the MONGODB_URI
     // However you can use another database (e.g. myDatabase) by replacing the `await clientPromise` with the following code:
     //
