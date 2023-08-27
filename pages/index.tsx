@@ -1,11 +1,11 @@
 import Head from 'next/head'
 import Image from 'next/image';
-import { useRouter } from 'next/router'
-import React, { useState, useEffect } from 'react'
+import {useRouter} from 'next/router'
+import React, {useState, useEffect} from 'react'
 import crypto from 'crypto';
-import { InferGetServerSidePropsType } from 'next'
+import {InferGetServerSidePropsType} from 'next'
 import Time from '../components/Time';
-import { getCurrentDate, getPreviousDate, calculatePercentageChange } from 'helpers/helpers';
+import {getCurrentDate, getPreviousDate, calculatePercentageChange} from 'helpers/helpers';
 
 export async function getServerSideProps(context: any) {
   try {
@@ -19,12 +19,12 @@ export async function getServerSideProps(context: any) {
     // db.find({}) or any of the MongoDB Node Driver commands
 
     return {
-      props: { isConnected: true },
+      props: {isConnected: true},
     }
   } catch (e) {
     console.error(e)
     return {
-      props: { isConnected: false },
+      props: {isConnected: false},
     }
   }
 }
@@ -183,7 +183,7 @@ export default function Home({
       const weightTimeSeriesHeaders = {
         "Authorization": `Bearer ${fitbitAccessToken}`
       };
-      const weightTimeSeriesResponse = await fetch(weightTimeSeriesUrl, { headers: weightTimeSeriesHeaders });
+      const weightTimeSeriesResponse = await fetch(weightTimeSeriesUrl, {headers: weightTimeSeriesHeaders});
       if (!weightTimeSeriesResponse.ok) {
         throw new Error("Request failed.");
       }
@@ -247,7 +247,7 @@ export default function Home({
         </div>
         <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
         <div className='flex flex-col items-start border-red justify-center'>
-          <div className='font-extralight mb-2'>Today's Steps</div>
+          <div className='font-extralight mb-2'>Todays Steps</div>
           <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest mb-5'>5,000</div>
         </div>
         <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
