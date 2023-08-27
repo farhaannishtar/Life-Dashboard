@@ -10,7 +10,7 @@ export default async function handler(
     const endDate = req.query.end_date;
 
     const apiRes = await axios.get(
-      `https://api.ouraring.com/v2/usercollection/daily_sleep?start_date=${startDate}`,
+      `https://api.ouraring.com/v2/usercollection/daily_activity?start_date=${startDate}&end_date=${endDate}`,
       {
         headers: {
           Authorization: `Bearer X2EFIPGE4MDRQHLIZ5B4EYTRY3VZSBEK`, // replace with your bearer token

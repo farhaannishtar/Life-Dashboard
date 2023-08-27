@@ -17,10 +17,22 @@ export const getPreviousDate = (): string => {
   return previousDate;
 };
 
-export const calculatePercentageChange = (
+export const calculateSleepScorePercentageChange = (
   oldScore: number,
   newScore: number
 ): number => {
   let percentageChange = ((newScore - oldScore) / oldScore) * 100;
-  return percentageChange;
+  return parseFloat(percentageChange.toFixed(1));
+};
+
+export const calculateStepCountPercentChange = (
+  yesterdaySteps: number,
+  todaySteps: number
+): number => {
+  let percentageChange = ((todaySteps - yesterdaySteps) / yesterdaySteps) * 100;
+  return parseFloat(percentageChange.toFixed(1));
+};
+
+export const formatSteps = (steps: number): string => {
+  return steps.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };

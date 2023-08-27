@@ -1,11 +1,11 @@
 import Head from 'next/head'
 import Image from 'next/image';
-import { useRouter } from 'next/router'
-import React, { useState, useEffect } from 'react'
+import {useRouter} from 'next/router'
+import React, {useState, useEffect} from 'react'
 import crypto from 'crypto';
-import { InferGetServerSidePropsType } from 'next'
+import {InferGetServerSidePropsType} from 'next'
 import Time from '../components/Time';
-import { getCurrentDate, getPreviousDate, calculatePercentageChange } from 'helpers/helpers';
+import {getCurrentDate, getPreviousDate, calculateSleepScorePercentageChange, calculateStepCountPercentChange, formatSteps} from 'helpers/helpers';
 
 export async function getServerSideProps(context: any) {
   try {
@@ -19,12 +19,12 @@ export async function getServerSideProps(context: any) {
     // db.find({}) or any of the MongoDB Node Driver commands
 
     return {
-      props: { isConnected: true },
+      props: {isConnected: true},
     }
   } catch (e) {
     console.error(e)
     return {
-      props: { isConnected: false },
+      props: {isConnected: false},
     }
   }
 }
@@ -50,45 +50,77 @@ interface OuraRingSleepData {
   }>;
 }
 
+type OuraRingActivityData = Array<{
+  steps: number;
+  // Add other fields as necessary
+}>;
+
+
 export default function Home({
   isConnected,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
   const [ouraRingSleepData, setOuraRingSleepData] = useState<OuraRingSleepData | null>(null);
+  const [ouraRingActivityData, setOuraRingActivityData] = useState<OuraRingActivityData | null>(null);
   const [fitbitAccessToken, setFitbitAccessToken] = useState<string | null>(null);
   const [fitbitWeightData, setFitbitWeightData] = useState<FitbitWeightResponse | null>(null);
   const [sleepScorePercentageMarkers, setSleepScorePercentageMarkers] = useState({
     arrow: 'bi_arrow-up.svg',
     contentStyles: "bg-[#F4F6F6] text-black"
   });
+  const [stepCountPercentageMarkers, setStepScorePercentageMarkers] = useState({
+    arrow: 'bi_arrow-up.svg',
+    contentStyles: "bg-[#F4F6F6] text-black"
+  });
+
   const [sleepPercentDiff, setSleepPercentDiff] = useState('')
+  const [stepCountPercentDiff, setStepCountPercentDiff] = useState('')
+
+  const ouraRingSteps = ouraRingActivityData && formatSteps(ouraRingActivityData[ouraRingActivityData.length - 1].steps);
 
   const router = useRouter();
 
   useEffect(() => {
-    let yesterday = getPreviousDate();
+    const fetchData = async () => {
+      try {
+        fetch(`/api/ouraringactivitylogs?start_date=2023-08-01&end_date=2023-08-28`)
+        .then(response => response.json())
+        .then(data => {
+          setOuraRingActivityData(data.data);
+          calculateStepCountDifference(data.data);
+          console.log("oura ring activity data: ", data);
+        })
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+    fetchData();
+  }, []);
+  
+
+
+  useEffect(() => {
+    const yesterday = getPreviousDate();
     fetch('/api/ouraringpersonalinfo')
     .then(response => response.json())
     .catch(error => console.error('Error:', error));
 
-    fetch(`/api/ouraringsleeplogs?start_date=2023-01-01&end_date=${yesterday}`)
+    fetch(`/api/ouraringsleeplogs?start_date=2023-08-01`)
     .then(response => response.json())
     .then(data => {
-      // console.log("oura ring sleep data: ", data)
       setOuraRingSleepData(data);
       calculateSleepScoreDifference(data);
     })
     .catch(error => console.error('Error:', error));
-
   }, []);
 
-  function calculateSleepScoreDifference(sleepData: any) {
+  function calculateSleepScoreDifference(sleepData: OuraRingSleepData) {
     let lastNightSleepScore = sleepData.data[sleepData.data.length - 1].score
     let dayBeforeSleepScore = sleepData.data[sleepData.data.length - 2].score
 
-    let percentageChange = calculatePercentageChange(dayBeforeSleepScore, lastNightSleepScore);
+    let percentageChange = calculateSleepScorePercentageChange(dayBeforeSleepScore, lastNightSleepScore);
 
-    setSleepPercentDiff(String(percentageChange))
+    setSleepPercentDiff(String(Math.abs(percentageChange)))
 
     if (percentageChange < 0) {
       setSleepScorePercentageMarkers({
@@ -97,6 +129,23 @@ export default function Home({
       })
     }
   }
+
+  function calculateStepCountDifference(activityData: OuraRingActivityData) {
+    let lastNightStepCount = activityData[activityData.length - 1].steps
+    let dayBeforeStepCount = activityData[activityData.length - 2].steps
+
+    let percentageChange = calculateStepCountPercentChange(dayBeforeStepCount, lastNightStepCount);
+
+    setStepCountPercentDiff(String(Math.abs(percentageChange)))
+
+    if (percentageChange < 0) {
+      setStepScorePercentageMarkers({
+        arrow: 'bi_arrow-down.svg',
+        contentStyles: 'bg-red-500 bg-opacity-10 text-red-600'
+      })
+    }
+  }
+  
  
   // Dependency: Node.js crypto module
   function base64URLEncode(str: any) {
@@ -169,7 +218,7 @@ export default function Home({
   
   useEffect(() => {
     if (fitbitAccessToken) {
-      getFitbitWeightTimeSeries();
+      // getFitbitWeightTimeSeries();
       // Clear query parameters
       // router.replace(router.pathname, undefined, { shallow: true });
     }
@@ -183,7 +232,7 @@ export default function Home({
       const weightTimeSeriesHeaders = {
         "Authorization": `Bearer ${fitbitAccessToken}`
       };
-      const weightTimeSeriesResponse = await fetch(weightTimeSeriesUrl, { headers: weightTimeSeriesHeaders });
+      const weightTimeSeriesResponse = await fetch(weightTimeSeriesUrl, {headers: weightTimeSeriesHeaders});
       if (!weightTimeSeriesResponse.ok) {
         throw new Error("Request failed.");
       }
@@ -236,10 +285,10 @@ export default function Home({
         <div className='flex flex-col font-light items-start border-red justify-center'>
           <div className='font-extralight mb-2 flex items-center'>Latest Sleep Score
             <span className={`inline-flex p-1 ml-2 justify-center items-center space-x-1 rounded-full ${sleepScorePercentageMarkers.contentStyles} font-extralight text-xs`}>
-            <span className='mr-px'>
+            <span className='mr-1'>
               <Image src={`/images/${sleepScorePercentageMarkers.arrow}`} alt="Arrow up" height={10} width={10} />
             </span>
-              {sleepPercentDiff}
+              {sleepPercentDiff}%
             </span>
           </div>
           <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</div>
@@ -247,8 +296,15 @@ export default function Home({
         </div>
         <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
         <div className='flex flex-col items-start border-red justify-center'>
-          <div className='font-extralight mb-2'>Today's Steps</div>
-          <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest mb-5'>5,000</div>
+          <div className='font-extralight mb-2'>Today&apos;s steps
+          <span className={`inline-flex p-1 ml-2 justify-center items-center space-x-1 rounded-full ${stepCountPercentageMarkers.contentStyles} font-extralight text-xs`}>
+            <span className='mr-1'>
+              <Image src={`/images/${stepCountPercentageMarkers.arrow}`} alt="Arrow up" height={10} width={10} />
+            </span>
+              {stepCountPercentDiff}%
+            </span>
+          </div>
+          <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest mb-5'>{ouraRingSteps}</div>
         </div>
         <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
         <div className='flex flex-col items-start border-red justify-center mr-8'>
