@@ -5,7 +5,7 @@ import React, {useState, useEffect} from 'react'
 import crypto from 'crypto';
 import {InferGetServerSidePropsType} from 'next'
 import Time from '../components/Time';
-import {getCurrentDate, getPreviousDate, calculateSleepScorePercentageChange, calculateStepCountPercentChange, formatSteps} from 'helpers/helpers';
+import {getCurrentDate, base64URLEncode, sha256, calculateSleepScorePercentageChange, calculateStepCountPercentChange, formatSteps} from 'helpers/helpers';
 
 export async function getServerSideProps(context: any) {
   try {
@@ -83,12 +83,15 @@ export default function Home({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        fetch(`/api/ouraringactivitylogs?start_date=2023-08-01&end_date=2023-08-28`)
+        const currentDate = new Date();
+        currentDate.setDate(currentDate.getDate() + 1);
+        const end_date = currentDate.toISOString().split('T')[0];
+
+        fetch(`/api/ouraringactivitylogs?start_date=2023-08-01&end_date=${end_date}`)
         .then(response => response.json())
         .then(data => {
           setOuraRingActivityData(data.data);
           calculateStepCountDifference(data.data);
-          console.log("oura ring activity data: ", data);
         })
       } catch (error) {
         console.error('Error:', error);
@@ -96,11 +99,8 @@ export default function Home({
     };
     fetchData();
   }, []);
-  
-
 
   useEffect(() => {
-    const yesterday = getPreviousDate();
     fetch('/api/ouraringpersonalinfo')
     .then(response => response.json())
     .catch(error => console.error('Error:', error));
@@ -144,20 +144,6 @@ export default function Home({
         contentStyles: 'bg-red-500 bg-opacity-10 text-red-600'
       })
     }
-  }
-  
- 
-  // Dependency: Node.js crypto module
-  function base64URLEncode(str: any) {
-    return str.toString('base64')
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=/g, '');
-  }
-  
-  // Dependency: Node.js crypto module
-  function sha256(buffer: any) {
-    return crypto.createHash('sha256').update(buffer).digest();
   }
 
   useEffect(() => {
@@ -218,9 +204,10 @@ export default function Home({
   
   useEffect(() => {
     if (fitbitAccessToken) {
-      // getFitbitWeightTimeSeries();
+      getFitbitWeightTimeSeries();
+      
       // Clear query parameters
-      // router.replace(router.pathname, undefined, { shallow: true });
+      router.replace(router.pathname, undefined, {shallow: true});
     }
   }, [fitbitAccessToken]);
   
