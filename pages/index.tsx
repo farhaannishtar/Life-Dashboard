@@ -66,11 +66,11 @@ export default function Home({
   const [fitbitWeightData, setFitbitWeightData] = useState<FitbitWeightResponse | null>(null);
   const [sleepScorePercentageMarkers, setSleepScorePercentageMarkers] = useState({
     arrow: 'bi_arrow-up.svg',
-    contentStyles: "bg-[#F4F6F6] text-black"
+    contentStyles: "bg-[#F4F6F6] text-[#3D37F1]"
   });
   const [stepCountPercentageMarkers, setStepScorePercentageMarkers] = useState({
     arrow: 'bi_arrow-up.svg',
-    contentStyles: "bg-[#F4F6F6] text-black"
+    contentStyles: "bg-[#F4F6F6] text-[#3D37F1]"
   });
 
   const [sleepPercentDiff, setSleepPercentDiff] = useState('')
