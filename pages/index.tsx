@@ -204,9 +204,10 @@ export default function Home({
   
   useEffect(() => {
     if (fitbitAccessToken) {
-      // getFitbitWeightTimeSeries();
+      getFitbitWeightTimeSeries();
+      
       // Clear query parameters
-      // router.replace(router.pathname, undefined, { shallow: true });
+      router.replace(router.pathname, undefined, {shallow: true});
     }
   }, [fitbitAccessToken]);
   
