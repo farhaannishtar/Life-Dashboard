@@ -37,6 +37,15 @@ export const calculateStepCountPercentChange = (
   return parseFloat(percentageChange.toFixed(1));
 };
 
+export const calculateMonthWeightChange = (
+  lastMonthWeight: number,
+  currentWeight: number
+): number => {
+  let percentageChange =
+    ((currentWeight - lastMonthWeight) / lastMonthWeight) * 100;
+  return parseFloat(percentageChange.toFixed(1));
+};
+
 export const formatSteps = (steps: number): string => {
   return steps.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
