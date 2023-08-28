@@ -5,7 +5,7 @@ import React, {useState, useEffect} from 'react'
 import crypto from 'crypto';
 import {InferGetServerSidePropsType} from 'next'
 import Time from '../components/Time';
-import {getCurrentDate, base64URLEncode, sha256, calculateSleepScorePercentageChange, calculateStepCountPercentChange, formatSteps} from 'helpers/helpers';
+import {getCurrentDate, base64URLEncode, sha256, calculateSleepScorePercentageChange, calculateMonthWeightChange, calculateStepCountPercentChange, formatSteps} from 'helpers/helpers';
 
 export async function getServerSideProps(context: any) {
   try {
@@ -39,7 +39,7 @@ interface FitbitBmiDataEntry {
   value: number;
 }
 
-interface FitbitWeightResponse {
+interface FitbitWeightData {
   'body-weight': FitbitWeightEntry[];
 }  
 
@@ -63,7 +63,7 @@ export default function Home({
   const [ouraRingSleepData, setOuraRingSleepData] = useState<OuraRingSleepData | null>(null);
   const [ouraRingActivityData, setOuraRingActivityData] = useState<OuraRingActivityData | null>(null);
   const [fitbitAccessToken, setFitbitAccessToken] = useState<string | null>(null);
-  const [fitbitWeightData, setFitbitWeightData] = useState<FitbitWeightResponse | null>(null);
+  const [fitbitWeightData, setFitbitWeightData] = useState<FitbitWeightData | null>(null);
   const [sleepScorePercentageMarkers, setSleepScorePercentageMarkers] = useState({
     arrow: 'bi_arrow-up.svg',
     contentStyles: "bg-[#F4F6F6] text-[#3D37F1]"
@@ -72,9 +72,14 @@ export default function Home({
     arrow: 'bi_arrow-up.svg',
     contentStyles: "bg-[#F4F6F6] text-[#3D37F1]"
   });
+  const [weightPercentageMarkers, setWeightPercentageMarkers] = useState({
+    arrow: 'bi_arrow-up.svg',
+    contentStyles: "bg-[#F4F6F6] text-[#3D37F1]"
+  });
 
   const [sleepPercentDiff, setSleepPercentDiff] = useState('')
   const [stepCountPercentDiff, setStepCountPercentDiff] = useState('')
+  const [weightPercentDiff, setWeightPercentDiff] = useState('')
 
   const ouraRingSteps = ouraRingActivityData && formatSteps(ouraRingActivityData[ouraRingActivityData.length - 1].steps);
 
@@ -144,6 +149,26 @@ export default function Home({
         contentStyles: 'bg-red-500 bg-opacity-10 text-red-600'
       })
     }
+  }
+
+  function calculateWeightDifference(fitbitWeightData: FitbitWeightData) {
+    console.log("fitbitWeightData: ", fitbitWeightData);
+    let currentWeight = fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value;
+    let lastMonthWeight = fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 30].value;
+
+    console.log("currentWeight: ", currentWeight, "lastMonthWeight: ", lastMonthWeight);
+
+    let percentageChange = calculateMonthWeightChange(lastMonthWeight, currentWeight);
+
+    setWeightPercentDiff(String(Math.abs(percentageChange)))
+
+    if (percentageChange < 0) {
+      setWeightPercentageMarkers({
+        arrow: 'bi_arrow-down.svg',
+        contentStyles: 'bg-red-500 bg-opacity-10 text-red-600'
+      })
+    }
+
   }
 
   useEffect(() => {
@@ -225,6 +250,7 @@ export default function Home({
       }
       const weightTimeSeriesResponseData = await weightTimeSeriesResponse.json();
       setFitbitWeightData(weightTimeSeriesResponseData);
+      calculateWeightDifference(weightTimeSeriesResponseData);
     } catch (error) {
       console.error(error);
     }
@@ -295,7 +321,14 @@ export default function Home({
         </div>
         <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
         <div className='flex flex-col items-start border-red justify-center mr-8'>
-          <div className='font-extralight mb-2'>Latest Weight</div>
+          <div className='font-extralight mb-2'>Latest Weight
+            <span className={`inline-flex p-1 ml-2 justify-center items-center space-x-1 rounded-full ${weightPercentageMarkers.contentStyles} font-extralight text-xs`}>
+              <span className='mr-1'>
+                <Image src={`/images/${weightPercentageMarkers.arrow}`} alt="Arrow up" height={10} width={10} />
+              </span>
+              {weightPercentDiff}% since last month
+            </span>
+          </div>
           <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest'>{fitbitWeightData && fitbitWeightData["body-weight"] ? Math.round(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2) : ''}lb</div>
           <div className='font-extralight text-sm mt-1'>{calculateBMI()}% BMI</div>
         </div>
