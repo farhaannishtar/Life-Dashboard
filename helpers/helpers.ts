@@ -42,9 +42,11 @@ export const calculateMonthWeightChange = (
   lastMonthWeight: number,
   currentWeight: number
 ): number => {
-  let percentageChange =
-    ((currentWeight - lastMonthWeight) / lastMonthWeight) * 100;
-  return parseFloat(percentageChange.toFixed(1));
+  const lastMonthWeightInLbs = lastMonthWeight * 2.20462;
+  const currentWeightInLbs = currentWeight * 2.20462;
+  const lbsChange = currentWeightInLbs - lastMonthWeightInLbs;
+
+  return parseFloat(lbsChange.toFixed(1));
 };
 
 export const getDaysSinceLastMonth = (dateString: string): number => {

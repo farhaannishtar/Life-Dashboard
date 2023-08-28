@@ -5,7 +5,7 @@ import React, {useState, useEffect} from 'react'
 import crypto from 'crypto';
 import {InferGetServerSidePropsType} from 'next'
 import Time from '../components/Time';
-import {getCurrentDate, base64URLEncode, sha256, calculateSleepScorePercentageChange, calculateMonthWeightChange, calculateStepCountPercentChange, formatSteps} from 'helpers/helpers';
+import {getCurrentDate, base64URLEncode, getDaysSinceLastMonth, sha256, calculateSleepScorePercentageChange, calculateMonthWeightChange, calculateStepCountPercentChange, formatSteps} from 'helpers/helpers';
 
 export async function getServerSideProps(context: any) {
   try {
@@ -72,14 +72,14 @@ export default function Home({
     arrow: 'bi_arrow-up.svg',
     contentStyles: "bg-[#F4F6F6] text-[#3D37F1]"
   });
-  const [weightPercentageMarkers, setWeightPercentageMarkers] = useState({
+  const [weightMarkers, setWeightMarkers] = useState({
     arrow: 'bi_arrow-up.svg',
     contentStyles: "bg-[#F4F6F6] text-[#3D37F1]"
   });
 
   const [sleepPercentDiff, setSleepPercentDiff] = useState('')
   const [stepCountPercentDiff, setStepCountPercentDiff] = useState('')
-  const [weightPercentDiff, setWeightPercentDiff] = useState('')
+  const [weightDiff, setWeightDiff] = useState('')
 
   const ouraRingSteps = ouraRingActivityData && formatSteps(ouraRingActivityData[ouraRingActivityData.length - 1].steps);
 
@@ -154,16 +154,19 @@ export default function Home({
   function calculateWeightDifference(fitbitWeightData: FitbitWeightData) {
     console.log("fitbitWeightData: ", fitbitWeightData);
     let currentWeight = fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value;
-    let lastMonthWeight = fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 30].value;
+    let daysSinceLastMonth = getDaysSinceLastMonth(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].dateTime);
+    let lastMonthWeight = fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - daysSinceLastMonth-1].value;
 
     console.log("currentWeight: ", currentWeight, "lastMonthWeight: ", lastMonthWeight);
 
-    let percentageChange = calculateMonthWeightChange(lastMonthWeight, currentWeight);
+    let weightChange = calculateMonthWeightChange(lastMonthWeight, currentWeight);
 
-    setWeightPercentDiff(String(Math.abs(percentageChange)))
+    console.log("weightChange: ", weightChange);
 
-    if (percentageChange < 0) {
-      setWeightPercentageMarkers({
+    setWeightDiff(String(Math.abs(weightChange)))
+
+    if (weightChange < 0) {
+      setWeightMarkers({
         arrow: 'bi_arrow-down.svg',
         contentStyles: 'bg-red-500 bg-opacity-10 text-red-600'
       })
@@ -281,7 +284,7 @@ export default function Home({
       </Head>
       
       
-      <div className='flex justify-between w-full'>
+      <div className='flex justify-between w-full max-w-screen-2xl mx-auto'>
         <div className='ml-10 mt-10'>
           <p className="text-black font-[Red Hat Text] text-3xl font-bold leading-normal tracking-[0.02rem]">Good Morning, Faraaz !</p>
         </div>
@@ -292,7 +295,7 @@ export default function Home({
         </p>    
       </div>
 
-      <div className="flex justify-around rounded-lg border-gray-200 bg-white shadow-2xl h-[11.25rem] flex-shrink-0 m-10">
+      <div className="flex justify-around rounded-lg border-gray-200 bg-white shadow-2xl h-[11.25rem] flex-shrink-0 m-10 max-w-screen-2xl mx-auto">
         <Time />
         <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
         <div className='flex flex-col font-light items-start border-red justify-center'>
@@ -322,11 +325,11 @@ export default function Home({
         <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
         <div className='flex flex-col items-start border-red justify-center mr-8'>
           <div className='font-extralight mb-2'>Latest Weight
-            <span className={`inline-flex p-1 ml-2 justify-center items-center space-x-1 rounded-full ${weightPercentageMarkers.contentStyles} font-extralight text-xs`}>
+            <span className={`inline-flex p-1 ml-2 justify-center items-center space-x-1 rounded-full ${weightMarkers.contentStyles} font-extralight text-xs`}>
               <span className='mr-1'>
-                <Image src={`/images/${weightPercentageMarkers.arrow}`} alt="Arrow up" height={10} width={10} />
+                <Image src={`/images/${weightMarkers.arrow}`} alt="Arrow up" height={10} width={10} />
               </span>
-              {weightPercentDiff}% since last month
+              {weightDiff} lbs since last month
             </span>
           </div>
           <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest'>{fitbitWeightData && fitbitWeightData["body-weight"] ? Math.round(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2) : ''}lb</div>
