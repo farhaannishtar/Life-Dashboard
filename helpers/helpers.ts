@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { subMonths, differenceInDays } from "date-fns";
 
 export const getCurrentDate = (): string => {
   const now = new Date();
@@ -35,6 +36,25 @@ export const calculateStepCountPercentChange = (
 ): number => {
   let percentageChange = ((todaySteps - yesterdaySteps) / yesterdaySteps) * 100;
   return parseFloat(percentageChange.toFixed(1));
+};
+
+export const calculateMonthWeightChange = (
+  lastMonthWeight: number,
+  currentWeight: number
+): number => {
+  const lastMonthWeightInLbs = lastMonthWeight * 2.20462;
+  const currentWeightInLbs = currentWeight * 2.20462;
+  const lbsChange = currentWeightInLbs - lastMonthWeightInLbs;
+
+  return parseFloat(lbsChange.toFixed(1));
+};
+
+export const getDaysSinceLastMonth = (dateString: string): number => {
+  const currentDate = new Date(dateString);
+  const oneMonthBefore = subMonths(currentDate, 1);
+  const daysSince = differenceInDays(currentDate, oneMonthBefore);
+
+  return daysSince;
 };
 
 export const formatSteps = (steps: number): string => {
