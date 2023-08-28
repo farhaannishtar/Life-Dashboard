@@ -34,11 +34,6 @@ interface FitbitWeightEntry {
   value: number;
 }
 
-interface FitbitBmiDataEntry {
-  dateTime: string;
-  value: number;
-}
-
 interface FitbitWeightData {
   'body-weight': FitbitWeightEntry[];
 }  
@@ -106,10 +101,6 @@ export default function Home({
   }, []);
 
   useEffect(() => {
-    fetch('/api/ouraringpersonalinfo')
-    .then(response => response.json())
-    .catch(error => console.error('Error:', error));
-
     fetch(`/api/ouraringsleeplogs?start_date=2023-08-01`)
     .then(response => response.json())
     .then(data => {
@@ -152,17 +143,11 @@ export default function Home({
   }
 
   function calculateWeightDifference(fitbitWeightData: FitbitWeightData) {
-    console.log("fitbitWeightData: ", fitbitWeightData);
     let currentWeight = fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value;
     let daysSinceLastMonth = getDaysSinceLastMonth(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].dateTime);
     let lastMonthWeight = fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - daysSinceLastMonth-1].value;
 
-    console.log("currentWeight: ", currentWeight, "lastMonthWeight: ", lastMonthWeight);
-
     let weightChange = calculateMonthWeightChange(lastMonthWeight, currentWeight);
-
-    console.log("weightChange: ", weightChange);
-
     setWeightDiff(String(Math.abs(weightChange)))
 
     if (weightChange < 0) {
@@ -171,7 +156,6 @@ export default function Home({
         contentStyles: 'bg-red-500 bg-opacity-10 text-red-600'
       })
     }
-
   }
 
   useEffect(() => {
@@ -182,6 +166,45 @@ export default function Home({
     let verifier: any;
     let challenge: any;
 
+    // Function to refresh the access token
+    async function refreshAccessToken(refresh_token: string) {
+      const clientId = '23R3JP';
+      const grantType = 'refresh_token';
+      const url = 'https://api.fitbit.com/oauth2/token';
+      const params = new URLSearchParams();
+    
+      params.append('client_id', clientId);
+      params.append('grant_type', grantType);
+      params.append('refresh_token', refresh_token);
+    
+      const requestOptions: RequestInit = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params,
+      };
+    
+      const response = await fetch(url, requestOptions);
+    
+      if (response.ok) {
+        const jsonData = await response.json();
+        console.log("New Token Data: ", jsonData);
+        localStorage.setItem('fitbitAccessToken', jsonData.access_token);
+        localStorage.setItem('fitbitRefreshToken', jsonData.refresh_token);
+        scheduleRefresh(jsonData.expires_in, jsonData.refresh_token);  // Schedule next refresh
+      } else {
+        console.log('HTTP-Error: ' + response.status);
+      }
+    }    
+    
+    // Function to schedule the token refresh
+    function scheduleRefresh(expires_in: number, refresh_token: string) {
+      setTimeout(() => {
+        refreshAccessToken(refresh_token);
+      }, (expires_in - 5));  // Refresh 10 minutes before expiration
+    }
+
     if (!code) {
       verifier = base64URLEncode(crypto.randomBytes(32));
       challenge = base64URLEncode(sha256(verifier));
@@ -190,9 +213,14 @@ export default function Home({
       router.push(fitbitAuthUrl);
     }
     const storedToken = localStorage.getItem('fitbitAccessToken');
+    const storedRefreshToken = localStorage.getItem('fitbitRefreshToken');  
 
     if (storedToken) {
       setFitbitAccessToken(storedToken);
+      // Here, also schedule the token refresh using the stored refresh token
+      if (storedRefreshToken) {
+        scheduleRefresh(40, storedRefreshToken);  // assuming 8 hours = 28800 seconds
+      }
     } else {
         // console.log("code: ", code)
         verifier = localStorage.getItem('verifier');
@@ -220,8 +248,10 @@ export default function Home({
           if (response.ok) {
             const jsonData = await response.json();
             console.log("jsonData: ", jsonData);
-            setFitbitAccessToken(jsonData.access_token)
+            setFitbitAccessToken(jsonData.access_token);
             localStorage.setItem('fitbitAccessToken', jsonData.access_token);
+            localStorage.setItem('fitbitRefreshToken', jsonData.refresh_token);
+            scheduleRefresh(jsonData.expires_in, jsonData.refresh_token);  // Schedule the first refresh
           } else {
             console.log('HTTP-Error: ' + response.status);
           }
@@ -233,7 +263,6 @@ export default function Home({
   useEffect(() => {
     if (fitbitAccessToken) {
       getFitbitWeightTimeSeries();
-      
       // Clear query parameters
       router.replace(router.pathname, undefined, {shallow: true});
     }
@@ -274,8 +303,6 @@ export default function Home({
     return Math.round(Number(kilos) / (1.72 * 1.72)) 
   }
 
-  // console.log("ouraRingSleepData: ", ouraRingSleepData);
-  
   return (
     <div className="bg-gray-100 h-screen">
       <Head>
@@ -336,22 +363,6 @@ export default function Home({
           <div className='font-extralight text-sm mt-1'>{calculateBMI()}% BMI</div>
         </div>
       </div>
-
-
-      {/* <div>
-        <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Fitbit Data</h2>
-        <div className='flex gap-1'>
-          <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Latest Weight Measurement:</p>
-          <p className='mb- 2mt-0 text-3xl font-medium leading-tight text-primary'>{fitbitWeightData && fitbitWeightData["body-weight"] ? fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2 : ''}</p>
-        </div>
-      </div>
-      <div>
-        <h2 className='mb-2 mt-0 text-5xl font-medium leading-tight text-primary'>Oura Ring Data</h2>
-        <div className='flex gap-1'>
-          <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>Last Night's Sleep Score:</p>
-          <p className='mb-2 mt-0 text-3xl font-medium leading-tight text-primary'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</p>
-        </div>
-      </div> */}
     </div>
   )
 }
