@@ -202,7 +202,7 @@ export default function Home({
     function scheduleRefresh(expires_in: number, refresh_token: string) {
       setTimeout(() => {
         refreshAccessToken(refresh_token);
-      }, (expires_in - 5));  // Refresh 10 minutes before expiration
+      }, (expires_in - 600) * 1000);  // Refresh 10 minutes before expiration
     }
 
     if (!code) {
@@ -219,10 +219,9 @@ export default function Home({
       setFitbitAccessToken(storedToken);
       // Here, also schedule the token refresh using the stored refresh token
       if (storedRefreshToken) {
-        scheduleRefresh(40, storedRefreshToken);  // assuming 8 hours = 28800 seconds
+        scheduleRefresh(28800, storedRefreshToken);  // assuming 8 hours = 28800 seconds
       }
     } else {
-        // console.log("code: ", code)
         verifier = localStorage.getItem('verifier');
         async function sendFitbitRequest() {
           const clientId = '23R3JP';
