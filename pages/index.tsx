@@ -6,6 +6,8 @@ import crypto from 'crypto';
 import {InferGetServerSidePropsType} from 'next'
 import Time from '../components/Time';
 import {getCurrentDate, base64URLEncode, getDaysSinceLastMonth, sha256, calculateSleepScorePercentageChange, calculateMonthWeightChange, calculateStepCountPercentChange, formatSteps} from 'helpers/helpers';
+import SleepChart from 'components/SleepChart';
+import SleepChartTest from 'components/SleepChartTest';
 
 export async function getServerSideProps(context: any) {
   try {
@@ -46,6 +48,15 @@ interface OuraRingSleepData {
   }>;
 }
 
+interface OuraRingSleepDataChart {
+  data: {
+    score: number;
+    day: number;
+    // Add other fields as necessary
+  }[];
+}
+
+
 type OuraRingActivityData = Array<{
   steps: number;
   // Add other fields as necessary
@@ -57,7 +68,7 @@ export default function Home({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
   const [ouraRingSleepData, setOuraRingSleepData] = useState<OuraRingSleepData | null>(null);
-  const [parsedOuraRingSleepData, setParsedOuraRingSleepData] = useState<OuraRingSleepData | null>(null); 
+  const [parsedOuraRingSleepData, setParsedOuraRingSleepData] = useState<OuraRingSleepDataChart | null>(null); 
   const [ouraRingActivityData, setOuraRingActivityData] = useState<OuraRingActivityData | null>(null);
   const [fitbitAccessToken, setFitbitAccessToken] = useState<string | null>(null);
   const [fitbitWeightData, setFitbitWeightData] = useState<FitbitWeightData | null>(null);
@@ -110,18 +121,17 @@ export default function Home({
       setOuraRingSleepData(data);
       console.log("sleep data: ", data)
       
-      setParsedOuraRingSleepData(data.data.map((entry: any) => { // Changed `data` to `data.data` and `data: OuraRingSleepData` to `entry`
+      const parsedData = data.data.map((entry: any) => {
         const date = new Date(Date.parse(entry.day)); // Changed `data.day` to `entry.day`
         const dayOfMonth = date.getDate();
-      
         return {
-          ...entry, // Changed `...data` to `...entry`
           day: dayOfMonth,
+          score: entry.score,
         };
-      }))
-      
+      });
+      setParsedOuraRingSleepData({ data: parsedData});
       calculateSleepScoreDifference(data);
-    })
+  })
     .catch(error => console.error('Error:', error));
   }, []);
   
@@ -383,6 +393,13 @@ export default function Home({
 
       <div>
         <h1 className='ml-10 mt-10 text-2xl font-bold'>Trends</h1>
+        {
+          parsedOuraRingSleepData && 
+          <div className='mx-auto w-full border border-red-300 flex justify-center'>
+            <SleepChart sleepData={parsedOuraRingSleepData} />
+          </div>
+        }   
+        {/* <SleepChartTest /> */}
       </div>
     </div>
   )
