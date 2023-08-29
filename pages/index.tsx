@@ -310,7 +310,7 @@ export default function Home({
       </Head>
       
       
-      <div className='flex justify-between w-full max-w-screen-2xl mx-auto'>
+      <div className='flex justify-between w-full max-w-screen-2xl mx-auto px-4'>
         <div className='ml-10 mt-10'>
           <p className="text-black font-[Red Hat Text] text-3xl font-bold leading-normal tracking-[0.02rem]">Good Morning, Faraaz !</p>
         </div>
@@ -321,7 +321,7 @@ export default function Home({
         </p>    
       </div>
 
-      <div className="flex justify-around rounded-lg border-gray-200 bg-white shadow-2xl h-[11.25rem] flex-shrink-0 m-10 max-w-screen-2xl mx-auto">
+      <div className="flex justify-around rounded-lg border-gray-200 bg-white shadow-2xl flex-shrink-0 m-10 max-w-screen-2xl mx-auto py-12">
         <Time />
         <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
         <div className='flex flex-col font-light items-start border-red justify-center'>
@@ -361,6 +361,10 @@ export default function Home({
           <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest'>{fitbitWeightData && fitbitWeightData["body-weight"] ? Math.round(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2) : ''}lb</div>
           <div className='font-extralight text-sm mt-1'>{calculateBMI()}% BMI</div>
         </div>
+      </div>
+
+      <div>
+        <h1 className='ml-10 mt-10 text-2xl font-bold'>Trends</h1>
       </div>
     </div>
   )
