@@ -35,19 +35,22 @@ const SleepChart: React.FC<SleepChartProps> = ({ sleepData }) => {
     } 
 
     const filteredData = parsedSleepData.data.filter(entry => entry.day !== undefined && entry.score !== undefined);
-
+    const sortedData = filteredData.sort((a, b) => a.day - b.day);
 
     const chart = Plot.plot({
+      width: 1150, // width in pixels
       x: {
         label: 'Day of the Month',
-        domain: [1, 31]
+        domain: [1, 31],
+        ticks: Array.from({ length: 31 }, (_, i) => i + 1)
       },
       y: {
         label: 'Sleep Score',
-        domain: [1, 100]
+        domain: [1, 100],
+        grid: true  // adds grid lines for the y-axis
       },
       marks: [
-        Plot.line(filteredData, { x: 'day', y: 'score' })
+        Plot.line(sortedData, { x: 'day', y: 'score', stroke: "#1A2B88" })
       ],
     });
 

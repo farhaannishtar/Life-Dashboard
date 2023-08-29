@@ -114,7 +114,7 @@ export default function Home({
   }, []);
 
   useEffect(() => {
-    fetch(`/api/ouraringsleeplogs?start_date=2023-05-13`)
+    fetch(`/api/ouraringsleeplogs?start_date=2023-08-01`)
     .then(response => response.json())
     .then(data => {
       setOuraRingSleepData(data);
@@ -398,7 +398,7 @@ export default function Home({
         <h1 className='max-w-screen-2xl mx-auto px-10 mt-10 text-2xl font-bold'>Trends</h1>
         {
           parsedOuraRingSleepData && 
-          <div className='mx-auto w-full flex justify-center pb-10'>
+          <div className='mx-auto w-full flex justify-center pb-10 mt-4'>
             <SleepChart sleepData={parsedOuraRingSleepData} />
           </div>
         }   
