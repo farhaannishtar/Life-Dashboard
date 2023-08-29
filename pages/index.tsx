@@ -41,6 +41,7 @@ interface FitbitWeightData {
 interface OuraRingSleepData {
   data: Array<{
     score: number;
+    day: string;
     // Add other fields as necessary
   }>;
 }
@@ -56,6 +57,7 @@ export default function Home({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
   const [ouraRingSleepData, setOuraRingSleepData] = useState<OuraRingSleepData | null>(null);
+  const [parsedOuraRingSleepData, setParsedOuraRingSleepData] = useState<OuraRingSleepData | null>(null); 
   const [ouraRingActivityData, setOuraRingActivityData] = useState<OuraRingActivityData | null>(null);
   const [fitbitAccessToken, setFitbitAccessToken] = useState<string | null>(null);
   const [fitbitWeightData, setFitbitWeightData] = useState<FitbitWeightData | null>(null);
@@ -71,6 +73,7 @@ export default function Home({
     arrow: 'bi_arrow-up.svg',
     contentStyles: "bg-[#F4F6F6] text-[#3D37F1]"
   });
+
 
   const [sleepPercentDiff, setSleepPercentDiff] = useState('')
   const [stepCountPercentDiff, setStepCountPercentDiff] = useState('')
@@ -101,14 +104,29 @@ export default function Home({
   }, []);
 
   useEffect(() => {
-    fetch(`/api/ouraringsleeplogs?start_date=2023-08-01`)
+    fetch(`/api/ouraringsleeplogs?start_date=2023-05-13`)
     .then(response => response.json())
     .then(data => {
       setOuraRingSleepData(data);
+      console.log("sleep data: ", data)
+      
+      setParsedOuraRingSleepData(data.data.map((entry: any) => { // Changed `data` to `data.data` and `data: OuraRingSleepData` to `entry`
+        const date = new Date(Date.parse(entry.day)); // Changed `data.day` to `entry.day`
+        const dayOfMonth = date.getDate();
+      
+        return {
+          ...entry, // Changed `...data` to `...entry`
+          day: dayOfMonth,
+        };
+      }))
+      
       calculateSleepScoreDifference(data);
     })
     .catch(error => console.error('Error:', error));
   }, []);
+  
+
+  console.log("parsed sleep data: ", parsedOuraRingSleepData)
 
   function calculateSleepScoreDifference(sleepData: OuraRingSleepData) {
     let lastNightSleepScore = sleepData.data[sleepData.data.length - 1].score
