@@ -351,9 +351,9 @@ export default function Home({
       </div>
 
       <div className="flex-shrink-0 m-10 max-w-screen-2xl mx-auto px-10">
-        <div className="flex justify-around rounded-lg border-gray-200 bg-white shadow-2xl flex-shrink-0 py-12">
+        <div className="flex justify-around items-center rounded-lg border-gray-200 bg-white shadow-2xl flex-shrink-0 py-12">
           <Time />
-          <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
+          <div className="border-l border-dashed border-gray-300 h-24 self-center"></div>
           <div className='flex flex-col font-light items-start border-red justify-center'>
             <div className='font-extralight mb-2 flex items-center'>Latest Sleep Score
               <span className={`inline-flex p-1 ml-2 justify-center items-center space-x-1 rounded-full ${sleepScorePercentageMarkers.contentStyles} font-extralight text-xs`}>
@@ -366,7 +366,7 @@ export default function Home({
             <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</div>
             <div className='font-extralight text-sm mt-1'> keep it up 💪🏾 </div>
           </div>
-          <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
+          <div className="border-l border-dashed border-gray-300 h-24 self-center"></div>
           <div className='flex flex-col items-start border-red justify-center'>
             <div className='font-extralight mb-2'>Today&apos;s steps
             <span className={`inline-flex p-1 ml-2 justify-center items-center space-x-1 rounded-full ${stepCountPercentageMarkers.contentStyles} font-extralight text-xs`}>
@@ -378,7 +378,7 @@ export default function Home({
             </div>
             <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest mb-5'>{ouraRingSteps}</div>
           </div>
-          <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
+          <div className="border-l border-dashed border-gray-300 h-24 self-center"></div>
           <div className='flex flex-col items-start border-red justify-center mr-8'>
             <div className='font-extralight mb-2'>Latest Weight
               <span className={`inline-flex p-1 ml-2 justify-center items-center space-x-1 rounded-full ${weightMarkers.contentStyles} font-extralight text-xs`}>
