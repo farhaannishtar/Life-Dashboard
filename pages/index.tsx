@@ -7,7 +7,6 @@ import {InferGetServerSidePropsType} from 'next'
 import Time from '../components/Time';
 import {getCurrentDate, base64URLEncode, getDaysSinceLastMonth, sha256, calculateSleepScorePercentageChange, calculateMonthWeightChange, calculateStepCountPercentChange, formatSteps} from 'helpers/helpers';
 import SleepChart from 'components/SleepChart';
-import SleepChartTest from 'components/SleepChartTest';
 
 export async function getServerSideProps(context: any) {
   try {
@@ -331,63 +330,67 @@ export default function Home({
   }
 
   return (
-    <div className="bg-gray-100 h-screen">
+    <div className="bg-gray-200">
       <Head>
         <title>Life Dashboard</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       
       
-      <div className='flex justify-between w-full max-w-screen-2xl mx-auto px-4'>
-        <div className='ml-10 mt-10'>
-          <p className="text-black font-[Red Hat Text] text-3xl font-bold leading-normal tracking-[0.02rem]">Good Morning, Faraaz !</p>
-        </div>
-        <p className="flex items-center text-[#001EC0] font-[Red Hat Text] font-normal leading-normal tracking-[0.014rem] mt-6 mr-10">
-          <Image src="/images/logo.svg" alt="Logo" height={32} width={48} />
-          <span className="ml-1 text-2xl font-light">life</span>
-          <span className="ml-1 text-blue-800 font-red-hat text-2xl font-bold tracking-wide">dashboard</span>
-        </p>    
+      <div className='w-full max-w-screen-2xl mx-auto px-10'>
+        <div className='flex justify-between w-full'>
+          <div className='mt-10'>
+            <p className="text-black font-[Red Hat Text] text-3xl font-bold leading-normal tracking-[0.02rem]">Good Morning, Faraaz !</p>
+          </div>
+          <p className="flex items-center text-[#001EC0] font-[Red Hat Text] font-normal leading-normal tracking-[0.014rem] mt-6">
+            <Image src="/images/logo.svg" alt="Logo" height={32} width={48} />
+            <span className="ml-1 text-2xl font-light">life</span>
+            <span className="ml-1 text-blue-800 font-red-hat text-2xl font-bold tracking-wide">dashboard</span>
+          </p>
+        </div>    
       </div>
 
-      <div className="flex justify-around rounded-lg border-gray-200 bg-white shadow-2xl flex-shrink-0 m-10 max-w-screen-2xl mx-auto py-12">
-        <Time />
-        <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
-        <div className='flex flex-col font-light items-start border-red justify-center'>
-          <div className='font-extralight mb-2 flex items-center'>Latest Sleep Score
-            <span className={`inline-flex p-1 ml-2 justify-center items-center space-x-1 rounded-full ${sleepScorePercentageMarkers.contentStyles} font-extralight text-xs`}>
-            <span className='mr-1'>
-              <Image src={`/images/${sleepScorePercentageMarkers.arrow}`} alt="Arrow up" height={10} width={10} />
-            </span>
-              {sleepPercentDiff}%
-            </span>
-          </div>
-          <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</div>
-          <div className='font-extralight text-sm mt-1'> keep it up 💪🏾 </div>
-        </div>
-        <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
-        <div className='flex flex-col items-start border-red justify-center'>
-          <div className='font-extralight mb-2'>Today&apos;s steps
-          <span className={`inline-flex p-1 ml-2 justify-center items-center space-x-1 rounded-full ${stepCountPercentageMarkers.contentStyles} font-extralight text-xs`}>
-            <span className='mr-1'>
-              <Image src={`/images/${stepCountPercentageMarkers.arrow}`} alt="Arrow up" height={10} width={10} />
-            </span>
-              {stepCountPercentDiff}%
-            </span>
-          </div>
-          <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest mb-5'>{ouraRingSteps}</div>
-        </div>
-        <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
-        <div className='flex flex-col items-start border-red justify-center mr-8'>
-          <div className='font-extralight mb-2'>Latest Weight
-            <span className={`inline-flex p-1 ml-2 justify-center items-center space-x-1 rounded-full ${weightMarkers.contentStyles} font-extralight text-xs`}>
+      <div className="flex-shrink-0 m-10 max-w-screen-2xl mx-auto px-10">
+        <div className="flex justify-around rounded-lg border-gray-200 bg-white shadow-2xl flex-shrink-0 py-12">
+          <Time />
+          <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
+          <div className='flex flex-col font-light items-start border-red justify-center'>
+            <div className='font-extralight mb-2 flex items-center'>Latest Sleep Score
+              <span className={`inline-flex p-1 ml-2 justify-center items-center space-x-1 rounded-full ${sleepScorePercentageMarkers.contentStyles} font-extralight text-xs`}>
               <span className='mr-1'>
-                <Image src={`/images/${weightMarkers.arrow}`} alt="Arrow up" height={10} width={10} />
+                <Image src={`/images/${sleepScorePercentageMarkers.arrow}`} alt="Arrow up" height={10} width={10} />
               </span>
-              {weightDiff} lbs since last month
-            </span>
+                {sleepPercentDiff}%
+              </span>
+            </div>
+            <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</div>
+            <div className='font-extralight text-sm mt-1'> keep it up 💪🏾 </div>
           </div>
-          <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest'>{fitbitWeightData && fitbitWeightData["body-weight"] ? Math.round(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2) : ''}lb</div>
-          <div className='font-extralight text-sm mt-1'>{calculateBMI()}% BMI</div>
+          <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
+          <div className='flex flex-col items-start border-red justify-center'>
+            <div className='font-extralight mb-2'>Today&apos;s steps
+            <span className={`inline-flex p-1 ml-2 justify-center items-center space-x-1 rounded-full ${stepCountPercentageMarkers.contentStyles} font-extralight text-xs`}>
+              <span className='mr-1'>
+                <Image src={`/images/${stepCountPercentageMarkers.arrow}`} alt="Arrow up" height={10} width={10} />
+              </span>
+                {stepCountPercentDiff}%
+              </span>
+            </div>
+            <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest mb-5'>{ouraRingSteps}</div>
+          </div>
+          <div className="border-l border-dashed border-gray-300 h-24 transform translate-y-1/2"></div>
+          <div className='flex flex-col items-start border-red justify-center mr-8'>
+            <div className='font-extralight mb-2'>Latest Weight
+              <span className={`inline-flex p-1 ml-2 justify-center items-center space-x-1 rounded-full ${weightMarkers.contentStyles} font-extralight text-xs`}>
+                <span className='mr-1'>
+                  <Image src={`/images/${weightMarkers.arrow}`} alt="Arrow up" height={10} width={10} />
+                </span>
+                {weightDiff} lbs since last month
+              </span>
+            </div>
+            <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest'>{fitbitWeightData && fitbitWeightData["body-weight"] ? Math.round(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2) : ''}lb</div>
+            <div className='font-extralight text-sm mt-1'>{calculateBMI()}% BMI</div>
+          </div>
         </div>
       </div>
 
@@ -395,11 +398,10 @@ export default function Home({
         <h1 className='ml-10 mt-10 text-2xl font-bold'>Trends</h1>
         {
           parsedOuraRingSleepData && 
-          <div className='mx-auto w-full border border-red-300 flex justify-center'>
+          <div className='mx-auto w-full flex justify-center bg-gray-200 pb-10'>
             <SleepChart sleepData={parsedOuraRingSleepData} />
           </div>
         }   
-        {/* <SleepChartTest /> */}
       </div>
     </div>
   )
