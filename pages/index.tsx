@@ -330,7 +330,7 @@ export default function Home({
   }
 
   return (
-    <div className="bg-gray-200">
+    <div className="">
       <Head>
         <title>Life Dashboard</title>
         <link rel="icon" href="/favicon.ico" />
@@ -395,10 +395,10 @@ export default function Home({
       </div>
 
       <div>
-        <h1 className='ml-10 mt-10 text-2xl font-bold'>Trends</h1>
+        <h1 className='max-w-screen-2xl mx-auto px-10 mt-10 text-2xl font-bold'>Trends</h1>
         {
           parsedOuraRingSleepData && 
-          <div className='mx-auto w-full flex justify-center bg-gray-200 pb-10'>
+          <div className='mx-auto w-full flex justify-center pb-10'>
             <SleepChart sleepData={parsedOuraRingSleepData} />
           </div>
         }   
