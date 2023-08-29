@@ -114,7 +114,7 @@ export default function Home({
   }, []);
 
   useEffect(() => {
-    fetch(`/api/ouraringsleeplogs?start_date=2023-08-01`)
+    fetch(`/api/ouraringsleeplogs?start_date=2023-08-02`)
     .then(response => response.json())
     .then(data => {
       setOuraRingSleepData(data);
@@ -351,7 +351,7 @@ export default function Home({
       </div>
 
       <div className="flex-shrink-0 m-10 max-w-screen-2xl mx-auto px-10">
-        <div className="flex justify-around items-center rounded-lg border-gray-200 bg-white shadow-2xl flex-shrink-0 py-12">
+        <div className="flex justify-around items-center rounded-lg border-gray-200 bg-white shadow-2xl flex-shrink-0 py-10">
           <Time />
           <div className="border-l border-dashed border-gray-300 h-24 self-center"></div>
           <div className='flex flex-col font-light items-start border-red justify-center'>
