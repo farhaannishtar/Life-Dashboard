@@ -185,6 +185,7 @@ export default function Home({
     }
   }
 
+  // this code will be pushed server side
   useEffect(() => {
     const baseUrl = window.location.origin;
     const url = new URL(baseUrl + router.asPath);
