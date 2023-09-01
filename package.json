@@ -8,6 +8,7 @@
   "dependencies": {
     "@firebase/firestore": "^4.0.0",
     "@observablehq/plot": "^0.6.10",
+    "@supabase/supabase-js": "^2.33.1",
     "@types/next-auth": "^3.15.0",
     "axios": "^1.4.0",
     "crypto": "^1.0.1",

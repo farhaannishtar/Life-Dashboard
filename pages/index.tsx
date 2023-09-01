@@ -83,8 +83,6 @@ export default function Home({
     arrow: 'bi_arrow-up.svg',
     contentStyles: "bg-[#F4F6F6] text-[#3D37F1]"
   });
-
-
   const [sleepPercentDiff, setSleepPercentDiff] = useState('')
   const [stepCountPercentDiff, setStepCountPercentDiff] = useState('')
   const [weightDiff, setWeightDiff] = useState('')
