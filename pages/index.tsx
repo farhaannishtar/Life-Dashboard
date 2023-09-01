@@ -184,6 +184,7 @@ export default function Home({
   }
 
   // this code will be pushed server side
+  // going to use a serverless function to get the data from the API endpoint
   useEffect(() => {
     const baseUrl = window.location.origin;
     const url = new URL(baseUrl + router.asPath);
