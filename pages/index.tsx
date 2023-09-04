@@ -8,27 +8,18 @@ import Time from '../components/Time';
 import {getCurrentDate, base64URLEncode, getDaysSinceLastMonth, sha256, calculateSleepScorePercentageChange, calculateMonthWeightChange, calculateStepCountPercentChange, formatSteps} from 'helpers/helpers';
 import SleepChart from 'components/SleepChart';
 
-export async function getServerSideProps(context: any) {
-  try {
-    // `await clientPromise` will use the default database passed in the MONGODB_URI
-    // However you can use another database (e.g. myDatabase) by replacing the `await clientPromise` with the following code:
-    //
-    // `const client = await clientPromise`
-    // `const db = client.db("myDatabase")`
-    //
-    // Then you can execute queries against your database like so:
-    // db.find({}) or any of the MongoDB Node Driver commands
-
-    return {
-      props: {isConnected: true},
-    }
-  } catch (e) {
-    console.error(e)
-    return {
-      props: {isConnected: false},
-    }
-  }
+// In your pages/index.ts or pages/index.tsx
+export async function getServerSideProps() {
+  const res = await fetch('http://localhost:3000/api/fetchFitbitData');
+  const fitbitData = await res.json();
+  console.log('Server-side fitbitData:', fitbitData);
+  return {
+    props: {
+      fitbitData,
+    },
+  };
 }
+
 
 interface FitbitWeightEntry {
   dateTime: string;
@@ -62,15 +53,13 @@ type OuraRingActivityData = Array<{
 }>;
 
 
-export default function Home({
-  isConnected,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
   const [ouraRingSleepData, setOuraRingSleepData] = useState<OuraRingSleepData | null>(null);
   const [parsedOuraRingSleepData, setParsedOuraRingSleepData] = useState<OuraRingSleepDataChart | null>(null); 
   const [ouraRingActivityData, setOuraRingActivityData] = useState<OuraRingActivityData | null>(null);
-  const [fitbitAccessToken, setFitbitAccessToken] = useState<string | null>(null);
-  const [fitbitWeightData, setFitbitWeightData] = useState<FitbitWeightData | null>(null);
+  // const [fitbitAccessToken, setFitbitAccessToken] = useState<string | null>(null);
+  const [fitbitWeightData, setFitbitWeightData] = useState<FitbitWeightData | null>(fitbitData.data);
   const [sleepScorePercentageMarkers, setSleepScorePercentageMarkers] = useState({
     arrow: 'bi_arrow-up.svg',
     contentStyles: "bg-[#F4F6F6] text-[#3D37F1]"
@@ -88,8 +77,6 @@ export default function Home({
   const [weightDiff, setWeightDiff] = useState('')
 
   const ouraRingSteps = ouraRingActivityData && formatSteps(ouraRingActivityData[ouraRingActivityData.length - 1].steps);
-
-  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -132,8 +119,11 @@ export default function Home({
     .catch(error => console.error('Error:', error));
   }, []);
   
-
-  console.log("parsed sleep data: ", parsedOuraRingSleepData)
+  // Inside Home component
+  useEffect(() => {
+    calculateWeightDifference(fitbitData.data);
+    console.log('Client-side fitbitData:', fitbitData);
+  }, []);
 
   function calculateSleepScoreDifference(sleepData: OuraRingSleepData) {
     let lastNightSleepScore = sleepData.data[sleepData.data.length - 1].score
@@ -173,6 +163,7 @@ export default function Home({
     let lastMonthWeight = fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - daysSinceLastMonth-1].value;
 
     let weightChange = calculateMonthWeightChange(lastMonthWeight, currentWeight);
+
     setWeightDiff(String(Math.abs(weightChange)))
 
     if (weightChange < 0) {
@@ -183,136 +174,134 @@ export default function Home({
     }
   }
 
-  // this code will be pushed server side
-  // going to use a serverless function to get the data from the API endpoint
-  useEffect(() => {
-    const baseUrl = window.location.origin;
-    const url = new URL(baseUrl + router.asPath);
-    const searchParams = new URLSearchParams(url.search);
-    const code = searchParams.get('code');
-    let verifier: any;
-    let challenge: any;
+  // useEffect(() => {
+  //   const baseUrl = window.location.origin;
+  //   const url = new URL(baseUrl + router.asPath);
+  //   const searchParams = new URLSearchParams(url.search);
+  //   const code = searchParams.get('code');
+  //   let verifier: any;
+  //   let challenge: any;
 
-    // Function to refresh the access token
-    async function refreshAccessToken(refresh_token: string) {
-      const clientId = '23R3JP';
-      const grantType = 'refresh_token';
-      const url = 'https://api.fitbit.com/oauth2/token';
-      const params = new URLSearchParams();
+  //   // Function to refresh the access token
+  //   async function refreshAccessToken(refresh_token: string) {
+  //     const clientId = '23R3JP';
+  //     const grantType = 'refresh_token';
+  //     const url = 'https://api.fitbit.com/oauth2/token';
+  //     const params = new URLSearchParams();
     
-      params.append('client_id', clientId);
-      params.append('grant_type', grantType);
-      params.append('refresh_token', refresh_token);
+  //     params.append('client_id', clientId);
+  //     params.append('grant_type', grantType);
+  //     params.append('refresh_token', refresh_token);
     
-      const requestOptions: RequestInit = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: params,
-      };
+  //     const requestOptions: RequestInit = {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/x-www-form-urlencoded',
+  //       },
+  //       body: params,
+  //     };
     
-      const response = await fetch(url, requestOptions);
+  //     const response = await fetch(url, requestOptions);
     
-      if (response.ok) {
-        const jsonData = await response.json();
-        console.log("New Token Data: ", jsonData);
-        localStorage.setItem('fitbitAccessToken', jsonData.access_token);
-        localStorage.setItem('fitbitRefreshToken', jsonData.refresh_token);
-        scheduleRefresh(jsonData.expires_in, jsonData.refresh_token);  // Schedule next refresh
-      } else {
-        console.log('HTTP-Error: ' + response.status);
-      }
-    }    
+  //     if (response.ok) {
+  //       const jsonData = await response.json();
+  //       console.log("New Token Data: ", jsonData);
+  //       localStorage.setItem('fitbitAccessToken', jsonData.access_token);
+  //       localStorage.setItem('fitbitRefreshToken', jsonData.refresh_token);
+  //       scheduleRefresh(jsonData.expires_in, jsonData.refresh_token);  // Schedule next refresh
+  //     } else {
+  //       console.log('HTTP-Error: ' + response.status);
+  //     }
+  //   }    
     
-    // Function to schedule the token refresh
-    function scheduleRefresh(expires_in: number, refresh_token: string) {
-      setTimeout(() => {
-        refreshAccessToken(refresh_token);
-      }, (expires_in - 600) * 1000);  // Refresh 10 minutes before expiration
-    }
+  //   // Function to schedule the token refresh
+  //   function scheduleRefresh(expires_in: number, refresh_token: string) {
+  //     setTimeout(() => {
+  //       refreshAccessToken(refresh_token);
+  //     }, (expires_in - 600) * 1000);  // Refresh 10 minutes before expiration
+  //   }
 
-    if (!code) {
-      verifier = base64URLEncode(crypto.randomBytes(32));
-      challenge = base64URLEncode(sha256(verifier));
-      const fitbitAuthUrl = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23R3JP&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=${challenge}&code_challenge_method=S256`
-      localStorage.setItem('verifier', verifier);
-      router.push(fitbitAuthUrl);
-    }
-    const storedToken = localStorage.getItem('fitbitAccessToken');
-    const storedRefreshToken = localStorage.getItem('fitbitRefreshToken');  
+  //   if (!code) {
+  //     verifier = base64URLEncode(crypto.randomBytes(32));
+  //     challenge = base64URLEncode(sha256(verifier));
+  //     const fitbitAuthUrl = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23R3JP&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=${challenge}&code_challenge_method=S256`
+  //     localStorage.setItem('verifier', verifier);
+  //     router.push(fitbitAuthUrl);
+  //   }
+  //   const storedToken = localStorage.getItem('fitbitAccessToken');
+  //   const storedRefreshToken = localStorage.getItem('fitbitRefreshToken');  
 
-    if (storedToken) {
-      setFitbitAccessToken(storedToken);
-      // Here, also schedule the token refresh using the stored refresh token
-      if (storedRefreshToken) {
-        scheduleRefresh(28800, storedRefreshToken);  // assuming 8 hours = 28800 seconds
-      }
-    } else {
-        verifier = localStorage.getItem('verifier');
-        async function sendFitbitRequest() {
-          const clientId = '23R3JP';
-          const grantType = 'authorization_code';
-          const url = 'https://api.fitbit.com/oauth2/token';
-          const params = new URLSearchParams();
+  //   if (storedToken) {
+  //     setFitbitAccessToken(storedToken);
+  //     // Here, also schedule the token refresh using the stored refresh token
+  //     if (storedRefreshToken) {
+  //       scheduleRefresh(28800, storedRefreshToken);  // assuming 8 hours = 28800 seconds
+  //     }
+  //   } else {
+  //       verifier = localStorage.getItem('verifier');
+  //       async function sendFitbitRequest() {
+  //         const clientId = '23R3JP';
+  //         const grantType = 'authorization_code';
+  //         const url = 'https://api.fitbit.com/oauth2/token';
+  //         const params = new URLSearchParams();
         
-          params.append('client_id', clientId);
-          params.append('grant_type', grantType);
-          params.append('code', code || "");
-          params.append('code_verifier', verifier);
+  //         params.append('client_id', clientId);
+  //         params.append('grant_type', grantType);
+  //         params.append('code', code || "");
+  //         params.append('code_verifier', verifier);
         
-          const requestOptions: RequestInit = {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: params,
-          };
+  //         const requestOptions: RequestInit = {
+  //           method: 'POST',
+  //           headers: {
+  //             'Content-Type': 'application/x-www-form-urlencoded',
+  //           },
+  //           body: params,
+  //         };
         
-          const response = await fetch(url, requestOptions);
+  //         const response = await fetch(url, requestOptions);
         
-          if (response.ok) {
-            const jsonData = await response.json();
-            console.log("jsonData: ", jsonData);
-            setFitbitAccessToken(jsonData.access_token);
-            localStorage.setItem('fitbitAccessToken', jsonData.access_token);
-            localStorage.setItem('fitbitRefreshToken', jsonData.refresh_token);
-            scheduleRefresh(jsonData.expires_in, jsonData.refresh_token);  // Schedule the first refresh
-          } else {
-            console.log('HTTP-Error: ' + response.status);
-          }
-        }
-        sendFitbitRequest();
-    }
-  }, []);
+  //         if (response.ok) {
+  //           const jsonData = await response.json();
+  //           console.log("jsonData: ", jsonData);
+  //           setFitbitAccessToken(jsonData.access_token);
+  //           localStorage.setItem('fitbitAccessToken', jsonData.access_token);
+  //           localStorage.setItem('fitbitRefreshToken', jsonData.refresh_token);
+  //           scheduleRefresh(jsonData.expires_in, jsonData.refresh_token);  // Schedule the first refresh
+  //         } else {
+  //           console.log('HTTP-Error: ' + response.status);
+  //         }
+  //       }
+  //       sendFitbitRequest();
+  //   }
+  // }, []);
   
-  useEffect(() => {
-    if (fitbitAccessToken) {
-      getFitbitWeightTimeSeries();
-      // Clear query parameters
-      router.replace(router.pathname, undefined, {shallow: true});
-    }
-  }, [fitbitAccessToken]);
+  // useEffect(() => {
+  //   if (fitbitAccessToken) {
+  //     getFitbitWeightTimeSeries();
+  //     // Clear query parameters
+  //     router.replace(router.pathname, undefined, {shallow: true});
+  //   }
+  // }, [fitbitAccessToken]);
   
 
-  async function getFitbitWeightTimeSeries() {
-    try {
-      let date = getCurrentDate();
-      const weightTimeSeriesUrl = `https://api.fitbit.com/1/user/-/body/weight/date/2023-02-23/${date}.json`;
-      const weightTimeSeriesHeaders = {
-        "Authorization": `Bearer ${fitbitAccessToken}`
-      };
-      const weightTimeSeriesResponse = await fetch(weightTimeSeriesUrl, {headers: weightTimeSeriesHeaders});
-      if (!weightTimeSeriesResponse.ok) {
-        throw new Error("Request failed.");
-      }
-      const weightTimeSeriesResponseData = await weightTimeSeriesResponse.json();
-      setFitbitWeightData(weightTimeSeriesResponseData);
-      calculateWeightDifference(weightTimeSeriesResponseData);
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  // async function getFitbitWeightTimeSeries() {
+  //   try {
+  //     let date = getCurrentDate();
+  //     const weightTimeSeriesUrl = `https://api.fitbit.com/1/user/-/body/weight/date/2023-02-23/${date}.json`;
+  //     const weightTimeSeriesHeaders = {
+  //       "Authorization": `Bearer ${fitbitAccessToken}`
+  //     };
+  //     const weightTimeSeriesResponse = await fetch(weightTimeSeriesUrl, {headers: weightTimeSeriesHeaders});
+  //     if (!weightTimeSeriesResponse.ok) {
+  //       throw new Error("Request failed.");
+  //     }
+  //     const weightTimeSeriesResponseData = await weightTimeSeriesResponse.json();
+  //     setFitbitWeightData(weightTimeSeriesResponseData);
+  //     calculateWeightDifference(weightTimeSeriesResponseData);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // }
 
   function calculateBMI() {
     let kilos: number | null = null;
@@ -328,6 +317,8 @@ export default function Home({
 
     return Math.round(Number(kilos) / (1.72 * 1.72)) 
   }
+
+  console.log("fitbitWeightData: ", fitbitWeightData)
 
   return (
     <div className="">
