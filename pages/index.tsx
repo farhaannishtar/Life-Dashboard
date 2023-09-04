@@ -7,7 +7,7 @@ import {getDaysSinceLastMonth, calculateSleepScorePercentageChange, calculateMon
 import SleepChart from 'components/SleepChart';
 
 export async function getServerSideProps() {
-  const res = await fetch('http://localhost:3000/api/fetchFitbitData');
+  const res = await fetch('https://life-dashboard-git-refactor-migrate-fitbi-162f9c-farhaannishtar.vercel.app/api/fetchFitbitData');
   const fitbitData = await res.json();
   console.log('Server-side fitbitData:', fitbitData);
   return {
@@ -16,6 +16,8 @@ export async function getServerSideProps() {
     },
   };
 }
+
+
 
 
 interface FitbitWeightEntry {
