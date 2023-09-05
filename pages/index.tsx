@@ -6,6 +6,7 @@ import Time from '../components/Time';
 import {getDaysSinceLastMonth, calculateSleepScorePercentageChange, calculateMonthWeightChange, calculateStepCountPercentChange, formatSteps} from 'helpers/helpers';
 import SleepChart from 'components/SleepChart';
 
+// updated NEXT_PUBLIC_API_URL in .env.local
 export async function getServerSideProps() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
