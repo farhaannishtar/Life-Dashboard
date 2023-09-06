@@ -76,12 +76,18 @@ async function refreshFitbitToken() {
     console.log("Fitbit response:", fitbitResponse.data);
 
     const newAccessToken = fitbitResponse.data.access_token;
+    const newRefreshToken = fitbitResponse.data.refresh_token; // New refresh token
     const newExpiresIn = fitbitResponse.data.expires_in;
     const newExpiresAt = Math.floor(Date.now() / 1000) + newExpiresIn;
 
+    // Update both the new access token and the new refresh token in the database
     const { error: updateError, data: updateData } = await supabase
       .from("fitbit_tokens")
-      .update({ access_token: newAccessToken, expires_at: newExpiresAt })
+      .update({
+        access_token: newAccessToken,
+        refresh_token: newRefreshToken, // Include the new refresh token
+        expires_at: newExpiresAt,
+      })
       .eq("id", data[0].id);
 
     console.log("Supabase update result:", updateData);
