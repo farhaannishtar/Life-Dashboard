@@ -19,7 +19,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  console.log("Function invoked"); // Debugging log
   const { access_token, error: tokenError } = await refreshFitbitToken();
   if (tokenError) {
     return res
@@ -56,57 +55,60 @@ async function refreshFitbitToken() {
   const currentTime = Math.floor(Date.now() / 1000);
   console.log("Current time:", currentTime);
   console.log("expires_at:", expires_at);
-  // if (currentTime >= expires_at - 60) {
-  // Added 60 seconds buffer
-  const encodedCredentials = Buffer.from(
-    `${process.env.FITBIT_CLIENT_ID}:${process.env.FITBIT_CLIENT_SECRET}`
-  ).toString("base64");
 
-  try {
-    const fitbitResponse = await axios.post(
-      "https://api.fitbit.com/oauth2/token",
-      `grant_type=refresh_token&refresh_token=${refresh_token}`,
-      {
-        headers: {
-          Authorization: `Basic ${encodedCredentials}`,
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
+  // Uncommented this line to check if the token is about to expire
+  if (currentTime >= expires_at - 60) {
+    const encodedCredentials = Buffer.from(
+      `${process.env.FITBIT_CLIENT_ID}:${process.env.FITBIT_CLIENT_SECRET}`
+    ).toString("base64");
+
+    try {
+      const fitbitResponse = await axios.post(
+        "https://api.fitbit.com/oauth2/token",
+        `grant_type=refresh_token&refresh_token=${refresh_token}`,
+        {
+          headers: {
+            Authorization: `Basic ${encodedCredentials}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
+
+      console.log("Fitbit response:", fitbitResponse.data);
+
+      const newAccessToken = fitbitResponse.data.access_token;
+      const newRefreshToken = fitbitResponse.data.refresh_token;
+      const newExpiresIn = fitbitResponse.data.expires_in;
+      const newExpiresAt = Math.floor(Date.now() / 1000) + newExpiresIn;
+
+      const { error: updateError, data: updateData } = await supabase
+        .from("fitbit_tokens")
+        .update({
+          access_token: newAccessToken,
+          refresh_token: newRefreshToken,
+          expires_at: newExpiresAt,
+        })
+        .eq("id", data[0].id);
+
+      console.log("Supabase update result:", updateData);
+
+      if (updateError) {
+        console.error("Failed to update tokens:", updateError);
+        return { error: updateError };
       }
-    );
 
-    console.log("Fitbit response:", fitbitResponse.data);
-
-    const newAccessToken = fitbitResponse.data.access_token;
-    const newRefreshToken = fitbitResponse.data.refresh_token; // New refresh token
-    const newExpiresIn = fitbitResponse.data.expires_in;
-    const newExpiresAt = Math.floor(Date.now() / 1000) + newExpiresIn;
-
-    // Update both the new access token and the new refresh token in the database
-    const { error: updateError, data: updateData } = await supabase
-      .from("fitbit_tokens")
-      .update({
-        access_token: newAccessToken,
-        refresh_token: newRefreshToken, // Include the new refresh token
-        expires_at: newExpiresAt,
-      })
-      .eq("id", data[0].id);
-
-    console.log("Supabase update result:", updateData);
-
-    if (updateError) {
-      console.error("Failed to update tokens:", updateError);
-      return { error: updateError };
+      return { access_token: newAccessToken };
+    } catch (err: any) {
+      if (err && err.response && err.response.data) {
+        console.error("Error refreshing Fitbit token:", err.response.data);
+      } else {
+        console.error("Error refreshing Fitbit token:", err);
+      }
+      return { error: err };
     }
-
-    return { access_token: newAccessToken };
-  } catch (err: any) {
-    // Explicitly annotate err as any
-    if (err && err.response && err.response.data) {
-      console.error("Error refreshing Fitbit token:", err.response.data);
-    } else {
-      console.error("Error refreshing Fitbit token:", err);
-    }
-    return { error: err };
+  } else {
+    // If the token is not about to expire, return the current access token
+    return { access_token };
   }
 }
 
