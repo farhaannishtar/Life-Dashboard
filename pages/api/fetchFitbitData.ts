@@ -19,7 +19,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  console.log("Function invoked"); // Debugging log
   const { access_token, error: tokenError } = await refreshFitbitToken();
   if (tokenError) {
     return res
