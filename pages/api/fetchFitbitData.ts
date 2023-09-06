@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
 import axios from "axios";
 import { getCurrentDate } from "helpers/helpers";
-import e from "express";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
@@ -45,6 +44,8 @@ async function refreshFitbitToken() {
     .select("*")
     .limit(1);
 
+  console.log("Supabase data:", data);
+
   if (error) {
     console.error("Error fetching data from Supabase:", error);
     return { error };
@@ -72,14 +73,18 @@ async function refreshFitbitToken() {
       }
     );
 
+    console.log("Fitbit response:", fitbitResponse.data);
+
     const newAccessToken = fitbitResponse.data.access_token;
     const newExpiresIn = fitbitResponse.data.expires_in;
     const newExpiresAt = Math.floor(Date.now() / 1000) + newExpiresIn;
 
-    const { error: updateError } = await supabase
+    const { error: updateError, data: updateData } = await supabase
       .from("fitbit_tokens")
       .update({ access_token: newAccessToken, expires_at: newExpiresAt })
       .eq("id", data[0].id);
+
+    console.log("Supabase update result:", updateData);
 
     if (updateError) {
       console.error("Failed to update tokens:", updateError);
@@ -96,9 +101,6 @@ async function refreshFitbitToken() {
     }
     return { error: err };
   }
-  // }
-
-  return { access_token };
 }
 
 // Function to fetch Fitbit data using a valid access token
