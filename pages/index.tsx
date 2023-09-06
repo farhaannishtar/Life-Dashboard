@@ -11,7 +11,7 @@ export async function getServerSideProps() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
     console.log("API URL:", apiUrl);
-    const res = await fetch(`${apiUrl}/api/fetchFitbitData`);
+    const res = await fetch(`${apiUrl}api/fetchFitbitData`);
     if (!res.ok) {
       throw new Error(`Failed to fetch data: ${res.status}`);
     }
