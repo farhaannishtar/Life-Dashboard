@@ -6,6 +6,7 @@ import { getCurrentDate } from "helpers/helpers";
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
 
+// Will fix this issue by EOD
 if (!supabaseUrl || !supabaseKey) {
   throw new Error(
     "Environment variables SUPABASE_URL or SUPABASE_SERVICE_KEY are not set."
