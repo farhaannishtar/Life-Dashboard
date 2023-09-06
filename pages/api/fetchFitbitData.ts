@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
 import axios from "axios";
 import { getCurrentDate } from "helpers/helpers";
+import e from "express";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
@@ -51,51 +52,57 @@ async function refreshFitbitToken() {
 
   const { access_token, refresh_token, expires_at } = data![0];
   const currentTime = Math.floor(Date.now() / 1000);
+  console.log("Current time:", currentTime);
+  console.log("expires_at:", expires_at);
+  // if (currentTime >= expires_at - 60) {
+  // Added 60 seconds buffer
+  const encodedCredentials = Buffer.from(
+    `${process.env.FITBIT_CLIENT_ID}:${process.env.FITBIT_CLIENT_SECRET}`
+  ).toString("base64");
 
-  if (currentTime >= expires_at) {
-    const encodedCredentials = Buffer.from(
-      `${process.env.FITBIT_CLIENT_ID}:${process.env.FITBIT_CLIENT_SECRET}`
-    ).toString("base64");
-
-    try {
-      const fitbitResponse = await axios.post(
-        "https://api.fitbit.com/oauth2/token",
-        `grant_type=refresh_token&refresh_token=${refresh_token}`,
-        {
-          headers: {
-            Authorization: `Basic ${encodedCredentials}`,
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        }
-      );
-
-      const newAccessToken = fitbitResponse.data.access_token;
-      const newExpiresIn = fitbitResponse.data.expires_in;
-      const newExpiresAt = Math.floor(Date.now() / 1000) + newExpiresIn;
-
-      const { error: updateError } = await supabase
-        .from("fitbit_tokens")
-        .update({ access_token: newAccessToken, expires_at: newExpiresAt })
-        .eq("id", data[0].id);
-
-      if (updateError) {
-        console.error("Failed to update tokens:", updateError);
-        return { error: updateError };
+  try {
+    const fitbitResponse = await axios.post(
+      "https://api.fitbit.com/oauth2/token",
+      `grant_type=refresh_token&refresh_token=${refresh_token}`,
+      {
+        headers: {
+          Authorization: `Basic ${encodedCredentials}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
       }
+    );
 
-      return { access_token: newAccessToken };
-    } catch (err) {
-      console.error("Error refreshing Fitbit token:", err);
-      return { error: err };
+    const newAccessToken = fitbitResponse.data.access_token;
+    const newExpiresIn = fitbitResponse.data.expires_in;
+    const newExpiresAt = Math.floor(Date.now() / 1000) + newExpiresIn;
+
+    const { error: updateError } = await supabase
+      .from("fitbit_tokens")
+      .update({ access_token: newAccessToken, expires_at: newExpiresAt })
+      .eq("id", data[0].id);
+
+    if (updateError) {
+      console.error("Failed to update tokens:", updateError);
+      return { error: updateError };
     }
+
+    return { access_token: newAccessToken };
+  } catch (err: any) {
+    // Explicitly annotate err as any
+    if (err && err.response && err.response.data) {
+      console.error("Error refreshing Fitbit token:", err.response.data);
+    } else {
+      console.error("Error refreshing Fitbit token:", err);
+    }
+    return { error: err };
   }
+  // }
 
   return { access_token };
 }
 
 // Function to fetch Fitbit data using a valid access token
 async function fetchFitbitData(access_token: string) {
-  // Replace the URL and params with the actual Fitbit API endpoint and params you want to use
   let date = getCurrentDate();
   const fitbitApiUrl = `https://api.fitbit.com/1/user/-/body/weight/date/2023-02-23/${date}.json`;
   const response = await axios.get(fitbitApiUrl, {
