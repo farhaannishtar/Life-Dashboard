@@ -44,8 +44,6 @@ async function refreshFitbitToken() {
     .select("*")
     .limit(1);
 
-  console.log("Supabase data:", data);
-
   if (error) {
     console.error("Error fetching data from Supabase:", error);
     return { error };
@@ -53,8 +51,6 @@ async function refreshFitbitToken() {
 
   const { access_token, refresh_token, expires_at } = data![0];
   const currentTime = Math.floor(Date.now() / 1000);
-  console.log("Current time:", currentTime);
-  console.log("expires_at:", expires_at);
 
   // Uncommented this line to check if the token is about to expire
   if (currentTime >= expires_at - 60) {
@@ -74,8 +70,6 @@ async function refreshFitbitToken() {
         }
       );
 
-      console.log("Fitbit response:", fitbitResponse.data);
-
       const newAccessToken = fitbitResponse.data.access_token;
       const newRefreshToken = fitbitResponse.data.refresh_token;
       const newExpiresIn = fitbitResponse.data.expires_in;
@@ -89,8 +83,6 @@ async function refreshFitbitToken() {
           expires_at: newExpiresAt,
         })
         .eq("id", data[0].id);
-
-      console.log("Supabase update result:", updateData);
 
       if (updateError) {
         console.error("Failed to update tokens:", updateError);
