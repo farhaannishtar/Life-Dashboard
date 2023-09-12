@@ -5,6 +5,8 @@ import {InferGetServerSidePropsType} from 'next'
 import Time from '../components/Time';
 import {getDaysSinceLastMonth, calculateSleepScorePercentageChange, calculateMonthWeightChange, calculateStepCountPercentChange, formatSteps} from 'helpers/helpers';
 import SleepChart from 'components/SleepChart';
+import { CircularProgressbar } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 
 // updated NEXT_PUBLIC_API_URL again in .env.local
 export async function getServerSideProps() {
@@ -237,7 +239,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
       <div className='w-full lg:max-w-screen-md xl:max-w-screen-lg 2xl:max-w-screen-xl mx-auto px-10'>
         <div className='flex justify-between w-full'>
           <div className='mt-10'>
-            <p className="text-black font-[Red Hat Text] text-3xl font-bold leading-normal tracking-[0.02rem]">Good Afternoon, Faraaz.</p>
+            <p className="text-black text-4xl font-bold leading-8 tracking-[0.02rem]">Good Afternoon, Faraaz.</p>
           </div>
         </div>
         <div className='mt-6 flex'>
@@ -246,14 +248,63 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
             <div className='text-total-sleep-and-time-in-bed-text pt-3 pl-4 text-xs	leading-3	font-black'> 
               Total Sleep
             </div>
-            <div className='px-14 py-5 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black'>
+            <div className='px-16 py-5 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black'>
               7h 45m
             </div>
           </div>
+          <div className='max-w-xs flex flex-col justify-start items-start flex-shrink-0 bg-total-sleep-and-time-in-bed-bg border border-total-sleep-and-time-in-bed-border rounded-3xl'>
+            <div className='text-total-sleep-and-time-in-bed-text pt-3 pl-4 text-xs	leading-3	font-black'> 
+              Time in Bed
+            </div>
+            <div className='px-16 py-5 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black'>
+              9h 1m
+            </div>
+          </div>
         </div>
-
+        <div>
+          <div>
+            <CircularProgressbar value={72} text={`${72}`} styles={{
+              // Customize the root svg element
+              root: {
+                width: '55%',  // Set width to 50% of parent element
+                height: '40%'  // Set height to 50% of parent element
+              },
+              // Customize the path, i.e. the "completed progress"
+              path: {
+                // Path color
+                stroke: `#2C73DD`,
+                // Whether to use rounded or flat corners on the ends - can use 'butt' or 'round'
+                strokeLinecap: 'round',
+                // Customize transition animation
+                transition: 'stroke-dashoffset 0.5s ease 0s',
+                // Rotate the path
+                transformOrigin: 'center center',
+              },
+              // Customize the circle behind the path, i.e. the "total progress"
+              trail: {
+                // Trail color
+                stroke: '#BFD9FF',
+                // Whether to use rounded or flat corners on the ends - can use 'butt' or 'round'
+                strokeLinecap: 'butt',
+                // Rotate the trail
+                transformOrigin: 'center center',
+              },
+              // Customize the text
+              text: {
+                // Text color
+                fill: '#2C73DD',
+                // Text size
+                fontSize: '2rem',
+                fontWeight: 900,
+              },
+              // Customize background - only used when the `background` prop is true
+              background: {
+                fill: '#3e98c7',
+              },
+            }} />
+          </div>
+        </div>
       </div>
-
       </div>
 
       {/* <div className='w-full max-w-screen-2xl mx-auto px-10'>
