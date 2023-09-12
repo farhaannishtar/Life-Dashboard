@@ -1,8 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 html {
   scroll-behavior: smooth;
-  background-color: #edf2f7;
+  background-color: #FFFEFB;
+  font-family: 'Nunito', sans-serif;  /* Add this line */
 }

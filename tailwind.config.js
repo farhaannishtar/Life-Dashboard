@@ -9,7 +9,16 @@ module.exports = {
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        "total-sleep-and-time-in-bed-border": "#ECD3C8",
+        "total-sleep-and-time-in-bed-bg": "#FFFAF8",
+        "total-sleep-and-time-in-bed-text": "#A8440C",
+      },
+      fontFamily: {
+        sans: ["Nunito", "sans-serif"],
+      },
+    },
   },
   plugins: [],
 };
