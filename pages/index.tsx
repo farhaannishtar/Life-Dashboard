@@ -241,13 +241,13 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           <p className="text-black text-4xl font-bold leading-8 tracking-[0.02rem]">Good Afternoon, Faraaz.</p>
         </div>
       </div>
-      <div className='mt-8 flex gap-x-2 justify-between'>
-        <div className='flex flex-col gap-y-4'>
+      <div className='mt-8 flex space-x-6 justify-between'>
+        <div className='flex flex-1 flex-col gap-y-4'>
           <div className='max-w-xs flex flex-col justify-start items-start flex-shrink-0 bg-total-sleep-and-time-in-bed-bg border border-total-sleep-and-time-in-bed-border rounded-3xl'>
             <div className='text-total-sleep-and-time-in-bed-text pt-3 pl-4 text-xs	leading-3	font-black'> 
               Total Sleep
             </div>
-            <div className='px-14 lg:px-20 py-6 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black'>
+            <div className='px-12 lg:px-20 py-6 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black text-center'>
               7h 45m
             </div>
           </div>
@@ -255,12 +255,12 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
             <div className='text-total-sleep-and-time-in-bed-text pt-3 pl-4 text-xs	leading-3	font-black'> 
               Time in Bed
             </div>
-            <div className='px-14 lg:px-20 py-6 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black'>
+            <div className='px-12 lg:px-20 py-6 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black text-center'>
               9h 1m
             </div>
           </div>
         </div>
-        <div className='max-w-xs lg:max-w-md flex flex-col justify-start items-center flex-shrink-0 rounded-3xl bg-sleep-score-bg border border-sleep-score-border p-0 m-0'>
+        <div className='max-w-xs lg:max-w-md flex flex-1 flex-col justify-start items-center flex-shrink-0 rounded-3xl bg-sleep-score-bg border border-sleep-score-border p-0 m-0'>
           <div className='pt-7 pl-5 text-2xl leading-3 font-black m-0 w-full'> 
             💤
           </div>
@@ -285,6 +285,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
                   fill: '#2C73DD',
                   fontSize: '2rem',
                   fontWeight: 900,
+                  display: 'flex',
                 },
                 background: {
                   fill: '#3e98c7',
@@ -295,12 +296,12 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
             Sleep Score
           </div>
         </div>
-        <div className='flex flex-col gap-y-4'>
+        <div className='flex flex-1 flex-col gap-y-4'>
           <div className='max-w-xs flex flex-col justify-start items-start flex-shrink-0 bg-bed-time-bg border border-bed-time-border rounded-3xl'>
             <div className='text-bed-time-text pt-3 pl-4 text-xs	leading-3	font-black'> 
               Bed Time
             </div>
-            <div className='px-14 lg:px-20 py-6 h-full w-full text-bed-time-text leading-5 text-3xl font-black'>
+            <div className='px-12 lg:px-20 py-6 h-full w-full text-bed-time-text leading-5 text-3xl font-black text-center'>
               1:15 am
             </div>
           </div>
@@ -308,9 +309,46 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
             <div className='text-wake-up-text pt-3 pl-4 text-xs	leading-3	font-black'> 
               Wake up
             </div>
-            <div className='px-14 lg:px-20 py-6 h-full w-full text-wake-up-text leading-5 text-3xl font-black'>
+            <div className='px-12 lg:px-20 py-6 h-full w-full text-wake-up-text leading-5 text-3xl font-black text-center'>
               10:15 am
             </div>
+          </div>
+        </div>
+      </div>
+      <div className='w-full flex space-x-6 mt-6 justify-between'>
+        <div className='flex-1 max-w-xs lg:max-w-md flex flex-col justify-start items-center flex-shrink-0 rounded-3xl bg-weight-bg border border-weight-border m-0'>
+          <div className='pt-7 pl-5 text-2xl leading-3 font-black m-0 w-full'> 
+          ⚖️
+          </div>
+          <div className='py-10 text-weight-text font-black text-5xl leading-10 inline-block align-middle'>
+            138 
+              <span className='ml-1 text-3xl align-middle leading-4 inline-block font-black'>lb</span>
+          </div>
+          <div className='w-full text-center mt-1 font-black text-lg	text-weight-text pb-3'>
+            Weight
+          </div>
+        </div>
+        <div className='flex-1 max-w-xs lg:max-w-md flex flex-col justify-start items-center flex-shrink-0 rounded-3xl bg-blood-glucose-bg border border-blood-glucose-border m-0'>
+          <div className='pt-7 pl-5 text-2xl leading-3 font-black m-0 w-full'> 
+          🩸
+          </div>
+          <div className='py-10 text-blood-glucose-text font-black text-5xl leading-10 inline-block align-middle'>
+            70 
+              <span className='ml-1 text-xl align-middle leading-4 inline-block'>mg/dl</span>
+          </div>
+          <div className='w-full text-center mt-1 font-black text-lg	text-blood-glucose-text pb-3'>
+            Blood Glucose
+          </div>
+        </div>
+        <div className='flex-1 max-w-xs lg:max-w-md flex flex-col justify-start items-center flex-shrink-0 rounded-3xl bg-step-count-bg border border-step-count-border m-0'>
+          <div className='pt-7 pl-5 text-2xl leading-3 font-black m-0 w-full'> 
+          👟
+          </div>
+          <div className='py-10 text-step-count-text font-black text-5xl leading-10 inline-block align-middle'>
+            1064 
+          </div>
+          <div className='w-full text-center mt-1 font-black text-lg	text-step-count-text pb-3'>
+            Step Count
           </div>
         </div>
       </div>
