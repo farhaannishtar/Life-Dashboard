@@ -5,6 +5,8 @@ import {InferGetServerSidePropsType} from 'next'
 import Time from '../components/Time';
 import {getDaysSinceLastMonth, calculateSleepScorePercentageChange, calculateMonthWeightChange, calculateStepCountPercentChange, formatSteps} from 'helpers/helpers';
 import SleepChart from 'components/SleepChart';
+import { CircularProgressbar } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 
 // updated NEXT_PUBLIC_API_URL again in .env.local
 export async function getServerSideProps() {
@@ -40,7 +42,7 @@ interface FitbitWeightData {
   'body-weight': FitbitWeightEntry[];
 }  
 
-interface OuraRingSleepData {
+interface OuraRingDailySleepData {
   data: Array<{
     score: number;
     day: string;
@@ -48,7 +50,15 @@ interface OuraRingSleepData {
   }>;
 }
 
-interface OuraRingSleepDataChart {
+interface OuraRingSleepData {
+  data: Array<{
+    time_in_bed: number;
+    total_sleep_duration: string;
+    // Add other fields as necessary
+  }>;
+}
+
+interface OuraRingDailySleepDataChart {
   data: {
     score: number;
     day: number;
@@ -65,8 +75,9 @@ type OuraRingActivityData = Array<{
 
 export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
+  const [ouraRingDailySleepData, setOuraRingDailySleepData] = useState<OuraRingDailySleepData | null>(null);
   const [ouraRingSleepData, setOuraRingSleepData] = useState<OuraRingSleepData | null>(null);
-  const [parsedOuraRingSleepData, setParsedOuraRingSleepData] = useState<OuraRingSleepDataChart | null>(null); 
+  const [parsedOuraRingDailySleepData, setParsedOuraRingDailySleepData] = useState<OuraRingDailySleepDataChart | null>(null); 
   const [ouraRingActivityData, setOuraRingActivityData] = useState<OuraRingActivityData | null>(null);
   const fitbitWeightData: FitbitWeightData | null = fitbitData.data;
   const [sleepScorePercentageMarkers, setSleepScorePercentageMarkers] = useState({
@@ -108,14 +119,12 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
     fetchData();
   }, []);
 
-  // history of oura ring sleep logs
+  // history of oura ring daily sleep logs
   useEffect(() => {
-    fetch(`/api/ouraringsleeplogs?start_date=2023-08-02`)
+    fetch(`/api/ouraring-daily-sleep?start_date=2023-08-02`)
     .then(response => response.json())
     .then(data => {
-      setOuraRingSleepData(data);
-      console.log("sleep data: ", data)
-      
+      setOuraRingDailySleepData(data);
       const parsedData = data.data.map((entry: any) => {
         const date = new Date(Date.parse(entry.day)); // Changed `data.day` to `entry.day`
         const dayOfMonth = date.getDate();
@@ -124,7 +133,27 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           score: entry.score,
         };
       });
-      setParsedOuraRingSleepData({ data: parsedData});
+      setParsedOuraRingDailySleepData({ data: parsedData});
+      calculateSleepScoreDifference(data);
+  })
+    .catch(error => console.error('Error:', error));
+  }, []);
+
+
+  useEffect(() => {
+    fetch(`/api/ouraring-sleep?start_date=2023-08-02`)
+    .then(response => response.json())
+    .then(data => {
+      setOuraRingDailySleepData(data);
+      const parsedData = data.data.map((entry: any) => {
+        const date = new Date(Date.parse(entry.day)); // Changed `data.day` to `entry.day`
+        const dayOfMonth = date.getDate();
+        return {
+          day: dayOfMonth,
+          score: entry.score,
+        };
+      });
+      setParsedOuraRingDailySleepData({ data: parsedData});
       calculateSleepScoreDifference(data);
   })
     .catch(error => console.error('Error:', error));
@@ -135,7 +164,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
     calculateWeightDifference(fitbitData.data);
   }, []);
 
-  function calculateSleepScoreDifference(sleepData: OuraRingSleepData) {
+  function calculateSleepScoreDifference(sleepData: OuraRingDailySleepData) {
     let lastNightSleepScore = sleepData.data[sleepData.data.length - 1].score
     let dayBeforeSleepScore = sleepData.data[sleepData.data.length - 2].score
 
@@ -199,15 +228,102 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
     return Math.round(Number(kilos) / (1.72 * 1.72)) 
   }
 
+  console.log("ouraRing Daily Sleep Data: ", ouraRingDailySleepData);
+
   return (
-    <div className="">
+    <div className="w-full max-w-5xl mx-auto px-10">
       <Head>
         <title>Life Dashboard</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      
-      
-      <div className='w-full max-w-screen-2xl mx-auto px-10'>
+      <div className='flex justify-between w-full'>
+        <div className='mt-10'>
+          <p className="text-black text-4xl font-bold leading-8 tracking-[0.02rem]">Good Afternoon, Faraaz.</p>
+        </div>
+      </div>
+      <div className='mt-8 flex gap-x-2 justify-between'>
+        <div className='flex flex-col gap-y-4'>
+          <div className='max-w-xs flex flex-col justify-start items-start flex-shrink-0 bg-total-sleep-and-time-in-bed-bg border border-total-sleep-and-time-in-bed-border rounded-3xl'>
+            <div className='text-total-sleep-and-time-in-bed-text pt-3 pl-4 text-xs	leading-3	font-black'> 
+              Total Sleep
+            </div>
+            <div className='px-14 lg:px-20 py-6 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black'>
+              7h 45m
+            </div>
+          </div>
+          <div className='max-w-xs flex flex-col justify-start items-start flex-shrink-0 bg-total-sleep-and-time-in-bed-bg border border-total-sleep-and-time-in-bed-border rounded-3xl'>
+            <div className='text-total-sleep-and-time-in-bed-text pt-3 pl-4 text-xs	leading-3	font-black'> 
+              Time in Bed
+            </div>
+            <div className='px-14 lg:px-20 py-6 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black'>
+              9h 1m
+            </div>
+          </div>
+        </div>
+        <div className='max-w-xs lg:max-w-md flex flex-col justify-start items-center flex-shrink-0 rounded-3xl bg-sleep-score-bg border border-sleep-score-border p-0 m-0'>
+          <div className='pt-7 pl-5 text-2xl leading-3 font-black m-0 w-full'> 
+            💤
+          </div>
+          <div className='flex justify-center items-center -m-8 p-0 -mt-12 w-full h-full lg:px-12'>
+            <CircularProgressbar value={72} text={`${72}`} styles={{
+                root: {
+                  width: '60%',  // Adjust as needed
+                  height: '60%', // Adjust as needed
+                },
+                path: {
+                  stroke: `#2C73DD`,
+                  strokeLinecap: 'round',
+                  transition: 'stroke-dashoffset 0.5s ease 0s',
+                  transformOrigin: 'center center',
+                },
+                trail: {
+                  stroke: '#BFD9FF',
+                  strokeLinecap: 'butt',
+                  transformOrigin: 'center center',
+                },
+                text: {
+                  fill: '#2C73DD',
+                  fontSize: '2rem',
+                  fontWeight: 900,
+                },
+                background: {
+                  fill: '#3e98c7',
+                },
+            }} />
+          </div>
+          <div className='w-full text-center mt-1 font-black text-lg	text-sleep-score-text pb-3'>
+            Sleep Score
+          </div>
+        </div>
+        <div className='flex flex-col gap-y-4'>
+          <div className='max-w-xs flex flex-col justify-start items-start flex-shrink-0 bg-bed-time-bg border border-bed-time-border rounded-3xl'>
+            <div className='text-bed-time-text pt-3 pl-4 text-xs	leading-3	font-black'> 
+              Bed Time
+            </div>
+            <div className='px-14 lg:px-20 py-6 h-full w-full text-bed-time-text leading-5 text-3xl font-black'>
+              1:15 am
+            </div>
+          </div>
+          <div className='max-w-xs flex flex-col justify-start items-start flex-shrink-0 bg-wake-up-bg border border-wake-up-border rounded-3xl'>
+            <div className='text-wake-up-text pt-3 pl-4 text-xs	leading-3	font-black'> 
+              Wake up
+            </div>
+            <div className='px-14 lg:px-20 py-6 h-full w-full text-wake-up-text leading-5 text-3xl font-black'>
+              10:15 am
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+
+
+
+
+
+ {/* <div className='w-full max-w-screen-2xl mx-auto px-10'>
         <div className='flex justify-between w-full'>
           <div className='mt-10'>
             <p className="text-black font-[Red Hat Text] text-3xl font-bold leading-normal tracking-[0.02rem]">Good Morning, Faraaz !</p>
@@ -219,7 +335,6 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           </p>
         </div>    
       </div>
-
       <div className="flex-shrink-0 m-10 max-w-screen-2xl mx-auto px-10">
         <div className="flex justify-around items-center rounded-lg border-gray-200 bg-white shadow-2xl flex-shrink-0 py-10">
           <Time />
@@ -233,7 +348,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
                 {sleepPercentDiff}%
               </span>
             </div>
-            <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest'>{ouraRingSleepData && ouraRingSleepData.data[ouraRingSleepData.data.length - 1].score}</div>
+            <div className='text-[#1A2B88] text-2xl font-bold leading-normal tracking-tightest'>{ouraRingDailySleepData && ouraRingDailySleepData.data[ouraRingDailySleepData.data.length - 1].score}</div>
             <div className='font-extralight text-sm mt-1'> keep it up 💪🏾 </div>
           </div>
           <div className="border-l border-dashed border-gray-300 h-24 self-center"></div>
@@ -263,16 +378,12 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           </div>
         </div>
       </div>
-
       <div>
         <h1 className='max-w-screen-2xl mx-auto px-10 mt-10 text-2xl font-bold'>Trends</h1>
         {
-          parsedOuraRingSleepData && 
+          parsedOuraRingDailySleepData && 
           <div className='mx-auto w-full flex justify-center pb-10 mt-4'>
-            <SleepChart sleepData={parsedOuraRingSleepData} />
+            <SleepChart sleepData={parsedOuraRingDailySleepData} />
           </div>
         }   
-      </div>
-    </div>
-  )
-}
+      </div> */}
