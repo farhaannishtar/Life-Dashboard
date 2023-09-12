@@ -242,69 +242,79 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
             <p className="text-black text-4xl font-bold leading-8 tracking-[0.02rem]">Good Afternoon, Faraaz.</p>
           </div>
         </div>
-        <div className='mt-6 flex'>
-        <div className='flex flex-col gap-y-4'>
-          <div className='max-w-xs flex flex-col justify-start items-start flex-shrink-0 bg-total-sleep-and-time-in-bed-bg border border-total-sleep-and-time-in-bed-border rounded-3xl'>
-            <div className='text-total-sleep-and-time-in-bed-text pt-3 pl-4 text-xs	leading-3	font-black'> 
-              Total Sleep
+        <div className='mt-8 flex gap-x-3'>
+          <div className='flex flex-col gap-y-4'>
+            <div className='max-w-xs flex flex-col justify-start items-start flex-shrink-0 bg-total-sleep-and-time-in-bed-bg border border-total-sleep-and-time-in-bed-border rounded-3xl'>
+              <div className='text-total-sleep-and-time-in-bed-text pt-3 pl-4 text-xs	leading-3	font-black'> 
+                Total Sleep
+              </div>
+              <div className='px-16 py-5 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black'>
+                7h 45m
+              </div>
             </div>
-            <div className='px-16 py-5 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black'>
-              7h 45m
+            <div className='max-w-xs flex flex-col justify-start items-start flex-shrink-0 bg-total-sleep-and-time-in-bed-bg border border-total-sleep-and-time-in-bed-border rounded-3xl'>
+              <div className='text-total-sleep-and-time-in-bed-text pt-3 pl-4 text-xs	leading-3	font-black'> 
+                Time in Bed
+              </div>
+              <div className='px-16 py-5 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black'>
+                9h 1m
+              </div>
             </div>
           </div>
-          <div className='max-w-xs flex flex-col justify-start items-start flex-shrink-0 bg-total-sleep-and-time-in-bed-bg border border-total-sleep-and-time-in-bed-border rounded-3xl'>
-            <div className='text-total-sleep-and-time-in-bed-text pt-3 pl-4 text-xs	leading-3	font-black'> 
-              Time in Bed
+          <div className='max-w-xs flex flex-col justify-start items-center flex-shrink-0 rounded-3xl bg-sleep-score-bg border border-sleep-score-border p-0 m-0'>
+            <div className='pt-6 pl-4 text-2xl leading-3 font-black m-0 w-full'> 
+              💤
             </div>
-            <div className='px-16 py-5 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black'>
-              9h 1m
+            <div className='flex justify-center items-center -m-8 p-0 -mt-12 w-full h-full'>
+              <CircularProgressbar value={72} text={`${72}`} styles={{
+                  root: {
+                    width: '60%',  // Adjust as needed
+                    height: '60%', // Adjust as needed
+                  },
+                  path: {
+                    stroke: `#2C73DD`,
+                    strokeLinecap: 'round',
+                    transition: 'stroke-dashoffset 0.5s ease 0s',
+                    transformOrigin: 'center center',
+                  },
+                  trail: {
+                    stroke: '#BFD9FF',
+                    strokeLinecap: 'butt',
+                    transformOrigin: 'center center',
+                  },
+                  text: {
+                    fill: '#2C73DD',
+                    fontSize: '2rem',
+                    fontWeight: 900,
+                  },
+                  background: {
+                    fill: '#3e98c7',
+                  },
+              }} />
+            </div>
+            <div className='w-full text-center mt-1 font-black text-lg	text-sleep-score-text'>
+              Sleep Score
+            </div>
+          </div>
+          <div className='flex flex-col gap-y-4'>
+            <div className='max-w-xs flex flex-col justify-start items-start flex-shrink-0 bg-total-sleep-and-time-in-bed-bg border border-total-sleep-and-time-in-bed-border rounded-3xl'>
+              <div className='text-total-sleep-and-time-in-bed-text pt-3 pl-4 text-xs	leading-3	font-black'> 
+                Total Sleep
+              </div>
+              <div className='px-16 py-5 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black'>
+                7h 45m
+              </div>
+            </div>
+            <div className='max-w-xs flex flex-col justify-start items-start flex-shrink-0 bg-total-sleep-and-time-in-bed-bg border border-total-sleep-and-time-in-bed-border rounded-3xl'>
+              <div className='text-total-sleep-and-time-in-bed-text pt-3 pl-4 text-xs	leading-3	font-black'> 
+                Time in Bed
+              </div>
+              <div className='px-16 py-5 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black'>
+                9h 1m
+              </div>
             </div>
           </div>
         </div>
-        <div>
-          <div>
-            <CircularProgressbar value={72} text={`${72}`} styles={{
-              // Customize the root svg element
-              root: {
-                width: '55%',  // Set width to 50% of parent element
-                height: '40%'  // Set height to 50% of parent element
-              },
-              // Customize the path, i.e. the "completed progress"
-              path: {
-                // Path color
-                stroke: `#2C73DD`,
-                // Whether to use rounded or flat corners on the ends - can use 'butt' or 'round'
-                strokeLinecap: 'round',
-                // Customize transition animation
-                transition: 'stroke-dashoffset 0.5s ease 0s',
-                // Rotate the path
-                transformOrigin: 'center center',
-              },
-              // Customize the circle behind the path, i.e. the "total progress"
-              trail: {
-                // Trail color
-                stroke: '#BFD9FF',
-                // Whether to use rounded or flat corners on the ends - can use 'butt' or 'round'
-                strokeLinecap: 'butt',
-                // Rotate the trail
-                transformOrigin: 'center center',
-              },
-              // Customize the text
-              text: {
-                // Text color
-                fill: '#2C73DD',
-                // Text size
-                fontSize: '2rem',
-                fontWeight: 900,
-              },
-              // Customize background - only used when the `background` prop is true
-              background: {
-                fill: '#3e98c7',
-              },
-            }} />
-          </div>
-        </div>
-      </div>
       </div>
 
       {/* <div className='w-full max-w-screen-2xl mx-auto px-10'>

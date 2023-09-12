@@ -14,6 +14,9 @@ module.exports = {
         "total-sleep-and-time-in-bed-border": "#ECD3C8",
         "total-sleep-and-time-in-bed-bg": "#FFFAF8",
         "total-sleep-and-time-in-bed-text": "#A8440C",
+        "sleep-score-border": "#C8D8EC",
+        "sleep-score-bg": "#F8FBFF",
+        "sleep-score-text": "#164FA4",
       },
       fontFamily: {
         sans: ["Nunito", "sans-serif"],
