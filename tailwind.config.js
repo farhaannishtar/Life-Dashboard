@@ -17,6 +17,12 @@ module.exports = {
         "sleep-score-border": "#C8D8EC",
         "sleep-score-bg": "#F8FBFF",
         "sleep-score-text": "#164FA4",
+        "bed-time-border": "#ECC8E4",
+        "bed-time-bg": "#FBF8FA",
+        "bed-time-text": "#A80C73",
+        "wake-up-border": "#ECC8C8",
+        "wake-up-bg": "#FFF8F8",
+        "wake-up-text": "#A80C0C",
       },
       fontFamily: {
         sans: ["Nunito", "sans-serif"],
