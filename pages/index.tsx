@@ -231,7 +231,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
   console.log("ouraRing Daily Sleep Data: ", ouraRingDailySleepData);
 
   return (
-    <div className="w-full lg:max-w-screen-md xl:max-w-screen-lg 2xl:max-w-screen-xl mx-auto px-10">
+    <div className="w-full max-w-5xl mx-auto px-10">
       <Head>
         <title>Life Dashboard</title>
         <link rel="icon" href="/favicon.ico" />
@@ -247,7 +247,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
             <div className='text-total-sleep-and-time-in-bed-text pt-3 pl-4 text-xs	leading-3	font-black'> 
               Total Sleep
             </div>
-            <div className='px-14 py-5 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black'>
+            <div className='px-14 lg:px-20 py-6 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black'>
               7h 45m
             </div>
           </div>
@@ -255,16 +255,16 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
             <div className='text-total-sleep-and-time-in-bed-text pt-3 pl-4 text-xs	leading-3	font-black'> 
               Time in Bed
             </div>
-            <div className='px-14 py-5 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black'>
+            <div className='px-14 lg:px-20 py-6 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black'>
               9h 1m
             </div>
           </div>
         </div>
-        <div className='max-w-xs flex flex-col justify-start items-center flex-shrink-0 rounded-3xl bg-sleep-score-bg border border-sleep-score-border p-0 m-0'>
-          <div className='pt-6 pl-5 text-2xl leading-3 font-black m-0 w-full'> 
+        <div className='max-w-xs lg:max-w-md flex flex-col justify-start items-center flex-shrink-0 rounded-3xl bg-sleep-score-bg border border-sleep-score-border p-0 m-0'>
+          <div className='pt-7 pl-5 text-2xl leading-3 font-black m-0 w-full'> 
             💤
           </div>
-          <div className='flex justify-center items-center -m-8 p-0 -mt-12 w-full h-full'>
+          <div className='flex justify-center items-center -m-8 p-0 -mt-12 w-full h-full lg:px-12'>
             <CircularProgressbar value={72} text={`${72}`} styles={{
                 root: {
                   width: '60%',  // Adjust as needed
@@ -291,7 +291,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
                 },
             }} />
           </div>
-          <div className='w-full text-center mt-1 font-black text-lg	text-sleep-score-text'>
+          <div className='w-full text-center mt-1 font-black text-lg	text-sleep-score-text pb-3'>
             Sleep Score
           </div>
         </div>
@@ -300,7 +300,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
             <div className='text-bed-time-text pt-3 pl-4 text-xs	leading-3	font-black'> 
               Bed Time
             </div>
-            <div className='px-14 py-5 h-full w-full text-bed-time-text leading-5 text-3xl font-black'>
+            <div className='px-14 lg:px-20 py-6 h-full w-full text-bed-time-text leading-5 text-3xl font-black'>
               1:15 am
             </div>
           </div>
@@ -308,7 +308,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
             <div className='text-wake-up-text pt-3 pl-4 text-xs	leading-3	font-black'> 
               Wake up
             </div>
-            <div className='px-14 py-5 h-full w-full text-wake-up-text leading-5 text-3xl font-black'>
+            <div className='px-14 lg:px-20 py-6 h-full w-full text-wake-up-text leading-5 text-3xl font-black'>
               10:15 am
             </div>
           </div>
