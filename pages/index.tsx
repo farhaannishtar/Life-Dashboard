@@ -320,8 +320,9 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           <div className='pt-7 pl-5 text-2xl leading-3 font-black m-0 w-full'> 
           ⚖️
           </div>
-          <div className='py-12'>
-  
+          <div className='py-10 text-weight-text font-black text-5xl leading-10 inline-block align-middle'>
+            138 
+              <span className='ml-1 text-3xl align-middle leading-4 inline-block font-black'>lb</span>
           </div>
           <div className='w-full text-center mt-1 font-black text-lg	text-weight-text pb-3'>
             Weight
@@ -331,8 +332,9 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           <div className='pt-7 pl-5 text-2xl leading-3 font-black m-0 w-full'> 
           🩸
           </div>
-          <div className='py-10'>
-
+          <div className='py-10 text-blood-glucose-text font-black text-5xl leading-10 inline-block align-middle'>
+            70 
+              <span className='ml-1 text-xl align-middle leading-4 inline-block'>mg/dl</span>
           </div>
           <div className='w-full text-center mt-1 font-black text-lg	text-blood-glucose-text pb-3'>
             Blood Glucose
@@ -342,8 +344,8 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           <div className='pt-7 pl-5 text-2xl leading-3 font-black m-0 w-full'> 
           👟
           </div>
-          <div className='py-12'>
-
+          <div className='py-10 text-step-count-text font-black text-5xl leading-10 inline-block align-middle'>
+            1064 
           </div>
           <div className='w-full text-center mt-1 font-black text-lg	text-step-count-text pb-3'>
             Step Count
