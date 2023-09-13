@@ -12,7 +12,7 @@ function PhysicalStatsCard({ emoji, title, body, unit, borderColor, textColor, b
         style={{ color: textColor }}
       >
           {body}
-          { unit !== "mg/dL" ?
+          { unit !== "mg/dl" ?
             <span className='ml-1 text-3xl align-middle leading-4 inline-block font-black'>{unit}</span>
             : 
             <span className='ml-1 text-xl align-middle leading-4 inline-block font-black'>{unit}</span>

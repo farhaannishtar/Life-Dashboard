@@ -5,7 +5,7 @@ import {formatDuration, formatSteps} from 'helpers/helpers';
 import SleepTimeCard from 'components/SleepTimeCard';
 import SleepScore from 'components/SleepScoreCard';
 import PhysicalStatsCard from 'components/PhysicalStatsCard';
-import { OuraRingDailySleepData, OuraRingSleepData, OuraRingActivityData } from '../types/ouraring';
+import {OuraRingDailySleepData, OuraRingSleepData, OuraRingActivityData} from '../types/ouraring';
 
 
 export async function getServerSideProps() {
@@ -41,7 +41,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
   const ouraRingSteps = ouraRingActivityData && formatSteps(Number(ouraRingActivityData[ouraRingActivityData.length - 1].steps));
   const [ouraRingSleepScore, setOuraRingSleepScore] = useState<number | null>(null);
 
-  // history of oura ring activity logs
+  // history of oura ring activity log
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -139,7 +139,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
         <PhysicalStatsCard 
           emoji={"⚖️"} 
           title={"Weight"} 
-          body={recentFitbitWeightData}
+          body={String(recentFitbitWeightData)}
           unit={"lb"}
           borderColor={"#D8DCE0"}
           textColor={"#506579"}
@@ -148,7 +148,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
         <PhysicalStatsCard 
           emoji={"🩸"} 
           title={"Blood Glucose"} 
-          body={70}
+          body={"70"}
           unit={"mg/dl"}
           borderColor={"#E9C1C1"}
           textColor={"#C52929"}
@@ -157,7 +157,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
         <PhysicalStatsCard 
           emoji={"👟"} 
           title={"Step Count"} 
-          body={Number(ouraRingSteps)}
+          body={ouraRingSteps!}
           unit={""}
           borderColor={"#A9D09B"}
           textColor={"#387238"}
