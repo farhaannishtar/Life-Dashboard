@@ -22,31 +22,12 @@ export function sha256(buffer: any) {
   return crypto.createHash("sha256").update(buffer).digest();
 }
 
-export const calculateSleepScorePercentageChange = (
-  oldScore: number,
-  newScore: number
-): number => {
-  let percentageChange = ((newScore - oldScore) / oldScore) * 100;
-  return parseFloat(percentageChange.toFixed(1));
-};
+export const formatDuration = (duration: number): string => {
+  const hours = Math.floor(duration / 3600);
+  const remainingSeconds = duration % 3600;
+  const minutes = Math.floor(remainingSeconds / 60);
 
-export const calculateStepCountPercentChange = (
-  yesterdaySteps: number,
-  todaySteps: number
-): number => {
-  let percentageChange = ((todaySteps - yesterdaySteps) / yesterdaySteps) * 100;
-  return parseFloat(percentageChange.toFixed(1));
-};
-
-export const calculateMonthWeightChange = (
-  lastMonthWeight: number,
-  currentWeight: number
-): number => {
-  const lastMonthWeightInLbs = lastMonthWeight * 2.20462;
-  const currentWeightInLbs = currentWeight * 2.20462;
-  const lbsChange = currentWeightInLbs - lastMonthWeightInLbs;
-
-  return parseFloat(lbsChange.toFixed(1));
+  return `${hours}h ${minutes}m`;
 };
 
 export const getDaysSinceLastMonth = (dateString: string): number => {
