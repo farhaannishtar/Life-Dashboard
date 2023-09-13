@@ -1,10 +1,6 @@
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-
-// Define a type for the props
-type SleepScoreProps = {
-  score: number
-};
+import { SleepScoreProps } from '../types/uiComponents';
 
 function SleepScore({ score }: SleepScoreProps) {
   return (
