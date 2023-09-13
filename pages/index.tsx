@@ -7,6 +7,7 @@ import {getDaysSinceLastMonth, formatDuration, formatSteps} from 'helpers/helper
 import SleepChart from 'components/SleepChart';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import SleepTimeCard from 'components/SleepTimeCard';
 
 // updated NEXT_PUBLIC_API_URL again in .env.local
 export async function getServerSideProps() {
@@ -166,24 +167,10 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
       </div>
       <div className='mt-8 flex space-x-6 justify-between'>
         <div className='flex flex-1 flex-col gap-y-4'>
-          <div className='max-w-xs flex flex-col justify-start items-start flex-shrink-0 bg-brown-bg border border-brown-border rounded-3xl'>
-            <div className='text-brown-text pt-3 pl-4 text-xs	leading-3	font-black'> 
-              Total Sleep
-            </div>
-            <div className='px-12 lg:px-20 py-6 h-full w-full text-brown-text leading-5 text-3xl font-black text-center'>
-              {totalSleep}
-            </div>
-          </div>
-          <div className='max-w-xs flex flex-col justify-start items-start flex-shrink-0 bg-brown-bg border border-brown-border rounded-3xl'>
-            <div className='text-brown-text pt-3 pl-4 text-xs	leading-3	font-black'> 
-              Time in Bed
-            </div>
-            <div className='px-12 lg:px-20 py-6 h-full w-full text-brown-text leading-5 text-3xl font-black text-center'>
-             {timeInBed}
-            </div>
-          </div>
+           <SleepTimeCard title={'Total Sleep'} body={totalSleep!} color={"brown"} />
+           <SleepTimeCard title={'Time in Bed'} body={timeInBed!} color={"brown"} />
         </div>
-        <div className='max-w-xs lg:max-w-md flex flex-1 flex-col justify-start items-center flex-shrink-0 rounded-3xl bg-blue-bg border border-blue-border p-0 m-0'>
+        <div className='flex flex-1 flex-col justify-start items-center flex-shrink-0 rounded-3xl bg-blue-bg border border-blue-border p-0 m-0'>
           <div className='pt-7 pl-5 text-2xl leading-3 font-black m-0 w-full'> 
             💤
           </div>
@@ -220,22 +207,8 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           </div>
         </div>
         <div className='flex flex-1 flex-col gap-y-4'>
-          <div className='max-w-xs flex flex-col justify-start items-start flex-shrink-0 bg-purple-bg border border-purple-border rounded-3xl'>
-            <div className='text-purple-text pt-3 pl-4 text-xs	leading-3	font-black'> 
-              Bed Time
-            </div>
-            <div className='px-12 lg:px-20 py-6 h-full w-full text-purple-text leading-5 text-3xl font-black text-center'>
-              1:15 am
-            </div>
-          </div>
-          <div className='max-w-xs flex flex-col justify-start items-start flex-shrink-0 bg-reddish-brown-bg border border-reddish-brown-border rounded-3xl'>
-            <div className='text-reddish-brown-text pt-3 pl-4 text-xs	leading-3	font-black'> 
-              Wake up
-            </div>
-            <div className='px-12 lg:px-20 py-6 h-full w-full text-reddish-brown-text leading-5 text-3xl font-black text-center'>
-              10:15 am
-            </div>
-          </div>
+          <SleepTimeCard title={'Bed Time'} body={"1:15 am"} color={"purple"} />
+          <SleepTimeCard title={'Wake up'} body={"10:15 am"} color={"reddish-brown"} />
         </div>
       </div>
       <div className='w-full flex space-x-6 mt-6 justify-between'>
