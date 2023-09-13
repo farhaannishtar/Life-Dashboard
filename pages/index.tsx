@@ -157,7 +157,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
         <PhysicalStatsCard 
           emoji={"👟"} 
           title={"Step Count"} 
-          body={ouraRingSteps}
+          body={Number(ouraRingSteps)}
           unit={""}
           borderColor={"#A9D09B"}
           textColor={"#387238"}
