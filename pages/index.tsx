@@ -41,7 +41,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
   const ouraRingSteps = ouraRingActivityData && formatSteps(Number(ouraRingActivityData[ouraRingActivityData.length - 1].steps));
   const [ouraRingSleepScore, setOuraRingSleepScore] = useState<number | null>(null);
 
-  // history of oura ring activity logs
+  // history of oura ring activity log
   useEffect(() => {
     const fetchData = async () => {
       try {
