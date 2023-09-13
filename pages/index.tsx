@@ -3,7 +3,7 @@ import Image from 'next/image';
 import React, {useState, useEffect} from 'react'
 import {InferGetServerSidePropsType} from 'next'
 import Time from '../components/Time';
-import {getDaysSinceLastMonth, calculateSleepScorePercentageChange, calculateMonthWeightChange, calculateStepCountPercentChange, formatSteps} from 'helpers/helpers';
+import {getDaysSinceLastMonth, formatDuration, formatSteps} from 'helpers/helpers';
 import SleepChart from 'components/SleepChart';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
@@ -77,7 +77,9 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
 
   const [ouraRingDailySleepData, setOuraRingDailySleepData] = useState<OuraRingDailySleepData | null>(null);
   const [ouraRingSleepData, setOuraRingSleepData] = useState<OuraRingSleepData | null>(null);
-  const [parsedOuraRingDailySleepData, setParsedOuraRingDailySleepData] = useState<OuraRingDailySleepDataChart | null>(null); 
+  const totalSleep = ouraRingSleepData && formatDuration(Number(ouraRingSleepData.data[ouraRingSleepData.data.length - 1].total_sleep_duration));
+  const timeInBed = ouraRingSleepData && formatDuration(Number(ouraRingSleepData.data[ouraRingSleepData.data.length - 1].time_in_bed));
+  // const [parsedOuraRingDailySleepData, setParsedOuraRingDailySleepData] = useState<OuraRingDailySleepDataChart | null>(null); 
   const [ouraRingActivityData, setOuraRingActivityData] = useState<OuraRingActivityData | null>(null);
   const fitbitWeightData: FitbitWeightData | null = fitbitData.data;
   const ouraRingSteps = ouraRingActivityData && formatSteps(ouraRingActivityData[ouraRingActivityData.length - 1].steps);
@@ -169,7 +171,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
               Total Sleep
             </div>
             <div className='px-12 lg:px-20 py-6 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black text-center'>
-              7h 45m
+              {totalSleep}
             </div>
           </div>
           <div className='max-w-xs flex flex-col justify-start items-start flex-shrink-0 bg-total-sleep-and-time-in-bed-bg border border-total-sleep-and-time-in-bed-border rounded-3xl'>
@@ -177,7 +179,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
               Time in Bed
             </div>
             <div className='px-12 lg:px-20 py-6 h-full w-full text-total-sleep-and-time-in-bed-text leading-5 text-3xl font-black text-center'>
-              9h 1m
+             {timeInBed}
             </div>
           </div>
         </div>
@@ -188,8 +190,8 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           <div className='flex justify-center items-center -m-8 p-0 -mt-12 w-full h-full lg:px-12'>
             <CircularProgressbar value={ouraRingSleepScore || 0} text={`${ouraRingSleepScore || 0}`} styles={{
                 root: {
-                  width: '60%',  // Adjust as needed
-                  height: '60%', // Adjust as needed
+                  width: '60%', 
+                  height: '60%',
                 },
                 path: {
                   stroke: `#2C73DD`,
