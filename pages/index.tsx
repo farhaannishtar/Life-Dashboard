@@ -80,23 +80,8 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
   const [parsedOuraRingDailySleepData, setParsedOuraRingDailySleepData] = useState<OuraRingDailySleepDataChart | null>(null); 
   const [ouraRingActivityData, setOuraRingActivityData] = useState<OuraRingActivityData | null>(null);
   const fitbitWeightData: FitbitWeightData | null = fitbitData.data;
-  const [sleepScorePercentageMarkers, setSleepScorePercentageMarkers] = useState({
-    arrow: 'bi_arrow-up.svg',
-    contentStyles: "bg-[#F4F6F6] text-[#3D37F1]"
-  });
-  const [stepCountPercentageMarkers, setStepScorePercentageMarkers] = useState({
-    arrow: 'bi_arrow-up.svg',
-    contentStyles: "bg-[#F4F6F6] text-[#3D37F1]"
-  });
-  const [weightMarkers, setWeightMarkers] = useState({
-    arrow: 'bi_arrow-up.svg',
-    contentStyles: "bg-[#F4F6F6] text-[#3D37F1]"
-  });
-  const [sleepPercentDiff, setSleepPercentDiff] = useState('')
-  const [stepCountPercentDiff, setStepCountPercentDiff] = useState('')
-  const [weightDiff, setWeightDiff] = useState('')
-
   const ouraRingSteps = ouraRingActivityData && formatSteps(ouraRingActivityData[ouraRingActivityData.length - 1].steps);
+  const [ouraRingSleepScore, setOuraRingSleepScore] = useState<number | null>(null);
 
   // history of oura ring activity logs
   useEffect(() => {
@@ -110,7 +95,6 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
         .then(response => response.json())
         .then(data => {
           setOuraRingActivityData(data.data);
-          calculateStepCountDifference(data.data);
         })
       } catch (error) {
         console.error('Error:', error);
@@ -125,16 +109,15 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
     .then(response => response.json())
     .then(data => {
       setOuraRingDailySleepData(data);
-      const parsedData = data.data.map((entry: any) => {
-        const date = new Date(Date.parse(entry.day)); // Changed `data.day` to `entry.day`
-        const dayOfMonth = date.getDate();
-        return {
-          day: dayOfMonth,
-          score: entry.score,
-        };
-      });
-      setParsedOuraRingDailySleepData({ data: parsedData});
-      calculateSleepScoreDifference(data);
+      // const parsedData = data.data.map((entry: any) => {
+      //   const date = new Date(Date.parse(entry.day)); // Changed `data.day` to `entry.day`
+      //   const dayOfMonth = date.getDate();
+      //   return {
+      //     day: dayOfMonth,
+      //     score: entry.score,
+      //   };
+      // });
+      // setParsedOuraRingDailySleepData({ data: parsedData});
   })
     .catch(error => console.error('Error:', error));
   }, []);
@@ -144,91 +127,29 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
     fetch(`/api/ouraring-sleep?start_date=2023-08-02`)
     .then(response => response.json())
     .then(data => {
-      setOuraRingDailySleepData(data);
-      const parsedData = data.data.map((entry: any) => {
-        const date = new Date(Date.parse(entry.day)); // Changed `data.day` to `entry.day`
-        const dayOfMonth = date.getDate();
-        return {
-          day: dayOfMonth,
-          score: entry.score,
-        };
-      });
-      setParsedOuraRingDailySleepData({ data: parsedData});
-      calculateSleepScoreDifference(data);
+      setOuraRingSleepData(data);
+      // const parsedData = data.data.map((entry: any) => {
+      //   const date = new Date(Date.parse(entry.day)); // Changed `data.day` to `entry.day`
+      //   const dayOfMonth = date.getDate();
+      //   return {
+      //     day: dayOfMonth,
+      //     score: entry.score,
+      //   };
+      // });
+      // setParsedOuraRingDailySleepData({ data: parsedData});
   })
     .catch(error => console.error('Error:', error));
   }, []);
-  
-  // Calculating Fitbit weight difference since last month
+
   useEffect(() => {
-    calculateWeightDifference(fitbitData.data);
-  }, []);
-
-  function calculateSleepScoreDifference(sleepData: OuraRingDailySleepData) {
-    let lastNightSleepScore = sleepData.data[sleepData.data.length - 1].score
-    let dayBeforeSleepScore = sleepData.data[sleepData.data.length - 2].score
-
-    let percentageChange = calculateSleepScorePercentageChange(dayBeforeSleepScore, lastNightSleepScore);
-
-    setSleepPercentDiff(String(Math.abs(percentageChange)))
-
-    if (percentageChange < 0) {
-      setSleepScorePercentageMarkers({
-        arrow: 'bi_arrow-down.svg',
-        contentStyles: 'bg-red-500 bg-opacity-10 text-red-600'
-      })
+    if (ouraRingDailySleepData && ouraRingDailySleepData.data.length > 0) {
+      const score = ouraRingDailySleepData.data[ouraRingDailySleepData.data.length - 1].score;
+      setOuraRingSleepScore(score);
     }
-  }
-
-  function calculateStepCountDifference(activityData: OuraRingActivityData) {
-    let lastNightStepCount = activityData[activityData.length - 1].steps
-    let dayBeforeStepCount = activityData[activityData.length - 2].steps
-
-    let percentageChange = calculateStepCountPercentChange(dayBeforeStepCount, lastNightStepCount);
-
-    setStepCountPercentDiff(String(Math.abs(percentageChange)))
-
-    if (percentageChange < 0) {
-      setStepScorePercentageMarkers({
-        arrow: 'bi_arrow-down.svg',
-        contentStyles: 'bg-red-500 bg-opacity-10 text-red-600'
-      })
-    }
-  }
-
-  function calculateWeightDifference(fitbitWeightData: FitbitWeightData) {
-    let currentWeight = fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value;
-    let daysSinceLastMonth = getDaysSinceLastMonth(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].dateTime);
-    let lastMonthWeight = fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - daysSinceLastMonth-1].value;
-
-    let weightChange = calculateMonthWeightChange(lastMonthWeight, currentWeight);
-
-    setWeightDiff(String(Math.abs(weightChange)))
-
-    if (weightChange < 0) {
-      setWeightMarkers({
-        arrow: 'bi_arrow-down.svg',
-        contentStyles: 'bg-red-500 bg-opacity-10 text-red-600'
-      })
-    }
-  }
-
-  function calculateBMI() {
-    let kilos: number | null = null;
-
-    if (
-      fitbitWeightData &&
-      fitbitWeightData["body-weight"] &&
-      fitbitWeightData["body-weight"].length > 0 &&
-      fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value
-    ) {
-      kilos = fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value;
-    }
-
-    return Math.round(Number(kilos) / (1.72 * 1.72)) 
-  }
-
+  }, [ouraRingDailySleepData]);
+  
   console.log("ouraRing Daily Sleep Data: ", ouraRingDailySleepData);
+  console.log("ouraRing Sleep Data: ", ouraRingSleepData);
 
   return (
     <div className="w-full max-w-5xl mx-auto px-10">
@@ -265,7 +186,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
             💤
           </div>
           <div className='flex justify-center items-center -m-8 p-0 -mt-12 w-full h-full lg:px-12'>
-            <CircularProgressbar value={72} text={`${72}`} styles={{
+            <CircularProgressbar value={ouraRingSleepScore || 0} text={`${ouraRingSleepScore || 0}`} styles={{
                 root: {
                   width: '60%',  // Adjust as needed
                   height: '60%', // Adjust as needed
@@ -321,7 +242,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           ⚖️
           </div>
           <div className='py-10 text-weight-text font-black text-5xl leading-10 inline-block align-middle'>
-            138 
+          {fitbitWeightData && fitbitWeightData["body-weight"] ? Math.round(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2) : ''} 
               <span className='ml-1 text-3xl align-middle leading-4 inline-block font-black'>lb</span>
           </div>
           <div className='w-full text-center mt-1 font-black text-lg	text-weight-text pb-3'>
@@ -345,7 +266,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           👟
           </div>
           <div className='py-10 text-step-count-text font-black text-5xl leading-10 inline-block align-middle'>
-            1064 
+            {ouraRingSteps}
           </div>
           <div className='w-full text-center mt-1 font-black text-lg	text-step-count-text pb-3'>
             Step Count
