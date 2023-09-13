@@ -1,16 +1,12 @@
 import Head from 'next/head'
-import Image from 'next/image';
 import React, {useState, useEffect} from 'react'
 import {InferGetServerSidePropsType} from 'next'
-import Time from '../components/Time';
 import {getDaysSinceLastMonth, formatDuration, formatSteps} from 'helpers/helpers';
 import SleepChart from 'components/SleepChart';
-import { CircularProgressbar } from 'react-circular-progressbar';
-import 'react-circular-progressbar/dist/styles.css';
 import SleepTimeCard from 'components/SleepTimeCard';
-import SleepScore from 'components/SleepScore';
+import SleepScore from 'components/SleepScoreCard';
+import PhysicalStatsCard from 'components/PhysicalStatsCard';
 
-// updated NEXT_PUBLIC_API_URL again in .env.local
 export async function getServerSideProps() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   try {
@@ -83,7 +79,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
   const timeInBed = ouraRingSleepData && formatDuration(Number(ouraRingSleepData.data[ouraRingSleepData.data.length - 1].time_in_bed));
   // const [parsedOuraRingDailySleepData, setParsedOuraRingDailySleepData] = useState<OuraRingDailySleepDataChart | null>(null); 
   const [ouraRingActivityData, setOuraRingActivityData] = useState<OuraRingActivityData | null>(null);
-  const fitbitWeightData: FitbitWeightData | null = fitbitData.data;
+  const recentFitbitWeightData = Math.round(fitbitData.data["body-weight"][fitbitData.data["body-weight"].length - 1].value * 2.2);
   const ouraRingSteps = ouraRingActivityData && formatSteps(ouraRingActivityData[ouraRingActivityData.length - 1].steps);
   const [ouraRingSleepScore, setOuraRingSleepScore] = useState<number | null>(null);
 
@@ -126,7 +122,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
     .catch(error => console.error('Error:', error));
   }, []);
 
-
+  // history of oura ring sleep logs
   useEffect(() => {
     fetch(`/api/ouraring-sleep?start_date=2023-08-02`)
     .then(response => response.json())
@@ -152,8 +148,8 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
     }
   }, [ouraRingDailySleepData]);
   
-  console.log("ouraRing Daily Sleep Data: ", ouraRingDailySleepData);
-  console.log("ouraRing Sleep Data: ", ouraRingSleepData);
+  // console.log("ouraRing Daily Sleep Data: ", ouraRingDailySleepData);
+  // console.log("ouraRing Sleep Data: ", ouraRingSleepData);
 
   return (
     <div className="w-full max-w-5xl mx-auto px-10">
@@ -178,41 +174,27 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
         </div>
       </div>
       <div className='w-full flex space-x-6 mt-6 justify-between'>
-        <div className='flex-1 max-w-xs lg:max-w-md flex flex-col justify-start items-center flex-shrink-0 rounded-3xl bg-gray-bg border border-gray-border m-0'>
-          <div className='pt-7 pl-5 text-2xl leading-3 font-black m-0 w-full'> 
-          ⚖️
-          </div>
-          <div className='py-10 text-gray-text font-black text-5xl leading-10 inline-block align-middle'>
-          {fitbitWeightData && fitbitWeightData["body-weight"] ? Math.round(fitbitWeightData["body-weight"][fitbitWeightData["body-weight"].length - 1].value * 2.2) : ''} 
-              <span className='ml-1 text-3xl align-middle leading-4 inline-block font-black'>lb</span>
-          </div>
-          <div className='w-full text-center mt-1 font-black text-lg	text-gray-text pb-3'>
-            Weight
-          </div>
-        </div>
-        <div className='flex-1 max-w-xs lg:max-w-md flex flex-col justify-start items-center flex-shrink-0 rounded-3xl bg-red-bg border border-red-border m-0'>
-          <div className='pt-7 pl-5 text-2xl leading-3 font-black m-0 w-full'> 
-          🩸
-          </div>
-          <div className='py-10 text-red-text font-black text-5xl leading-10 inline-block align-middle'>
-            70 
-              <span className='ml-1 text-xl align-middle leading-4 inline-block'>mg/dl</span>
-          </div>
-          <div className='w-full text-center mt-1 font-black text-lg	text-red-text pb-3'>
-            Blood Glucose
-          </div>
-        </div>
-        <div className='flex-1 max-w-xs lg:max-w-md flex flex-col justify-start items-center flex-shrink-0 rounded-3xl bg-green-bg border border-green-border m-0'>
-          <div className='pt-7 pl-5 text-2xl leading-3 font-black m-0 w-full'> 
-          👟
-          </div>
-          <div className='py-10 text-green-text font-black text-5xl leading-10 inline-block align-middle'>
-            {ouraRingSteps}
-          </div>
-          <div className='w-full text-center mt-1 font-black text-lg	text-green-text pb-3'>
-            Step Count
-          </div>
-        </div>
+        <PhysicalStatsCard 
+          emoji={"⚖️"} 
+          title={"Weight"} 
+          body={recentFitbitWeightData}
+          unit={"lb"}
+          color={"gray"} 
+        />
+        <PhysicalStatsCard 
+          emoji={"🩸"} 
+          title={"Blood Glucose"} 
+          body={70}
+          unit={"mg/dl"}
+          color={"red"} 
+        />
+        <PhysicalStatsCard 
+          emoji={"👟"} 
+          title={"Step Count"} 
+          body={Number(ouraRingSteps)}
+          unit={""}
+          color={"green"} 
+        />
       </div>
     </div>
   )
