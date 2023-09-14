@@ -18,6 +18,9 @@ module.exports = {
       fontFamily: {
         sans: ["Nunito", "sans-serif"],
       },
+      fontSize: {
+        22: "22px",
+      },
     },
   },
   plugins: [],

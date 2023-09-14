@@ -31,19 +31,25 @@ function HabitWeekCalendar() {
       style={{ backgroundColor: "#FCFEFF", borderColor: "#B6C8DA" }}
       >
       <div className='flex flex-row justify-between'>
-          <div>
-              🧘‍♂️ Meditation
+          <div className='font-bold text-22 leading-8 not-italic'
+            style={{ letterSpacing: '-0.44px' }}  
+          >
+            🧘‍♂️ <span className='ml-2'>Meditation</span>
           </div>
-          <div>
+          <div className='not-italic leading-8 font-medium text-lg'
+            style={{ letterSpacing: '-0.36px' }} 
+          >
               Everyday
           </div>
       </div>
-      <div className="flex justify-between mt-5">
+      <div className="flex justify-between mt-4">
         {currentWeek.map((date, index) => (
           <div key={index} className="flex flex-col items-center">
-            <div className="font-bold">{format(date, 'EEE')}</div>
-            <div className="p-2 w-10 h-10 mt-2 border rounded-full flex items-center justify-center">
-              <div>{format(date, 'dd')}</div>
+            <div className="font-bold text-base" style={{ color: "#2C4763" }} >{format(date, 'EEE')}</div>
+            <div className="p-2 w-11 h-11 mt-2 border rounded-full flex items-center justify-center"
+              style={{ borderColor: "#ADBCCB" }}  
+            >
+              <div className='text-xl leading-4 font-bold text-center' style={{ color: "#2C4763", letterSpacing: '-0.4px' }} >{format(date, 'dd')}</div>
             </div>
           </div>
         ))}
