@@ -166,19 +166,25 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           bgColor={"#F1FFF1"} 
         />
       </div>
-      <div className='mt-10 font-bold text-28 leading-8 not-italic'
+      <div className='mt-7 font-bold text-28 leading-8 not-italic'
         style={{ letterSpacing: '-0.56px' }}
       >
         Daily Vows
       </div>
-      <div className='w-full flex mt-8 space-x-6'>
-        <div className="flex-grow flex-shrink-0 w-2/3">
+      <div className='w-full flex mt-5 gap-x-6'>
+        <div className="flex-grow-2 flex-shrink">
           <HabitWeekCalendar /> 
         </div>
-        <div className="flex-grow flex-shrink-0 w-1/3">
-          <HabitStreakCard />
+        <div className="flex-grow flex-shrink">
+          <HabitStreakCard 
+            streak={24} 
+            borderColor={"#B6C8DA"}
+            textColor={"#506579"}
+            bgColor={"#FCFEFF"} 
+          />
         </div>
       </div>
+
 
       <div className='flex mt-32'>  
       </div>
