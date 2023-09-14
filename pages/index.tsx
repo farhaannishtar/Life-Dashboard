@@ -5,6 +5,7 @@ import {formatDuration, formatSteps} from 'helpers/helpers';
 import SleepTimeCard from 'components/SleepTimeCard';
 import SleepScore from 'components/SleepScoreCard';
 import PhysicalStatsCard from 'components/PhysicalStatsCard';
+import HabitWeekCalendar from 'components/HabitWeekCalendar';
 import {OuraRingDailySleepData, OuraRingSleepData, OuraRingActivityData} from '../types/ouraring';
 
 
@@ -163,6 +164,9 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           textColor={"#387238"}
           bgColor={"#F1FFF1"} 
         />
+      </div>
+      <div className='mt-10'>
+        <HabitWeekCalendar />
       </div>
     </div>
   )
