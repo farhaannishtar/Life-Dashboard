@@ -27,20 +27,24 @@ function HabitWeekCalendar() {
   }, []);
 
   return (
-    <div>
-      <div className='flex flex-row justify-between px-12'>
-        <div>
-          🧘‍♂️  Meditation
-        </div>
-        <div>
-          Everyday
-        </div>
+    <div className='w-8/12 border rounded-3xl py-6 px-5 mb-96' 
+      style={{ backgroundColor: "#FCFEFF", borderColor: "#B6C8DA" }}
+      >
+      <div className='flex flex-row justify-between'>
+          <div>
+              🧘‍♂️ Meditation
+          </div>
+          <div>
+              Everyday
+          </div>
       </div>
-      <div className="grid grid-cols-7 text-center">
+      <div className="flex justify-between mt-5">
         {currentWeek.map((date, index) => (
-          <div key={index} className="p-4">
+          <div key={index} className="flex flex-col items-center">
             <div className="font-bold">{format(date, 'EEE')}</div>
-            <div>{format(date, 'dd')}</div>
+            <div className="p-2 w-10 h-10 mt-2 border rounded-full flex items-center justify-center">
+              <div>{format(date, 'dd')}</div>
+            </div>
           </div>
         ))}
       </div>
