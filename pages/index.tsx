@@ -6,6 +6,7 @@ import SleepTimeCard from 'components/SleepTimeCard';
 import SleepScore from 'components/SleepScoreCard';
 import PhysicalStatsCard from 'components/PhysicalStatsCard';
 import HabitWeekCalendar from 'components/HabitWeekCalendar';
+import HabitStreakCard from 'components/HabitStreakCard';
 import {OuraRingDailySleepData, OuraRingSleepData, OuraRingActivityData} from '../types/ouraring';
 
 
@@ -165,8 +166,21 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           bgColor={"#F1FFF1"} 
         />
       </div>
-      <div className='mt-10'>
-        <HabitWeekCalendar />
+      <div className='mt-10 font-bold text-28 leading-8 not-italic'
+        style={{ letterSpacing: '-0.56px' }}
+      >
+        Daily Vows
+      </div>
+      <div className='w-full flex mt-8 space-x-6'>
+        <div className="flex-grow flex-shrink-0 w-2/3">
+          <HabitWeekCalendar /> 
+        </div>
+        <div className="flex-grow flex-shrink-0 w-1/3">
+          <HabitStreakCard />
+        </div>
+      </div>
+
+      <div className='flex mt-32'>  
       </div>
     </div>
   )

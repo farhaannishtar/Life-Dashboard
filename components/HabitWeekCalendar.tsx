@@ -27,7 +27,7 @@ function HabitWeekCalendar() {
   }, []);
 
   return (
-    <div className='w-8/12 border rounded-3xl py-6 px-5 mb-96' 
+    <div className='border rounded-3xl py-6 px-5' 
       style={{ backgroundColor: "#FCFEFF", borderColor: "#B6C8DA" }}
       >
       <div className='flex flex-row justify-between'>
@@ -42,7 +42,7 @@ function HabitWeekCalendar() {
               Everyday
           </div>
       </div>
-      <div className="flex justify-between mt-4">
+      <div className="flex justify-between mt-6">
         {currentWeek.map((date, index) => (
           <div key={index} className="flex flex-col items-center">
             <div className="font-bold text-base" style={{ color: "#2C4763" }} >{format(date, 'EEE')}</div>
