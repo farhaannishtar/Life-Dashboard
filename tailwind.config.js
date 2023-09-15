@@ -27,6 +27,9 @@ module.exports = {
       flexGrow: {
         2: "2",
       },
+      spacing: {
+        "5_5": "1.32rem",
+      },
     },
   },
   plugins: [],
