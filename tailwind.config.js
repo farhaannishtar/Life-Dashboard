@@ -18,6 +18,15 @@ module.exports = {
       fontFamily: {
         sans: ["Nunito", "sans-serif"],
       },
+      fontSize: {
+        22: "22px",
+        26: "26px",
+        28: "28px",
+        64: "64px",
+      },
+      flexGrow: {
+        2: "2",
+      },
     },
   },
   plugins: [],
