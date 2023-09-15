@@ -1,3 +1,4 @@
+import exp from "constants";
 import crypto from "crypto";
 import { subMonths, differenceInDays } from "date-fns";
 
@@ -8,6 +9,16 @@ export const getCurrentDate = (): string => {
   const day = now.getDate().toString().padStart(2, "0");
   const currentDate = `${year}-${month}-${day}`;
   return currentDate;
+};
+
+export const getTomorrowsDate = (): string => {
+  const now = new Date();
+  const tomorrow = new Date(now.setDate(now.getDate() + 1));
+  const year = tomorrow.getFullYear().toString();
+  const month = (tomorrow.getMonth() + 1).toString().padStart(2, "0");
+  const day = tomorrow.getDate().toString().padStart(2, "0");
+  const tomorrowsDate = `${year}-${month}-${day}`;
+  return tomorrowsDate;
 };
 
 export function base64URLEncode(str: any) {
@@ -27,7 +38,7 @@ export const formatDuration = (duration: number): string => {
   const remainingSeconds = duration % 3600;
   const minutes = Math.floor(remainingSeconds / 60);
 
-  return `${hours}h ${minutes}m`;
+  return `${hours}h ${minutes + 1}m`;
 };
 
 export const getDaysSinceLastMonth = (dateString: string): number => {
