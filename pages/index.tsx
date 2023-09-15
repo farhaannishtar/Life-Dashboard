@@ -7,7 +7,7 @@ import SleepScoreCard from 'components/SleepScoreCard';
 import PhysicalStatsCard from 'components/PhysicalStatsCard';
 import {OuraRingDailySleepData, OuraRingSleepData, OuraRingActivityData} from '../types/ouraring';
 import DailyVows from 'components/DailyVows';
-
+import { getTomorrowsDate } from 'helpers/helpers';
 
 export async function getServerSideProps() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -64,7 +64,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
 
   // history of oura ring daily sleep logs
   useEffect(() => {
-    fetch(`/api/ouraring-daily-sleep?start_date=2023-08-02`)
+    fetch(`/api/ouraring-daily-sleep?start_date=2023-09-11`)
     .then(response => response.json())
     .then(data => {
       setOuraRingDailySleepData(data);
@@ -74,7 +74,9 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
 
   // history of oura ring sleep logs
   useEffect(() => {
-    fetch(`/api/ouraring-sleep?start_date=2023-08-02`)
+    const endDate = getTomorrowsDate();
+    console.log(endDate)
+    fetch(`/api/ouraring-sleep?start_date=2023-08-02&end_date=${endDate}`)
     .then(response => response.json())
     .then(data => {
       setOuraRingSleepData(data);
@@ -91,6 +93,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
   }, [ouraRingDailySleepData]);
 
   console.log("ouraRingSleepData", ouraRingSleepData);
+  console.log("ouraRingDailySleepData", ouraRingDailySleepData);
 
   return (
     <div className="w-full max-w-5xl mx-auto px-10">
