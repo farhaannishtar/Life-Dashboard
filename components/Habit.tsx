@@ -34,16 +34,16 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
           />
         </div>
         <div className="flex-none">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="2" viewBox="0 0 20 2" fill="none">
+          <svg xmlns="http://www.w3.org/2000/svg" width="23" height="2" viewBox="0 0 20 2" fill="none">
             <path d="M0 1L20 1" stroke={lineColor} stroke-dasharray="1 1"/>
           </svg>
         </div>
         <div className="flex-grow flex-shrink">
           <HabitStreakCard 
-            streak={24} 
-            borderColor={"#B6C8DA"}
-            textColor={"#506579"}
-            bgColor={"#FCFEFF"} 
+            streak={streak} 
+            borderColor={streakBorderColor}
+            textColor={streakTextColor}
+            bgColor={streakBgColor} 
           />
         </div>
       </div>

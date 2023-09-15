@@ -3,10 +3,10 @@ import React, {useState, useEffect} from 'react'
 import {InferGetServerSidePropsType} from 'next'
 import {formatDuration, formatSteps} from 'helpers/helpers';
 import SleepTimeCard from 'components/SleepTimeCard';
-import SleepScore from 'components/SleepScoreCard';
+import SleepScoreCard from 'components/SleepScoreCard';
 import PhysicalStatsCard from 'components/PhysicalStatsCard';
-import Habit from 'components/Habit';
 import {OuraRingDailySleepData, OuraRingSleepData, OuraRingActivityData} from '../types/ouraring';
+import DailyVows from 'components/DailyVows';
 
 
 export async function getServerSideProps() {
@@ -33,14 +33,14 @@ export async function getServerSideProps() {
 
 export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
+  const [ouraRingSleepScore, setOuraRingSleepScore] = useState<number | null>(null);
   const [ouraRingDailySleepData, setOuraRingDailySleepData] = useState<OuraRingDailySleepData | null>(null);
   const [ouraRingSleepData, setOuraRingSleepData] = useState<OuraRingSleepData | null>(null);
+  const [ouraRingActivityData, setOuraRingActivityData] = useState<OuraRingActivityData | null>(null);
   const totalSleep = ouraRingSleepData && formatDuration(Number(ouraRingSleepData.data[ouraRingSleepData.data.length - 1].total_sleep_duration));
   const timeInBed = ouraRingSleepData && formatDuration(Number(ouraRingSleepData.data[ouraRingSleepData.data.length - 1].time_in_bed));
-  const [ouraRingActivityData, setOuraRingActivityData] = useState<OuraRingActivityData | null>(null);
   const recentFitbitWeightData = Math.round(fitbitData.data["body-weight"][fitbitData.data["body-weight"].length - 1].value * 2.2);
   const ouraRingSteps = ouraRingActivityData && formatSteps(Number(ouraRingActivityData[ouraRingActivityData.length - 1].steps));
-  const [ouraRingSleepScore, setOuraRingSleepScore] = useState<number | null>(null);
 
   // history of oura ring activity log
   useEffect(() => {
@@ -82,6 +82,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
     .catch(error => console.error('Error:', error));
   }, []);
 
+  // calculate oura ring sleep score
   useEffect(() => {
     if (ouraRingDailySleepData && ouraRingDailySleepData.data.length > 0) {
       const score = ouraRingDailySleepData.data[ouraRingDailySleepData.data.length - 1].score;
@@ -118,7 +119,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
             bgColor={"#FFFAF8"} 
           />
         </div>
-        <SleepScore score={ouraRingSleepScore || 0} />
+        <SleepScoreCard score={ouraRingSleepScore || 0} />
         <div className='flex flex-1 flex-col gap-y-4'>
           <SleepTimeCard 
             title={'Bed Time'} 
@@ -165,28 +166,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           bgColor={"#F1FFF1"} 
         />
       </div>
-      <div className='mt-7 font-bold text-28 leading-8 not-italic'
-        style={{ letterSpacing: '-0.56px' }}
-      >
-        Daily Vows
-      </div>
-      <Habit 
-        emoji='🧘‍♂️'
-        habit='Meditation'
-        frequency='Everyday'
-        calendarBorderColor={"#B6C8DA"}
-        calendarTextColor={"#2C4763"}
-        calendarBgColor={"#FCFEFF"}
-        calendarBubbleBgColor={"#FFF"}
-        calendarBubbleBorderColor={"#ADBCCB"}
-        streak={24}
-        streakBorderColor={"#B6C8DA"}
-        streakTextColor={"#506579"}
-        streakBgColor={"#FCFEFF"}
-        lineColor={"#B6C8DA"}
-      />
-
-    <div className='flex mt-32'></div>
+      <DailyVows />
     </div>
   )
 }

@@ -2,7 +2,7 @@ import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { SleepScoreProps } from '../types/uiComponents';
 
-function SleepScore({ score }: SleepScoreProps) {
+function SleepScoreCard({ score }: SleepScoreProps) {
   return (
     <div className='flex flex-1 flex-col justify-start items-center flex-shrink-0 rounded-3xl bg-blue-bg border border-blue-border p-0 m-0'>
           <div className='pt-7 pl-5 text-2xl leading-3 font-black m-0 w-full'> 
@@ -43,4 +43,4 @@ function SleepScore({ score }: SleepScoreProps) {
   )
 }
 
-export default SleepScore;
+export default SleepScoreCard;

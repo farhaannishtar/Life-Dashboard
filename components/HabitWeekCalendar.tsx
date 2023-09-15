@@ -1,16 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { format, addDays, startOfWeek } from 'date-fns';
-
-interface HabitWeekCalendarProps {
-  emoji: string;
-  habit: string;
-  frequency: string;
-  calendarBorderColor: string;
-  calendarTextColor: string;
-  calendarBgColor: string;
-  calendarBubbleBgColor: string;
-  calendarBubbleBorderColor: string;
-}
+import { HabitWeekCalendarProps } from 'types/uiComponents';
 
 function HabitWeekCalendar( { emoji, habit, frequency, calendarBorderColor, calendarTextColor, calendarBgColor, calendarBubbleBgColor }: HabitWeekCalendarProps ) {
   const [currentWeek, setCurrentWeek] = useState<Date[]>([]);
@@ -39,7 +29,7 @@ function HabitWeekCalendar( { emoji, habit, frequency, calendarBorderColor, cale
 
   return (
     <div className='border rounded-3xl py-6 px-5' 
-      style={{ backgroundColor: "#FCFEFF", borderColor: "#B6C8DA" }}
+      style={{ borderColor: calendarBorderColor, backgroundColor: calendarBgColor }}
       >
       <div className='flex flex-row justify-between'>
           <div className='font-bold text-22 leading-8 not-italic'
