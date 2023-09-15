@@ -170,7 +170,21 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
       >
         Daily Vows
       </div>
-      <Habit />
+      <Habit 
+        emoji='🧘‍♂️'
+        habit='Meditation'
+        frequency='Everyday'
+        calendarBorderColor={"#B6C8DA"}
+        calendarTextColor={"#2C4763"}
+        calendarBgColor={"#FCFEFF"}
+        calendarBubbleBgColor={"#FFF"}
+        calendarBubbleBorderColor={"#ADBCCB"}
+        streak={24}
+        streakBorderColor={"#B6C8DA"}
+        streakTextColor={"#506579"}
+        streakBgColor={"#FCFEFF"}
+        lineColor={"#B6C8DA"}
+      />
 
     <div className='flex mt-32'></div>
     </div>
