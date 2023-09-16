@@ -2,6 +2,7 @@ import Head from 'next/head'
 import React, {useState, useEffect} from 'react'
 import {InferGetServerSidePropsType} from 'next'
 import {formatDuration, formatSteps} from 'helpers/helpers';
+import UserGreetingHeader from 'components/UserGreetingHeader';
 import SleepTimeCard from 'components/SleepTimeCard';
 import SleepScoreCard from 'components/SleepScoreCard';
 import PhysicalStatsCard from 'components/PhysicalStatsCard';
@@ -101,11 +102,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
         <title>Life Dashboard</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className='flex justify-between w-full'>
-        <div className='mt-10'>
-          <p className="text-black text-4xl font-bold leading-8 tracking-[0.02rem]">Good Afternoon, Faraaz.</p>
-        </div>
-      </div>
+      <UserGreetingHeader />
       <div className='mt-8 flex space-x-6 justify-between'>
         <div className='flex flex-1 flex-col gap-y-4'>
           <SleepTimeCard 
