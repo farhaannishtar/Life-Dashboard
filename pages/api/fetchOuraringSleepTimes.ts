@@ -22,7 +22,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   try {
-    const token = "X2EFIPGE4MDRQHLIZ5B4EYTRY3VZSBEK"; // Assuming you have the API token stored in .env.local
+    const token = process.env.OURA_RING_PAT;
     if (!token) {
       return res.status(401).json({ error: "Unauthorized" });
     }
