@@ -51,7 +51,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
         currentDate.setDate(currentDate.getDate() + 1);
         const end_date = currentDate.toISOString().split('T')[0];
 
-        fetch(`/api/ouraringactivitylogs?start_date=2023-08-01&end_date=${end_date}`)
+        fetch(`/api/fetchOuraringDailyActivity?start_date=2023-08-01&end_date=${end_date}`)
         .then(response => response.json())
         .then(data => {
           setOuraRingActivityData(data.data);
@@ -65,7 +65,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
 
   // history of oura ring daily sleep logs
   useEffect(() => {
-    fetch(`/api/ouraring-daily-sleep?start_date=2023-09-11`)
+    fetch(`/api/fetchOuraringDailySleep?start_date=2023-09-11`)
     .then(response => response.json())
     .then(data => {
       setOuraRingDailySleepData(data);
@@ -77,7 +77,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
   useEffect(() => {
     const endDate = getTomorrowsDate();
     console.log(endDate)
-    fetch(`/api/ouraring-sleep?start_date=2023-08-02&end_date=${endDate}`)
+    fetch(`/api/fetchOuraRingSleep?start_date=2023-08-02&end_date=${endDate}`)
     .then(response => response.json())
     .then(data => {
       setOuraRingSleepData(data);
