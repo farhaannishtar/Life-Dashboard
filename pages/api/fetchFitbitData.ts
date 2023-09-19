@@ -6,7 +6,6 @@ import { getCurrentDate } from "helpers/helpers";
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
 
-// Will fix this issue by EOD
 if (!supabaseUrl || !supabaseKey) {
   throw new Error(
     "Environment variables SUPABASE_URL or SUPABASE_SERVICE_KEY are not set."
@@ -44,8 +43,6 @@ async function refreshFitbitToken() {
     .select("*")
     .limit(1);
 
-  console.log("Supabase data:", data);
-
   if (error) {
     console.error("Error fetching data from Supabase:", error);
     return { error };
@@ -56,7 +53,6 @@ async function refreshFitbitToken() {
   console.log("Current time:", currentTime);
   console.log("expires_at:", expires_at);
 
-  // Uncommented this line to check if the token is about to expire
   if (currentTime >= expires_at - 60) {
     const encodedCredentials = Buffer.from(
       `${process.env.FITBIT_CLIENT_ID}:${process.env.FITBIT_CLIENT_SECRET}`
@@ -74,8 +70,6 @@ async function refreshFitbitToken() {
         }
       );
 
-      console.log("Fitbit response:", fitbitResponse.data);
-
       const newAccessToken = fitbitResponse.data.access_token;
       const newRefreshToken = fitbitResponse.data.refresh_token;
       const newExpiresIn = fitbitResponse.data.expires_in;
@@ -89,8 +83,6 @@ async function refreshFitbitToken() {
           expires_at: newExpiresAt,
         })
         .eq("id", data[0].id);
-
-      console.log("Supabase update result:", updateData);
 
       if (updateError) {
         console.error("Failed to update tokens:", updateError);
