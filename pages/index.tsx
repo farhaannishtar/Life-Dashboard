@@ -18,7 +18,7 @@ export async function getServerSideProps() {
       throw new Error(`Failed to fetch data: ${res.status}`);
     }
     const fitbitData = await res.json();
-    console.log('Server-side fitbitData:', fitbitData);
+    console.log('Server-side fitbitData:', fitbitData.data);
     return {
       props: {
         fitbitData,
@@ -41,7 +41,11 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
   const [ouraRingActivityData, setOuraRingActivityData] = useState<OuraRingActivityData | null>(null);
   const totalSleep = ouraRingSleepData && formatDuration(Number(ouraRingSleepData.data[ouraRingSleepData.data.length - 1].total_sleep_duration));
   const timeInBed = ouraRingSleepData && formatDuration(Number(ouraRingSleepData.data[ouraRingSleepData.data.length - 1].time_in_bed));
-  const recentFitbitWeightData = Math.round(fitbitData.data["body-weight"][fitbitData.data["body-weight"].length - 1].value * 2.2);
+  const recentFitbitWeightData = fitbitData.data["weight"][fitbitData.data["weight"].length - 1];
+
+  console.log(recentFitbitWeightData)
+
+
   const ouraRingSteps = ouraRingActivityData && formatSteps(Number(ouraRingActivityData[ouraRingActivityData.length - 1].steps));
 
   // history of oura ring activity log
@@ -104,10 +108,6 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
     }
   }, [ouraRingDailySleepData]);
 
-  // console.log("ouraRingSleepData", ouraRingSleepData);
-  // console.log("ouraRingDailySleepData", ouraRingDailySleepData);
-  console.log("ouraringSleepTimesData", ouraringSleepTimesData);
-
   return (
     <div className="w-full max-w-5xl mx-auto px-10">
       <Head>
@@ -153,7 +153,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
         <PhysicalStatsCard 
           emoji={"⚖️"} 
           title={"Weight"} 
-          body={String(recentFitbitWeightData)}
+          body={recentFitbitWeightData!}
           unit={"lb"}
           borderColor={"#D8DCE0"}
           textColor={"#506579"}
