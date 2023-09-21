@@ -52,3 +52,25 @@ export const getDaysSinceLastMonth = (dateString: string): number => {
 export const formatSteps = (steps: number): string => {
   return steps.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
+
+export const getTimeSince = (date: string, time: string): string => {
+  const currentDate = new Date();
+  const inputDate = new Date(`${date}T${time}`);
+
+  // Calculate the difference in milliseconds
+  const diffInMs = currentDate.getTime() - inputDate.getTime();
+
+  // Calculate the difference in minutes, hours, and days
+  const diffInMinutes = Math.floor(diffInMs / 60000);
+  const diffInHours = Math.floor(diffInMs / 3600000);
+  const diffInDays = Math.floor(diffInMs / 86400000);
+
+  // Return the time since
+  if (diffInDays >= 1) {
+    return `${diffInDays} days ago`;
+  } else if (diffInHours >= 1) {
+    return `${diffInHours} hours ago`;
+  } else {
+    return `${diffInMinutes} min ago`;
+  }
+};
