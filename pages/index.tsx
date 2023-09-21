@@ -18,7 +18,8 @@ export async function getServerSideProps() {
       throw new Error(`Failed to fetch data: ${res.status}`);
     }
     const fitbitData = await res.json();
-    console.log('Server-side fitbitData:', fitbitData);
+    console.log("I'm improving my dev skills!")
+    console.log('Server-side fitbitData:', fitbitData.data["body-weight"]);
     return {
       props: {
         fitbitData,
@@ -106,7 +107,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
 
   // console.log("ouraRingSleepData", ouraRingSleepData);
   // console.log("ouraRingDailySleepData", ouraRingDailySleepData);
-  console.log("ouraringSleepTimesData", ouraringSleepTimesData);
+  // console.log("ouraringSleepTimesData", ouraringSleepTimesData);
 
   return (
     <div className="w-full max-w-5xl mx-auto px-10">
