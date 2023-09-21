@@ -41,10 +41,6 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
   const totalSleep = ouraRingSleepData && formatDuration(Number(ouraRingSleepData.data[ouraRingSleepData.data.length - 1].total_sleep_duration));
   const timeInBed = ouraRingSleepData && formatDuration(Number(ouraRingSleepData.data[ouraRingSleepData.data.length - 1].time_in_bed));
   const recentFitbitWeightData = fitbitData.data["weight"][fitbitData.data["weight"].length - 1];
-
-  console.log(recentFitbitWeightData)
-
-
   const ouraRingSteps = ouraRingActivityData && formatSteps(Number(ouraRingActivityData[ouraRingActivityData.length - 1].steps));
 
   // history of oura ring activity log

@@ -50,8 +50,6 @@ async function refreshFitbitToken() {
 
   const { access_token, refresh_token, expires_at } = data![0];
   const currentTime = Math.floor(Date.now() / 1000);
-  console.log("Current time:", currentTime);
-  console.log("expires_at:", expires_at);
 
   if (currentTime >= expires_at - 60) {
     const encodedCredentials = Buffer.from(
