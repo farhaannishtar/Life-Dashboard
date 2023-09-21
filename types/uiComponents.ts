@@ -13,7 +13,7 @@ type SleepTimeCardProps = {
 interface PhysicalStatsCardProps {
   emoji: string;
   title: string;
-  body: string;
+  body: any;
   unit: string;
   borderColor: string;
   textColor: string;

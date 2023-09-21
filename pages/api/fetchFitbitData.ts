@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
 import axios from "axios";
-import { getCurrentDate } from "helpers/helpers";
+import { getCurrentDate, get2WeeksAgoDate } from "helpers/helpers";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
@@ -107,7 +107,8 @@ async function refreshFitbitToken() {
 // Function to fetch Fitbit data using a valid access token
 async function fetchFitbitData(access_token: string) {
   let date = getCurrentDate();
-  const fitbitApiUrl = `https://api.fitbit.com/1/user/-/body/log/weight/date/2023-09-15/${date}.json`;
+  let twoWeeksAgo = get2WeeksAgoDate();
+  const fitbitApiUrl = `https://api.fitbit.com/1/user/-/body/log/weight/date/${twoWeeksAgo}/${date}.json`;
   const response = await axios.get(fitbitApiUrl, {
     headers: {
       Authorization: `Bearer ${access_token}`,

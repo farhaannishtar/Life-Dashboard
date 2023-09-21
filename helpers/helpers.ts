@@ -1,4 +1,3 @@
-import exp from "constants";
 import crypto from "crypto";
 import { subMonths, differenceInDays } from "date-fns";
 
@@ -9,6 +8,16 @@ export const getCurrentDate = (): string => {
   const day = now.getDate().toString().padStart(2, "0");
   const currentDate = `${year}-${month}-${day}`;
   return currentDate;
+};
+
+export const get2WeeksAgoDate = (): string => {
+  const now = new Date();
+  const twoWeeksAgo = new Date(now.setDate(now.getDate() - 14));
+  const year = twoWeeksAgo.getFullYear().toString();
+  const month = (twoWeeksAgo.getMonth() + 1).toString().padStart(2, "0");
+  const day = twoWeeksAgo.getDate().toString().padStart(2, "0");
+  const twoWeeksAgoDate = `${year}-${month}-${day}`;
+  return twoWeeksAgoDate;
 };
 
 export const getTomorrowsDate = (): string => {
@@ -57,15 +66,11 @@ export const getTimeSince = (date: string, time: string): string => {
   const currentDate = new Date();
   const inputDate = new Date(`${date}T${time}`);
 
-  // Calculate the difference in milliseconds
   const diffInMs = currentDate.getTime() - inputDate.getTime();
-
-  // Calculate the difference in minutes, hours, and days
   const diffInMinutes = Math.floor(diffInMs / 60000);
   const diffInHours = Math.floor(diffInMs / 3600000);
   const diffInDays = Math.floor(diffInMs / 86400000);
 
-  // Return the time since
   if (diffInDays >= 1) {
     return `${diffInDays} days ago`;
   } else if (diffInHours >= 1) {
