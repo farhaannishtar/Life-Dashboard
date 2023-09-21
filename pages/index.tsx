@@ -18,7 +18,6 @@ export async function getServerSideProps() {
       throw new Error(`Failed to fetch data: ${res.status}`);
     }
     const fitbitData = await res.json();
-    console.log('Server-side fitbitData:', fitbitData.data);
     return {
       props: {
         fitbitData,
