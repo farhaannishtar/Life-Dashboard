@@ -107,7 +107,8 @@ async function refreshFitbitToken() {
 // Function to fetch Fitbit data using a valid access token
 async function fetchFitbitData(access_token: string) {
   let date = getCurrentDate();
-  const fitbitApiUrl = `https://api.fitbit.com/1/user/-/body/weight/date/2023-02-23/${date}.json`;
+  const fitbitApiUrl = `https://api.fitbit.com/1/user/-/body/weight/date/2023-09-12/${date}.json`;
+  // const fitbitApiUrl = `https://api.fitbit.com/1/user/-/body/log/weight/date/2023-07-23/${date}.json`;
   const response = await axios.get(fitbitApiUrl, {
     headers: {
       Authorization: `Bearer ${access_token}`,
