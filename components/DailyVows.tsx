@@ -16,6 +16,7 @@ function DailyVows() {
             calendarBorderColor={"#B6C8DA"}
             calendarTextColor={"#2C4763"}
             calendarBgColor={"#FCFEFF"}
+            calendarBubbleBgColorChecked={"#F2F2F2"}
             calendarBubbleBgColor={"#FFF"}
             calendarBubbleBorderColor={"#ADBCCB"}
             streak={24}
@@ -31,6 +32,7 @@ function DailyVows() {
             calendarBorderColor={"#DAD6B6"}
             calendarTextColor={"#634D2C"}
             calendarBgColor={"#FFFFFC"}
+            calendarBubbleBgColorChecked={"#466A85"}
             calendarBubbleBgColor={"#FFFEF1"}
             calendarBubbleBorderColor={"#CACBAD"}
             streak={45}
@@ -46,6 +48,7 @@ function DailyVows() {
             calendarBorderColor={"#DAB6B6"}
             calendarTextColor={"#632C2C"}
             calendarBgColor={"#FFFCFC"}
+            calendarBubbleBgColorChecked={"#466A85"}
             calendarBubbleBgColor={"#FFFBFB"}
             calendarBubbleBorderColor={"#CBADAD"}
             streak={4}
