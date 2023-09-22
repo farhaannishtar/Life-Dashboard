@@ -1,12 +1,21 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+let supabaseUrl: string | undefined;
+let supabaseKey: string | undefined;
 
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error(
-    "Environment variables SUPABASE_URL or SUPABASE_SERVICE_KEY are not set."
-  );
+// Server-side context
+if (typeof window === "undefined") {
+  supabaseUrl = process.env.SUPABASE_URL;
+  supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+}
+// Client-side context
+else {
+  supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY; // If you have an anonymous key for public access
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+if (!supabaseUrl || !supabaseKey) {
+  console.error("Environment variables for Supabase are not set.");
+}
+
+export const supabase = createClient(supabaseUrl ?? "", supabaseKey ?? "");
