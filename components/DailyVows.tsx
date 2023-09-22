@@ -32,7 +32,7 @@ function DailyVows() {
             calendarBorderColor={"#DAD6B6"}
             calendarTextColor={"#634D2C"}
             calendarBgColor={"#FFFFFC"}
-            calendarBubbleBgColorChecked={"#466A85"}
+            calendarBubbleBgColorChecked={"#FDFCCF"}
             calendarBubbleBgColor={"#FFFEF1"}
             calendarBubbleBorderColor={"#CACBAD"}
             streak={45}
@@ -48,7 +48,7 @@ function DailyVows() {
             calendarBorderColor={"#DAB6B6"}
             calendarTextColor={"#632C2C"}
             calendarBgColor={"#FFFCFC"}
-            calendarBubbleBgColorChecked={"#466A85"}
+            calendarBubbleBgColorChecked={"#FFF4F4"}
             calendarBubbleBgColor={"#FFFBFB"}
             calendarBubbleBorderColor={"#CBADAD"}
             streak={4}

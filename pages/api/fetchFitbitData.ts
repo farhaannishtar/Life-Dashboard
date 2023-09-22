@@ -1,18 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "lib/supabaseClient";
 import axios from "axios";
 import { getCurrentDate, get2WeeksAgoDate } from "helpers/helpers";
-
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error(
-    "Environment variables SUPABASE_URL or SUPABASE_SERVICE_KEY are not set."
-  );
-}
-
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(
   req: NextApiRequest,

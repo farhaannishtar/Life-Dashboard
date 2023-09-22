@@ -63,7 +63,6 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
     });
     setCurrentStreak(currentStreak + 1);
   }
-  
 
   console.log(currentWeek);
 

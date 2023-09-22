@@ -72,7 +72,9 @@ export const getTimeSince = (date: string, time: string): string => {
   const diffInDays = Math.floor(diffInMs / 86400000);
 
   if (diffInDays >= 1) {
-    return `${diffInDays} days ago`;
+    return diffInDays === 1
+      ? `${diffInDays} day ago`
+      : `${diffInDays} days ago`;
   } else if (diffInHours >= 1) {
     return `${diffInHours} hours ago`;
   } else {
