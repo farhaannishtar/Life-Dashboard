@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import HabitStreakCard from 'components/HabitStreakCard';
 import { format, addDays, startOfWeek } from 'date-fns';
+import { supabase } from 'lib/supabaseClient';
 
 interface HabitProps {
   emoji: string;
@@ -26,9 +27,9 @@ interface WeekData {
 
 
 function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColor, calendarBgColor, calendarBubbleBgColorChecked, calendarBubbleBgColor, calendarBubbleBorderColor, streak, streakBorderColor, streakTextColor, streakBgColor, lineColor }: HabitProps) {
-  const [currentWeek, setCurrentWeek] = useState<WeekData[]>([]);
   const [currentStreak, setCurrentStreak] = useState<number>(streak);
-
+  const [currentWeek, setCurrentWeek] = useState<WeekData[]>([]);
+  
 
   const getWeekDates = () => {
     const today = new Date();
@@ -51,20 +52,16 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
 
     const timeUntilMidnight = +tomorrow - +today;
     const timer = setTimeout(() => getWeekDates(), timeUntilMidnight);
-
     return () => clearTimeout(timer);
   }, []);
 
-  const bubbleClickHandler = (index: number) => {
-    setCurrentWeek(prevWeek => {
-      const newWeek = [...prevWeek];
-      newWeek[index].checked = !newWeek[index].checked;
-      return newWeek;
-    });
-    setCurrentStreak(currentStreak + 1);
-  }
+  const toggleCheck = async (index: number) => {
+    const updatedWeek = [...currentWeek];
+    updatedWeek[index].checked = !updatedWeek[index].checked;
+    setCurrentWeek(updatedWeek);
+  };
 
-  console.log(currentWeek);
+  console.log("currentWeek", currentWeek)
 
   return (
     <div className='w-full flex mt-5 items-center'>
@@ -93,7 +90,7 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
                     borderColor: calendarBubbleBorderColor, 
                     backgroundColor: checked ? calendarBubbleBgColorChecked : calendarBubbleBgColor 
                   }}
-                  onClick={() => bubbleClickHandler(index)}  // Notice the change here
+                  onClick={() => toggleCheck(index)}
                 >
                   <div className='text-xl leading-4 font-bold text-center' style={{ color: calendarTextColor, letterSpacing: '-0.4px' }} >{format(date, 'dd')}</div>
                 </div>
