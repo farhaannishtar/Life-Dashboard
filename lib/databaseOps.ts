@@ -1,19 +1,23 @@
 import { supabase } from "./supabaseClient"; // supabase client
 
-const getLatestWeekData = async () => {
+export const getLatestWeekData = async () => {
   // Get the latest 'start_monday_of_week' first
   const { data: latestWeekData, error: latestWeekError } = await supabase
-    .from("Weekly_Habits")
+    .from("weekly_habits")
     .select("start_monday_of_week")
     .order("start_monday_of_week", { ascending: false })
     .limit(1);
 
   if (latestWeekError) {
-    console.error("Error fetching latest week data:", latestWeekError);
+    console.error(
+      "Error fetching latest start_monday_of_week:",
+      latestWeekError
+    );
     return null;
   }
 
   if (!latestWeekData || latestWeekData.length === 0) {
+    console.log("No latest week data found.");
     return null;
   }
 
@@ -21,8 +25,8 @@ const getLatestWeekData = async () => {
 
   // Now fetch all habits for the most recent week
   const { data, error } = await supabase
-    .from("Weekly_Habits")
-    .select("habit_id, checked_days")
+    .from("weekly_habits")
+    .select("habit_name, checked_days")
     .eq("start_monday_of_week", latestStartMonday);
 
   if (error) {
