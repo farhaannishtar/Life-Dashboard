@@ -1,4 +1,4 @@
-import { supabase } from "./supabaseClient"; // supabase client
+import { supabase } from "./supabaseClient";
 
 export const getLatestWeekData = async () => {
   // Get the latest 'start_monday_of_week' first

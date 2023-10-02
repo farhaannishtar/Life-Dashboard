@@ -1,6 +1,6 @@
 import Habit from './Habit'
 import React, { useState, useEffect } from 'react';
-import { startOfWeek, isSameWeek } from 'date-fns';
+import { startOfWeek, isSameWeek, formatISO } from 'date-fns';
 import { getLatestWeekData } from 'lib/databaseOps';
 
 interface HabitWeekData {
@@ -17,20 +17,27 @@ function DailyVows() {
 
   const [currentWeek, setCurrentWeek] = useState<CurrentWeek>();
   
-  
   const initializeWeek = async () => {
-    const today = new Date();
-    const currentWeekStart = startOfWeek(today, { weekStartsOn: 1 }); // 1 for Monday
+    const currentWeekStart = startOfWeek(new Date(), { weekStartsOn: 1 }); // 1 for Monday
+    currentWeekStart.setHours(0, 0, 0, 0);
+    const currentWeekStartISOString = currentWeekStart.toISOString();
+  
     const latestWeekData = await getLatestWeekData();
-    
-    if (latestWeekData && isSameWeek(new Date(latestWeekData.start_monday_of_week), currentWeekStart)) {
-      setCurrentWeek({
-        start_monday_of_week: new Date(latestWeekData.start_monday_of_week),
-        habits: latestWeekData.habits.map(habit => ({
-          habit_name: habit.habit_name,
-          checked_days: habit.checked_days,
-        })),
-      });
+  
+    if (latestWeekData) {
+      let latestWeekStart = new Date(latestWeekData?.start_monday_of_week);
+      latestWeekStart.setHours(0, 0, 0, 0);
+      const latestWeekStartISOString = latestWeekStart.toISOString();
+  
+      if (isSameWeek(new Date(currentWeekStartISOString), new Date(latestWeekStartISOString))) {
+        setCurrentWeek({
+          start_monday_of_week: latestWeekStart,
+          habits: latestWeekData.habits.map(habit => ({
+            habit_name: habit.habit_name,
+            checked_days: habit.checked_days,
+          })),
+        });
+      }
     }
   };
   
@@ -47,6 +54,23 @@ function DailyVows() {
     const timer = setTimeout(() => initializeWeek(), timeUntilMidnight);
     return () => clearTimeout(timer);
   }, []);
+
+  const updateCurrentWeek = (updatedHabitData: HabitWeekData) => {
+    // Find the index of the habit that needs to be updated
+    const habitIndex = currentWeek?.habits.findIndex(
+      (habit) => habit.habit_name === updatedHabitData.habit_name
+    );
+
+    // Create a new 'habits' array with the updated habit data
+    const newHabits = [...currentWeek!.habits];
+    newHabits[habitIndex!] = updatedHabitData;
+
+    setCurrentWeek({
+      ...currentWeek!,
+      habits: newHabits,
+      start_monday_of_week: currentWeek!.start_monday_of_week!
+    });
+  };
 
   return (
     <div className='pb-12'>
@@ -71,8 +95,9 @@ function DailyVows() {
             streakTextColor={"#506579"}
             streakBgColor={"#FCFEFF"}
             lineColor={"#B6C8DA"}
-            habitData={currentWeek?.habits[0]}
+            habitData={currentWeek?.habits[2]}
             start_monday_of_week={currentWeek?.start_monday_of_week}
+            updateCurrentWeek={updateCurrentWeek}
           />
           <Habit 
             emoji='🏋️'
@@ -89,8 +114,9 @@ function DailyVows() {
             streakTextColor={"#634D2C"}
             streakBgColor={"#FFFFFC"}
             lineColor={"#DAD6B6"}
-            habitData={currentWeek?.habits[2]}
+            habitData={currentWeek?.habits[1]}
             start_monday_of_week={currentWeek?.start_monday_of_week}
+            updateCurrentWeek={updateCurrentWeek}
           />
           <Habit 
             emoji='✒️'
@@ -107,8 +133,9 @@ function DailyVows() {
             streakTextColor={"#632C2C"}
             streakBgColor={"#FFFCFC"}
             lineColor={"#DAB6B6"}
-            habitData={currentWeek?.habits[1]}
+            habitData={currentWeek?.habits[0]}
             start_monday_of_week={currentWeek?.start_monday_of_week}
+            updateCurrentWeek={updateCurrentWeek}
           />
         </div>
       </div>
