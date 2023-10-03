@@ -101,7 +101,7 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
   }
   
 
-  console.log('habitData:', habitData)
+  // console.log('habitData:', habitData)
 
   return (
     <div className='w-full flex mt-5 items-center'>
