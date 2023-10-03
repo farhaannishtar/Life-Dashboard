@@ -86,7 +86,6 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
   // history of oura ring sleep logs
   useEffect(() => {
     const endDate = getTomorrowsDate();
-    console.log(endDate)
     fetch(`/api/fetchOuraRingSleep?start_date=2023-08-02&end_date=${endDate}`)
     .then(response => response.json())
     .then(data => {

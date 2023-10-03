@@ -2,9 +2,6 @@ import { PhysicalStatsCardProps } from "../types/uiComponents";
 import { getTimeSince } from "helpers/helpers";
 
 function PhysicalStatsCard({ emoji, title, body, unit, borderColor, textColor, bgColor }: PhysicalStatsCardProps) {
-  
-  console.log("PhysicalStatsCard: body: ", body);
-
   return (
     <div className={`flex flex-col flex-1 justify-start items-center flex-shrink-0 border rounded-3xl m-0`}
     style={{ backgroundColor: bgColor, borderColor: borderColor }}

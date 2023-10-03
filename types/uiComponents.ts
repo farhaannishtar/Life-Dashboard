@@ -20,17 +20,6 @@ interface PhysicalStatsCardProps {
   bgColor: string;
 }
 
-interface HabitWeekCalendarProps {
-  emoji: string;
-  habit: string;
-  frequency: string;
-  calendarBorderColor: string;
-  calendarTextColor: string;
-  calendarBgColor: string;
-  calendarBubbleBgColor: string;
-  calendarBubbleBorderColor: string;
-}
-
 interface HabitStreakCardProps {
   streak: number;
   borderColor: string;
@@ -42,6 +31,5 @@ export type {
   SleepScoreProps,
   SleepTimeCardProps,
   PhysicalStatsCardProps,
-  HabitWeekCalendarProps,
   HabitStreakCardProps,
 };

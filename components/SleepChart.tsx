@@ -15,9 +15,6 @@ interface OuraRingSleepDataChart {
 const SleepChart: React.FC<SleepChartProps> = ({ sleepData }) => {
   useEffect(() => {
     const node = document.getElementById('plot');
-    console.log("DOM node: ", node);
-    console.log("sleepData inside sleepChart: ", sleepData)
-
     // Clear any existing plots
     if (node) {
       node.innerHTML = '';
