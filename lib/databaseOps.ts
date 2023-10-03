@@ -38,3 +38,26 @@ export const getLatestWeekData = async () => {
     ? { start_monday_of_week: latestStartMonday, habits: data }
     : null;
 };
+
+const getHabitsStreakData = async () => {
+  const { data, error } = await supabase
+    .from("habits")
+    .select("habit_name, streak_count");
+
+  if (error) {
+    console.error("Error fetching streak data:", error);
+    return {};
+  }
+
+  if (!data) {
+    return {};
+  }
+
+  // Convert the array of objects into an object with habit_names as keys and streak_count as values
+  const streakData: { [key: string]: number } = {};
+  data.forEach((habit) => {
+    streakData[habit.habit_name] = habit.streak_count;
+  });
+
+  return streakData;
+};
