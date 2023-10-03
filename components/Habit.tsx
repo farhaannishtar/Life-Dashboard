@@ -30,7 +30,7 @@ interface HabitWeekData {
 }
 
 function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColor, calendarBgColor, calendarBubbleBgColorChecked, calendarBubbleBgColor, calendarBubbleBorderColor, streak, streakBorderColor, streakTextColor, streakBgColor, lineColor, habitData, start_monday_of_week, updateCurrentWeek }: HabitProps) {
-  
+
   const toggleCheck = async (dayIndex: number) => {
     // Make sure habitData and habitData.habit_name are defined before proceeding
     if (!habitData || !habitData.habit_name) {
@@ -70,6 +70,38 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
 
     updateCurrentWeek(updatedHabitData);
   };
+
+  function calculateCurrentStreak(checked_days: boolean[], currentStreak: number): number {
+    // JavaScript's getDay() returns 0 for Sunday, 1 for Monday, ..., 6 for Saturday
+    // Adjusting index to match your array (0 for Monday, ..., 6 for Sunday)
+    const todayIndex = (new Date().getDay() - 1 + 7) % 7;
+  
+    let newStreak = currentStreak;
+  
+    // Loop through the days prior to today
+    for (let i = 0; i < todayIndex; i++) {
+      if (checked_days[i]) {
+        newStreak++;
+      } else {
+        newStreak = 0;
+        break;
+      }
+    }
+  
+    // Check today's status without affecting the streak negatively
+    if (checked_days[todayIndex]) {
+      newStreak++;
+    }
+  
+    return newStreak;
+  }
+  let newStreak = 0;
+  if (habitData) {
+    newStreak = calculateCurrentStreak(habitData.checked_days, habitData.streak_count);
+  }
+  
+
+  console.log('habitData:', habitData)
 
   return (
     <div className='w-full flex mt-5 items-center'>
@@ -119,7 +151,7 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
       </div>
       <div className="flex-grow flex-shrink">
         <HabitStreakCard 
-          streak={habitData?.streak_count || 0} 
+          streak={newStreak} 
           borderColor={streakBorderColor}
           textColor={streakTextColor}
           bgColor={streakBgColor} 

@@ -43,6 +43,8 @@ function DailyVows() {
       }
     }
   };
+
+  console.log(currentWeek);
   
   useEffect(() => {
     initializeWeek();
