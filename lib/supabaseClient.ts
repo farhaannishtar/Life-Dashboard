@@ -1,11 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
-// test comment
+// test comment 2
 let supabaseUrl: string | undefined;
 let supabaseKey: string | undefined;
 
 // Server-side context
 if (typeof window === "undefined") {
-  supabaseUrl = process.env.SUPABASE_URL;
+  supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   supabaseKey = process.env.SUPABASE_SERVICE_KEY;
 }
 // Client-side context
