@@ -39,7 +39,7 @@ export const getLatestWeekData = async () => {
     : null;
 };
 
-const getHabitsStreakData = async () => {
+export const getHabitsStreakData = async () => {
   const { data, error } = await supabase
     .from("habits")
     .select("habit_name, streak_count");

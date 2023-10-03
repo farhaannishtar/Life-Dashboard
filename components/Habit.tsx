@@ -25,11 +25,11 @@ interface HabitProps {
 
 interface HabitWeekData {
   habit_name: string;
+  streak_count: number;
   checked_days: boolean[];
 }
 
 function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColor, calendarBgColor, calendarBubbleBgColorChecked, calendarBubbleBgColor, calendarBubbleBorderColor, streak, streakBorderColor, streakTextColor, streakBgColor, lineColor, habitData, start_monday_of_week, updateCurrentWeek }: HabitProps) {
-  const [currentStreak, setCurrentStreak] = useState<number>(streak);
   
   const toggleCheck = async (dayIndex: number) => {
     // Make sure habitData and habitData.habit_name are defined before proceeding
@@ -119,7 +119,7 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
       </div>
       <div className="flex-grow flex-shrink">
         <HabitStreakCard 
-          streak={currentStreak} 
+          streak={habitData?.streak_count || 0} 
           borderColor={streakBorderColor}
           textColor={streakTextColor}
           bgColor={streakBgColor} 

@@ -1,10 +1,11 @@
 import Habit from './Habit'
 import React, { useState, useEffect } from 'react';
-import { startOfWeek, isSameWeek, formatISO } from 'date-fns';
-import { getLatestWeekData } from 'lib/databaseOps';
+import { startOfWeek, isSameWeek } from 'date-fns';
+import { getLatestWeekData, getHabitsStreakData } from 'lib/databaseOps';
 
 interface HabitWeekData {
   habit_name: string;
+  streak_count: number;
   checked_days: boolean[];
 }
 
@@ -23,7 +24,8 @@ function DailyVows() {
     const currentWeekStartISOString = currentWeekStart.toISOString();
   
     const latestWeekData = await getLatestWeekData();
-  
+    const habitsStreakData = await getHabitsStreakData();
+
     if (latestWeekData) {
       let latestWeekStart = new Date(latestWeekData?.start_monday_of_week);
       latestWeekStart.setHours(0, 0, 0, 0);
@@ -35,6 +37,7 @@ function DailyVows() {
           habits: latestWeekData.habits.map(habit => ({
             habit_name: habit.habit_name,
             checked_days: habit.checked_days,
+            streak_count: habitsStreakData[habit.habit_name] || 0, 
           })),
         });
       }
