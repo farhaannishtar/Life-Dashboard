@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import HabitStreakCard from 'components/HabitStreakCard';
 import { format, addDays} from 'date-fns';
 import { supabase } from "../lib/supabaseClient";
-
+import { getDay } from 'date-fns';
 interface HabitProps {
   emoji: string;
   habit: string;
@@ -32,6 +32,10 @@ interface HabitWeekData {
 function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColor, calendarBgColor, calendarBubbleBgColorChecked, calendarBubbleBgColor, calendarBubbleBorderColor, streak, streakBorderColor, streakTextColor, streakBgColor, lineColor, habitData, start_monday_of_week, updateCurrentWeek }: HabitProps) {
 
   const toggleCheck = async (dayIndex: number) => {
+    const todayIndex = getDay(new Date()) - 1; // Assuming 0 is Monday
+  if (dayIndex > todayIndex) {
+    return;
+  }
     // Make sure habitData and habitData.habit_name are defined before proceeding
     if (!habitData || !habitData.habit_name) {
       console.error('habitData or habit_name is not defined');
