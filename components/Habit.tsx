@@ -3,6 +3,8 @@ import HabitStreakCard from 'components/HabitStreakCard';
 import { format, addDays} from 'date-fns';
 import { supabase } from "../lib/supabaseClient";
 import { getDay } from 'date-fns';
+import styles from './Habit.module.css';
+
 interface HabitProps {
   emoji: string;
   habit: string;
@@ -31,11 +33,15 @@ interface HabitWeekData {
 
 function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColor, calendarBgColor, calendarBubbleBgColorChecked, calendarBubbleBgColor, calendarBubbleBorderColor, streak, streakBorderColor, streakTextColor, streakBgColor, lineColor, habitData, start_monday_of_week, updateCurrentWeek }: HabitProps) {
 
+  const [shake, setShake] = useState<number | null>(null);
+
   const toggleCheck = async (dayIndex: number) => {
     const todayIndex = getDay(new Date()) - 1; // Assuming 0 is Monday
-  if (dayIndex > todayIndex) {
-    return;
-  }
+    if (dayIndex > todayIndex) {
+      setShake(dayIndex);
+      setTimeout(() => setShake(null), 1000); // Reset after 1 second
+      return;
+    }
     // Make sure habitData and habitData.habit_name are defined before proceeding
     if (!habitData || !habitData.habit_name) {
       console.error('habitData or habit_name is not defined');
@@ -127,12 +133,12 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
           </div>
           <div className="flex justify-between mt-6">
             {habitData?.checked_days.map((checked, index) => (
-              <div key={index} className="flex flex-col items-center">
+              <div key={index} className="flex flex-col items-center cursor-pointer">
                 <div className="font-bold text-base" style={{ color: calendarTextColor }}>
                 {format(addDays(start_monday_of_week as Date, index), 'EEE')}
                 </div>
                 <div
-                  className="p-2 w-11 h-11 mt-2 border rounded-full flex items-center justify-center"
+                  className={`p-2 w-11 h-11 mt-2 border rounded-full flex items-center justify-center ${shake === index ? styles['shake-animation'] : ''}`}
                   style={{
                     borderColor: calendarBubbleBorderColor,
                     backgroundColor: checked ? calendarBubbleBgColorChecked : calendarBubbleBgColor,
