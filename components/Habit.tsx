@@ -110,6 +110,7 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
     newStreak = calculateCurrentStreak(habitData.checked_days, habitData.streak_count);
   }
   
+  console.log("calendarBorderColor:", calendarBorderColor)
 
   // console.log('habitData:', habitData)
 
@@ -132,25 +133,32 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
             </div>
           </div>
           <div className="flex justify-between mt-6">
-            {habitData?.checked_days.map((checked, index) => (
-              <div key={index} className="flex flex-col items-center cursor-pointer">
-                <div className="font-bold text-base" style={{ color: calendarTextColor }}>
-                {format(addDays(start_monday_of_week as Date, index), 'EEE')}
-                </div>
-                <div
-                  className={`p-2 w-11 h-11 mt-2 border rounded-full flex items-center justify-center ${shake === index ? styles['shake-animation'] : ''}`}
-                  style={{
-                    borderColor: calendarBubbleBorderColor,
-                    backgroundColor: checked ? calendarBubbleBgColorChecked : calendarBubbleBgColor,
-                  }}
-                  onClick={() => toggleCheck(index)}
-                >
-                  <div className='text-xl leading-4 font-bold text-center' style={{ color: calendarTextColor, letterSpacing: '-0.4px' }}>
-                    {format(addDays(start_monday_of_week as Date, index), 'dd')}
+            {habitData?.checked_days.map((checked, index) => {
+              const todayIndex = getDay(new Date()) - 1; // Assuming 0 is Monday
+              const isTodayOrBefore = index <= todayIndex;
+              return (
+                <div key={index} className="flex flex-col items-center cursor-pointer relative">
+                  <div className="font-bold text-base" style={{ color: calendarTextColor }}>
+                    {format(addDays(start_monday_of_week as Date, index), 'EEE')}
+                  </div>
+                  <div
+                      className={`p-2 w-11 h-11 mt-2 rounded-full flex items-center justify-center ${styles['calendar-bubble']} ${checked ? styles['checked'] : ''} ${shake === index ? styles['shake-animation'] : ''} ${isTodayOrBefore ? '' : styles['no-hover']}`}
+                      style={{
+                        '--border-color': calendarBubbleBorderColor,
+                        backgroundColor: calendarBubbleBgColor,
+                      } as React.CSSProperties}
+                      onClick={() => toggleCheck(index)}
+                    >
+                    <div className='text-xl leading-4 font-bold text-center' style={{ color: calendarTextColor, letterSpacing: '-0.4px' }}>
+                      {format(addDays(start_monday_of_week as Date, index), 'dd')}
+                    </div>
+                    <div className={styles['checkmark']}>
+                      ✓
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </div>

@@ -9,3 +9,36 @@
   75% { transform: translateX(-2.5px); }
   100% { transform: translateX(0); }
 }
+
+/* Initial state */
+.calendar-bubble {
+  border: 2px solid var(--border-color, black);
+  transition: border-width 0.3s ease-in-out;
+}
+
+/* Hover state */
+.calendar-bubble:hover,
+.calendar-bubble.checked {  /* Add checked state here */
+  border-width: 4px;
+}
+
+/* Checkmark */
+.checkmark {
+  position: absolute;
+  top: 20px;
+  right: 1px;
+  opacity: 0;
+  color: green;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Show checkmark */
+.calendar-bubble.checked .checkmark {
+  opacity: 1;
+}
+
+/* Disable hover effect */
+.calendar-bubble.no-hover:hover {
+  border-width: 2px !important; /* Override the hover effect */
+}
+
