@@ -4,32 +4,8 @@ import { format, addDays} from 'date-fns';
 import { supabase } from "../lib/supabaseClient";
 import { getDay } from 'date-fns';
 import styles from './Habit.module.css';
-
-interface HabitProps {
-  emoji: string;
-  habit: string;
-  frequency: string;
-  calendarBorderColor: string;
-  calendarTextColor: string;
-  calendarBgColor: string;
-  calendarBubbleBgColorChecked: string;
-  calendarBubbleBgColor: string;
-  calendarBubbleBorderColor: string;
-  streak: number;
-  streakBorderColor: string;
-  streakTextColor: string;
-  streakBgColor: string;
-  lineColor: string;
-  habitData: HabitWeekData | undefined;
-  start_monday_of_week: Date | undefined;
-  updateCurrentWeek: (habitData: HabitWeekData) => void;
-}
-
-interface HabitWeekData {
-  habit_name: string;
-  streak_count: number;
-  checked_days: boolean[];
-}
+import { calculateCurrentStreak } from 'helpers/helpers';
+import { HabitProps  } from '../types/uiComponents';
 
 function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColor, calendarBgColor, calendarBubbleBgColorChecked, calendarBubbleBgColor, calendarBubbleBorderColor, streak, streakBorderColor, streakTextColor, streakBgColor, lineColor, habitData, start_monday_of_week, updateCurrentWeek }: HabitProps) {
 
@@ -87,47 +63,7 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
     .update({ streak_count: updatedStreak })
     .eq('start_monday_of_week', dbCompatibleDate)
     .eq('habit_name', habitData.habit_name);
-
   };
-
-  function calculateCurrentStreak(checked_days: boolean[], currentStreak: number, habitName: string): number {
-    const todayIndex = (new Date().getDay() - 1 + 7) % 7;
-    let newStreak = currentStreak;
-  
-    if (habitName === "Lift Weights") {
-      // For 5-day-a-week habits
-      let count = 0;
-      for (let i = 0; i <= todayIndex; i++) {
-        if (checked_days[i]) {
-          count++;
-        }
-      }
-  
-      if (count >= 5) {
-        newStreak += 5; // Add 5 days to the streak if 5 or more days are checked off
-      } else if (todayIndex >= 5 && count < 5) {
-        newStreak = 0; // Reset the streak if today is the 6th day or later and fewer than 5 days are checked
-      } else {
-        // Do not reset the streak, just add the days that are checked off
-        newStreak += count;
-      }
-    } else {
-      // For daily habits
-      for (let i = 0; i <= todayIndex; i++) {
-        if (checked_days[i]) {
-          newStreak++;
-        } else {
-          newStreak = 0;
-        }
-      }
-    }
-  
-    return newStreak;
-  }
-  
-  
-  
-  
   
   let newStreak = 0;
   if (habitData) {
