@@ -79,40 +79,60 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
     };
 
     updateCurrentWeek(updatedHabitData);
+
+    // After successfully updating checked_days
+    const updatedStreak = calculateCurrentStreak(newCheckedDays, habitData.streak_count, habitData.habit_name);
+    await supabase
+    .from('weekly_habits')
+    .update({ streak_count: updatedStreak })
+    .eq('start_monday_of_week', dbCompatibleDate)
+    .eq('habit_name', habitData.habit_name);
+
   };
 
-  function calculateCurrentStreak(checked_days: boolean[], currentStreak: number): number {
-    // JavaScript's getDay() returns 0 for Sunday, 1 for Monday, ..., 6 for Saturday
-    // Adjusting index to match your array (0 for Monday, ..., 6 for Sunday)
+  function calculateCurrentStreak(checked_days: boolean[], currentStreak: number, habitName: string): number {
     const todayIndex = (new Date().getDay() - 1 + 7) % 7;
-  
     let newStreak = currentStreak;
   
-    // Loop through the days prior to today
-    for (let i = 0; i < todayIndex; i++) {
-      if (checked_days[i]) {
-        newStreak++;
-      } else {
-        newStreak = 0;
-        break;
+    if (habitName === "Lift Weights") {
+      // For 5-day-a-week habits
+      let count = 0;
+      for (let i = 0; i <= todayIndex; i++) {
+        if (checked_days[i]) {
+          count++;
+        }
       }
-    }
   
-    // Check today's status without affecting the streak negatively
-    if (checked_days[todayIndex]) {
-      newStreak++;
+      if (count >= 5) {
+        newStreak += 5; // Add 5 days to the streak if 5 or more days are checked off
+      } else if (todayIndex >= 5 && count < 5) {
+        newStreak = 0; // Reset the streak if today is the 6th day or later and fewer than 5 days are checked
+      } else {
+        // Do not reset the streak, just add the days that are checked off
+        newStreak += count;
+      }
+    } else {
+      // For daily habits
+      for (let i = 0; i <= todayIndex; i++) {
+        if (checked_days[i]) {
+          newStreak++;
+        } else {
+          newStreak = 0;
+        }
+      }
     }
   
     return newStreak;
   }
+  
+  
+  
+  
+  
   let newStreak = 0;
   if (habitData) {
-    newStreak = calculateCurrentStreak(habitData.checked_days, habitData.streak_count);
+    newStreak = calculateCurrentStreak(habitData.checked_days, habitData.streak_count, habitData.habit_name);
   }
-  
-  console.log("calendarBorderColor:", calendarBorderColor)
-
-  // console.log('habitData:', habitData)
 
   return (
     <div className='w-full flex mt-5 items-center'>
