@@ -34,7 +34,6 @@ interface HabitProps {
   calendarBorderColor: string;
   calendarTextColor: string;
   calendarBgColor: string;
-  calendarBubbleBgColorChecked: string;
   calendarBubbleBgColor: string;
   calendarBubbleBorderColor: string;
   streak: number;
