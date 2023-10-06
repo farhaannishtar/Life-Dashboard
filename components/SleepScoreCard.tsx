@@ -30,6 +30,7 @@ function SleepScoreCard({ score }: SleepScoreProps) {
                   fontSize: '2rem',
                   fontWeight: 900,
                   display: 'flex',
+                  transform: 'translate(0px, 4px)'
                 },
                 background: {
                   fill: '#3e98c7',
