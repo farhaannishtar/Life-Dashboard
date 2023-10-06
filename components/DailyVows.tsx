@@ -1,7 +1,7 @@
 import Habit from './Habit'
 import React, { useState, useEffect } from 'react';
 import { startOfWeek, isSameWeek } from 'date-fns';
-import { getLatestWeekData, getHabitsStreakData } from 'lib/databaseOps';
+import { getLatestWeekData, getHabitsStreakData, createNewWeekEntry } from 'lib/databaseOps';
 import { HabitWeekData, CurrentWeek } from 'types/uiComponents';
 import { setMidnightTimer } from 'helpers/helpers';
 
@@ -25,21 +25,40 @@ function DailyVows() {
       if (isSameWeek(new Date(currentWeekStartISOString), new Date(latestWeekStartISOString))) {
         const habitsObject = latestWeekData.habits.reduce((acc, habit) => {
           acc[habit.habit_name] = {
-            habit_name: habit.habit_name,  // Add this line
+            habit_name: habit.habit_name,
             checked_days: habit.checked_days,
             streak_count: habitsStreakData[habit.habit_name] || 0,
           };
           return acc;
-        }, {} as Record<string, HabitWeekData>);  // This should now be compatible
-        
+        }, {} as Record<string, HabitWeekData>);
   
         setCurrentWeek({
           start_monday_of_week: latestWeekStart,
           habits: habitsObject,
         });
+      } else {
+        const allHabits = Object.keys(habitsStreakData);
+        for (const habit of allHabits) {
+          await createNewWeekEntry(habit, currentWeekStartISOString);
+        }
+  
+        const habitsObject = allHabits.reduce((acc, habit) => {
+          acc[habit] = {
+            habit_name: habit,
+            checked_days: Array(7).fill(false),
+            streak_count: habitsStreakData[habit] || 0,
+          };
+          return acc;
+        }, {} as Record<string, HabitWeekData>);
+  
+        setCurrentWeek({
+          start_monday_of_week: currentWeekStart,
+          habits: habitsObject,
+        });
       }
     }
   };
+  
   const journalHabit = currentWeek?.habits['Journal'];
   const liftWeightsHabit = currentWeek?.habits['Lift Weights'];
   const meditationHabit = currentWeek?.habits['Meditation'];
