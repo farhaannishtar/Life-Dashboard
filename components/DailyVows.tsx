@@ -1,64 +1,86 @@
 import Habit from './Habit'
 import React, { useState, useEffect } from 'react';
-import { startOfWeek, isSameWeek } from 'date-fns';
+import { isSameWeek } from 'date-fns';
 import { getLatestWeekData, getHabitsStreakData, createNewWeekEntry } from 'lib/databaseOps';
 import { HabitWeekData, CurrentWeek } from 'types/uiComponents';
-import { setMidnightTimer } from 'helpers/helpers';
+import { setMidnightTimer, initializeWeekStartDate } from 'helpers/helpers';
+
+
+interface LatestWeekData {
+  start_monday_of_week: string;
+  habits: HabitWeekData[];
+}
+
+interface HabitsStreakData {
+  [habit_name: string]: number;
+}
 
 function DailyVows() {
 
   const [currentWeek, setCurrentWeek] = useState<CurrentWeek>();
   
-  const initializeWeek = async () => {
-    const currentWeekStart = startOfWeek(new Date(), { weekStartsOn: 1 }); // 1 for Monday
-    currentWeekStart.setHours(0, 0, 0, 0);
-    const currentWeekStartISOString = currentWeekStart.toISOString();
-  
-    const latestWeekData = await getLatestWeekData();
-    const habitsStreakData = await getHabitsStreakData();
-  
+  // Function to initialize the currentWeek state based on the latest week data
+  const initializeCurrentWeekFromLatestData = (
+    latestWeekData: LatestWeekData,
+    habitsStreakData: HabitsStreakData
+  ): void => {
+    const habitsObject = latestWeekData.habits.reduce((acc, habit) => {
+      acc[habit.habit_name] = {
+        habit_name: habit.habit_name,
+        checked_days: habit.checked_days,
+        streak_count: habitsStreakData[habit.habit_name] || 0,
+      };
+      return acc;
+    }, {} as Record<string, HabitWeekData>);
+
+    setCurrentWeek({
+      start_monday_of_week: new Date(latestWeekData.start_monday_of_week),
+      habits: habitsObject,
+    });
+  };
+
+  // Function to initialize the currentWeek state for a new week
+  const initializeCurrentWeekForNewWeek = async (
+    currentWeekStartISOString: string,
+    habitsStreakData: HabitsStreakData
+  ): Promise<void> => {
+    const allHabits = Object.keys(habitsStreakData);
+    for (const habit of allHabits) {
+      await createNewWeekEntry(habit, currentWeekStartISOString);
+    }
+
+    const habitsObject = allHabits.reduce((acc, habit) => {
+      acc[habit] = {
+        habit_name: habit,
+        checked_days: Array(7).fill(false),
+        streak_count: habitsStreakData[habit] || 0,
+      };
+      return acc;
+    }, {} as Record<string, HabitWeekData>);
+
+    setCurrentWeek({
+      start_monday_of_week: new Date(currentWeekStartISOString),
+      habits: habitsObject,
+    });
+  };
+
+  const initializeWeek = async (): Promise<void> => {
+    const currentWeekStartISOString = initializeWeekStartDate();
+    const latestWeekData = await getLatestWeekData() as LatestWeekData;
+    const habitsStreakData = await getHabitsStreakData() as HabitsStreakData;
+
     if (latestWeekData) {
-      let latestWeekStart = new Date(latestWeekData?.start_monday_of_week);
+      const latestWeekStart = new Date(latestWeekData.start_monday_of_week);
       latestWeekStart.setHours(0, 0, 0, 0);
-      const latestWeekStartISOString = latestWeekStart.toISOString();
-  
-      if (isSameWeek(new Date(currentWeekStartISOString), new Date(latestWeekStartISOString))) {
-        const habitsObject = latestWeekData.habits.reduce((acc, habit) => {
-          acc[habit.habit_name] = {
-            habit_name: habit.habit_name,
-            checked_days: habit.checked_days,
-            streak_count: habitsStreakData[habit.habit_name] || 0,
-          };
-          return acc;
-        }, {} as Record<string, HabitWeekData>);
-  
-        setCurrentWeek({
-          start_monday_of_week: latestWeekStart,
-          habits: habitsObject,
-        });
+
+      if (isSameWeek(new Date(currentWeekStartISOString), latestWeekStart)) {
+        initializeCurrentWeekFromLatestData(latestWeekData, habitsStreakData);
       } else {
-        const allHabits = Object.keys(habitsStreakData);
-        for (const habit of allHabits) {
-          await createNewWeekEntry(habit, currentWeekStartISOString);
-        }
-  
-        const habitsObject = allHabits.reduce((acc, habit) => {
-          acc[habit] = {
-            habit_name: habit,
-            checked_days: Array(7).fill(false),
-            streak_count: habitsStreakData[habit] || 0,
-          };
-          return acc;
-        }, {} as Record<string, HabitWeekData>);
-  
-        setCurrentWeek({
-          start_monday_of_week: currentWeekStart,
-          habits: habitsObject,
-        });
+        await initializeCurrentWeekForNewWeek(currentWeekStartISOString, habitsStreakData);
       }
     }
   };
-  
+    
   const journalHabit = currentWeek?.habits['Journal'];
   const liftWeightsHabit = currentWeek?.habits['Lift Weights'];
   const meditationHabit = currentWeek?.habits['Meditation'];
