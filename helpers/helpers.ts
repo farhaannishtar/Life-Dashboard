@@ -129,3 +129,12 @@ export const setMidnightTimer = (callback: Function): NodeJS.Timeout => {
   const timeUntilMidnight = +tomorrow - +today;
   return setTimeout(() => callback(), timeUntilMidnight);
 };
+
+// Function to convert local date to a database-compatible date string
+export const convertToDBCompatibleDate = (localDate: Date) => {
+  const utcDate = new Date(
+    localDate.getTime() - localDate.getTimezoneOffset() * 60000
+  );
+  utcDate.setTime(utcDate.getTime() + 4 * 60 * 60 * 1000);
+  return utcDate.toISOString().replace("T", " ").replace(".000Z", "+00");
+};
