@@ -81,3 +81,51 @@ export const getTimeSince = (date: string, time: string): string => {
     return `${diffInMinutes} min ago`;
   }
 };
+
+export function calculateCurrentStreak(
+  checked_days: boolean[],
+  currentStreak: number,
+  habitName: string
+): number {
+  const todayIndex = (new Date().getDay() - 1 + 7) % 7;
+  let newStreak = currentStreak;
+
+  if (habitName === "Lift Weights") {
+    // For 5-day-a-week habits
+    let count = 0;
+    for (let i = 0; i <= todayIndex; i++) {
+      if (checked_days[i]) {
+        count++;
+      }
+    }
+
+    if (count >= 5) {
+      newStreak += 5; // Add 5 days to the streak if 5 or more days are checked off
+    } else if (todayIndex >= 5 && count < 5) {
+      newStreak = 0; // Reset the streak if today is the 6th day or later and fewer than 5 days are checked
+    } else {
+      // Do not reset the streak, just add the days that are checked off
+      newStreak += count;
+    }
+  } else {
+    // For daily habits
+    for (let i = 0; i <= todayIndex; i++) {
+      if (checked_days[i]) {
+        newStreak++;
+      } else {
+        newStreak = 0;
+      }
+    }
+  }
+  return newStreak;
+}
+
+export const setMidnightTimer = (callback: Function): NodeJS.Timeout => {
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+
+  const timeUntilMidnight = +tomorrow - +today;
+  return setTimeout(() => callback(), timeUntilMidnight);
+};

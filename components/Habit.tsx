@@ -3,39 +3,21 @@ import HabitStreakCard from 'components/HabitStreakCard';
 import { format, addDays} from 'date-fns';
 import { supabase } from "../lib/supabaseClient";
 import { getDay } from 'date-fns';
-interface HabitProps {
-  emoji: string;
-  habit: string;
-  frequency: string;
-  calendarBorderColor: string;
-  calendarTextColor: string;
-  calendarBgColor: string;
-  calendarBubbleBgColorChecked: string;
-  calendarBubbleBgColor: string;
-  calendarBubbleBorderColor: string;
-  streak: number;
-  streakBorderColor: string;
-  streakTextColor: string;
-  streakBgColor: string;
-  lineColor: string;
-  habitData: HabitWeekData | undefined;
-  start_monday_of_week: Date | undefined;
-  updateCurrentWeek: (habitData: HabitWeekData) => void;
-}
-
-interface HabitWeekData {
-  habit_name: string;
-  streak_count: number;
-  checked_days: boolean[];
-}
+import styles from './Habit.module.css';
+import { calculateCurrentStreak } from 'helpers/helpers';
+import { HabitProps  } from '../types/uiComponents';
 
 function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColor, calendarBgColor, calendarBubbleBgColorChecked, calendarBubbleBgColor, calendarBubbleBorderColor, streak, streakBorderColor, streakTextColor, streakBgColor, lineColor, habitData, start_monday_of_week, updateCurrentWeek }: HabitProps) {
 
+  const [shake, setShake] = useState<number | null>(null);
+
   const toggleCheck = async (dayIndex: number) => {
     const todayIndex = getDay(new Date()) - 1; // Assuming 0 is Monday
-  if (dayIndex > todayIndex) {
-    return;
-  }
+    if (dayIndex > todayIndex) {
+      setShake(dayIndex);
+      setTimeout(() => setShake(null), 1000); // Reset after 1 second
+      return;
+    }
     // Make sure habitData and habitData.habit_name are defined before proceeding
     if (!habitData || !habitData.habit_name) {
       console.error('habitData or habit_name is not defined');
@@ -73,39 +55,20 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
     };
 
     updateCurrentWeek(updatedHabitData);
-  };
 
-  function calculateCurrentStreak(checked_days: boolean[], currentStreak: number): number {
-    // JavaScript's getDay() returns 0 for Sunday, 1 for Monday, ..., 6 for Saturday
-    // Adjusting index to match your array (0 for Monday, ..., 6 for Sunday)
-    const todayIndex = (new Date().getDay() - 1 + 7) % 7;
+    // After successfully updating checked_days
+    const updatedStreak = calculateCurrentStreak(newCheckedDays, habitData.streak_count, habitData.habit_name);
+    await supabase
+    .from('weekly_habits')
+    .update({ streak_count: updatedStreak })
+    .eq('start_monday_of_week', dbCompatibleDate)
+    .eq('habit_name', habitData.habit_name);
+  };
   
-    let newStreak = currentStreak;
-  
-    // Loop through the days prior to today
-    for (let i = 0; i < todayIndex; i++) {
-      if (checked_days[i]) {
-        newStreak++;
-      } else {
-        newStreak = 0;
-        break;
-      }
-    }
-  
-    // Check today's status without affecting the streak negatively
-    if (checked_days[todayIndex]) {
-      newStreak++;
-    }
-  
-    return newStreak;
-  }
   let newStreak = 0;
   if (habitData) {
-    newStreak = calculateCurrentStreak(habitData.checked_days, habitData.streak_count);
+    newStreak = calculateCurrentStreak(habitData.checked_days, habitData.streak_count, habitData.habit_name);
   }
-  
-
-  // console.log('habitData:', habitData)
 
   return (
     <div className='w-full flex mt-5 items-center'>
@@ -126,25 +89,32 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
             </div>
           </div>
           <div className="flex justify-between mt-6">
-            {habitData?.checked_days.map((checked, index) => (
-              <div key={index} className="flex flex-col items-center">
-                <div className="font-bold text-base" style={{ color: calendarTextColor }}>
-                {format(addDays(start_monday_of_week as Date, index), 'EEE')}
-                </div>
-                <div
-                  className="p-2 w-11 h-11 mt-2 border rounded-full flex items-center justify-center"
-                  style={{
-                    borderColor: calendarBubbleBorderColor,
-                    backgroundColor: checked ? calendarBubbleBgColorChecked : calendarBubbleBgColor,
-                  }}
-                  onClick={() => toggleCheck(index)}
-                >
-                  <div className='text-xl leading-4 font-bold text-center' style={{ color: calendarTextColor, letterSpacing: '-0.4px' }}>
-                    {format(addDays(start_monday_of_week as Date, index), 'dd')}
+            {habitData?.checked_days.map((checked, index) => {
+              const todayIndex = getDay(new Date()) - 1; // Assuming 0 is Monday
+              const isTodayOrBefore = index <= todayIndex;
+              return (
+                <div key={index} className="flex flex-col items-center cursor-pointer relative">
+                  <div className="font-bold text-base" style={{ color: calendarTextColor }}>
+                    {format(addDays(start_monday_of_week as Date, index), 'EEE')}
+                  </div>
+                  <div
+                      className={`p-2 w-11 h-11 mt-2 rounded-full flex items-center justify-center ${styles['calendar-bubble']} ${checked ? styles['checked'] : ''} ${shake === index ? styles['shake-animation'] : ''} ${isTodayOrBefore ? '' : styles['no-hover']}`}
+                      style={{
+                        '--border-color': calendarBubbleBorderColor,
+                        backgroundColor: calendarBubbleBgColor,
+                      } as React.CSSProperties}
+                      onClick={() => toggleCheck(index)}
+                    >
+                    <div className='text-xl leading-4 font-bold text-center' style={{ color: calendarTextColor, letterSpacing: '-0.4px' }}>
+                      {format(addDays(start_monday_of_week as Date, index), 'dd')}
+                    </div>
+                    <div className={styles['checkmark']}>
+                      ✓
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </div>

@@ -2,18 +2,8 @@ import Habit from './Habit'
 import React, { useState, useEffect } from 'react';
 import { startOfWeek, isSameWeek } from 'date-fns';
 import { getLatestWeekData, getHabitsStreakData } from 'lib/databaseOps';
-
-interface HabitWeekData {
-  habit_name: string;
-  streak_count: number;
-  checked_days: boolean[];
-}
-
-interface CurrentWeek {
-  start_monday_of_week: Date;
-  habits: Record<string, HabitWeekData>; // Changed from HabitWeekData[] to Record<string, HabitWeekData>
-}
-
+import { HabitWeekData, CurrentWeek } from 'types/uiComponents';
+import { setMidnightTimer } from 'helpers/helpers';
 
 function DailyVows() {
 
@@ -54,17 +44,10 @@ function DailyVows() {
   const liftWeightsHabit = currentWeek?.habits['Lift Weights'];
   const meditationHabit = currentWeek?.habits['Meditation'];
   
+   // Refresh every midnight to get the next week's dates
   useEffect(() => {
     initializeWeek();
-    
-    // Refresh every midnight to get the next week's dates
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
-    
-    const timeUntilMidnight = +tomorrow - +today;
-    const timer = setTimeout(() => initializeWeek(), timeUntilMidnight);
+    const timer = setMidnightTimer(initializeWeek);
     return () => clearTimeout(timer);
   }, []);
 
