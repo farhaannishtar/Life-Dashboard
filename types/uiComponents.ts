@@ -57,6 +57,15 @@ interface CurrentWeek {
   habits: Record<string, HabitWeekData>;
 }
 
+interface LatestWeekData {
+  start_monday_of_week: string;
+  habits: HabitWeekData[];
+}
+
+interface HabitsStreakData {
+  [habit_name: string]: number;
+}
+
 export type {
   SleepScoreProps,
   SleepTimeCardProps,
@@ -65,4 +74,6 @@ export type {
   HabitProps,
   HabitWeekData,
   CurrentWeek,
+  LatestWeekData,
+  HabitsStreakData,
 };

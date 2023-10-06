@@ -2,18 +2,8 @@ import Habit from './Habit'
 import React, { useState, useEffect } from 'react';
 import { isSameWeek } from 'date-fns';
 import { getLatestWeekData, getHabitsStreakData, createNewWeekEntry } from 'lib/databaseOps';
-import { HabitWeekData, CurrentWeek } from 'types/uiComponents';
+import { HabitWeekData, CurrentWeek, LatestWeekData, HabitsStreakData } from 'types/uiComponents';
 import { setMidnightTimer, initializeWeekStartDate } from 'helpers/helpers';
-
-
-interface LatestWeekData {
-  start_monday_of_week: string;
-  habits: HabitWeekData[];
-}
-
-interface HabitsStreakData {
-  [habit_name: string]: number;
-}
 
 function DailyVows() {
 
