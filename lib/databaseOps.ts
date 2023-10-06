@@ -61,3 +61,23 @@ export const getHabitsStreakData = async () => {
 
   return streakData;
 };
+
+export const createNewWeekEntry = async (
+  habitName: string,
+  startMonday: string
+) => {
+  const { data, error } = await supabase.from("weekly_habits").insert([
+    {
+      habit_name: habitName,
+      start_monday_of_week: startMonday,
+      checked_days: Array(7).fill(false),
+    },
+  ]);
+
+  if (error) {
+    console.error("Error creating new week entry:", error);
+    return null;
+  }
+
+  return data;
+};
