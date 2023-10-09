@@ -1,74 +1,66 @@
 import React, { useState } from 'react';
 import HabitStreakCard from 'components/HabitStreakCard';
 import { format, addDays} from 'date-fns';
-import { supabase } from "../lib/supabaseClient";
 import { getDay } from 'date-fns';
 import styles from './Habit.module.css';
-import { calculateCurrentStreak } from 'helpers/helpers';
-import { HabitProps  } from '../types/uiComponents';
+import { calculateCurrentStreak, convertToDBCompatibleDate } from 'helpers/helpers';
+import { HabitProps } from '../types/uiComponents';
+import { updateCheckedDaysInDB, updateStreakCountInDB } from 'lib/databaseOps';
+import { HabitWeekData } from 'types/uiComponents';
 
-function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColor, calendarBgColor, calendarBubbleBgColorChecked, calendarBubbleBgColor, calendarBubbleBorderColor, streak, streakBorderColor, streakTextColor, streakBgColor, lineColor, habitData, start_monday_of_week, updateCurrentWeek }: HabitProps) {
+function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColor, calendarBgColor, calendarBubbleBgColor, calendarBubbleBorderColor, streak, streakBorderColor, streakTextColor, streakBgColor, lineColor, habitData, start_monday_of_week, updateCurrentWeek }: HabitProps) {
 
   const [shake, setShake] = useState<number | null>(null);
 
   const toggleCheck = async (dayIndex: number) => {
-    const todayIndex = getDay(new Date()) - 1; // Assuming 0 is Monday
-    if (dayIndex > todayIndex) {
-      setShake(dayIndex);
-      setTimeout(() => setShake(null), 1000); // Reset after 1 second
+    if (!validateToggle(dayIndex, habitData!)) {
       return;
     }
-    // Make sure habitData and habitData.habit_name are defined before proceeding
-    if (!habitData || !habitData.habit_name) {
-      console.error('habitData or habit_name is not defined');
-      return;
-    }
-
-    // Create a new checked_days array with the toggled value for the clicked day
-    const newCheckedDays = [...habitData.checked_days];
+  
+    const newCheckedDays = [...habitData!.checked_days];
     newCheckedDays[dayIndex] = !newCheckedDays[dayIndex];
-
-    // Convert local time to UTC
-    const localDate = new Date(start_monday_of_week!);
-    const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
-
-    // Manually add 4 hours to match the database (4 hours = 4 * 60 * 60 * 1000 milliseconds)
-    utcDate.setTime(utcDate.getTime() + 4 * 60 * 60 * 1000);
-
-    // Format the date-time to match the database
-    const dbCompatibleDate = utcDate.toISOString().replace("T", " ").replace(".000Z", "+00");
-    const { error } = await supabase
-        .from('weekly_habits')
-        .update({ checked_days: newCheckedDays })
-        .eq('start_monday_of_week', dbCompatibleDate)  // Using the adjusted date
-        .eq('habit_name', habitData.habit_name);
-    
-    if (error) {
-      console.error('Error updating checked_days:', error);
-      return;
+  
+    const dbCompatibleDate = convertToDBCompatibleDate(new Date(start_monday_of_week!));
+  
+    try {
+      await updateCheckedDaysInDB(newCheckedDays, dbCompatibleDate, habitData!.habit_name);
+  
+      const updatedHabitData = {
+        ...habitData!,
+        checked_days: newCheckedDays,
+      };
+  
+      updateCurrentWeek(updatedHabitData);
+  
+      const updatedStreak = calculateCurrentStreak(newCheckedDays, habitData!.streak_count, habitData!.habit_name);
+      await updateStreakCountInDB(updatedStreak, habitData!.habit_name);
+  
+    } catch (error) {
+      console.error('An error occurred while toggling the check:', error);
     }
-
-    // Update the parent's 'currentWeek' state using the 'updateCurrentWeek' function
-    const updatedHabitData = {
-      ...habitData,
-      checked_days: newCheckedDays,
-    };
-
-    updateCurrentWeek(updatedHabitData);
-
-    // After successfully updating checked_days
-    const updatedStreak = calculateCurrentStreak(newCheckedDays, habitData.streak_count, habitData.habit_name);
-    await supabase
-    .from('weekly_habits')
-    .update({ streak_count: updatedStreak })
-    .eq('start_monday_of_week', dbCompatibleDate)
-    .eq('habit_name', habitData.habit_name);
   };
   
   let newStreak = 0;
   if (habitData) {
     newStreak = calculateCurrentStreak(habitData.checked_days, habitData.streak_count, habitData.habit_name);
   }
+
+  // Function to validate the day index and habit data
+  const validateToggle = (dayIndex: number, habitData: HabitWeekData | null) => {
+    const todayIndex = getDay(new Date()) - 1; // Assuming 0 is Monday
+    if (dayIndex > todayIndex) {
+      setShake(dayIndex);
+      setTimeout(() => setShake(null), 1000); // Reset after 1 second
+      return false;
+    }
+
+    if (!habitData || !habitData.habit_name) {
+      console.error('habitData or habit_name is not defined');
+      return false;
+    }
+
+    return true;
+  };
 
   return (
     <div className='w-full flex mt-5 items-center'>

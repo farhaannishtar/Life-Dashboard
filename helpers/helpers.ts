@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { subMonths, differenceInDays } from "date-fns";
+import { subMonths, differenceInDays, startOfWeek } from "date-fns";
 
 export const getCurrentDate = (): string => {
   const now = new Date();
@@ -128,4 +128,20 @@ export const setMidnightTimer = (callback: Function): NodeJS.Timeout => {
 
   const timeUntilMidnight = +tomorrow - +today;
   return setTimeout(() => callback(), timeUntilMidnight);
+};
+
+// Function to convert local date to a database-compatible date string
+export const convertToDBCompatibleDate = (localDate: Date) => {
+  const utcDate = new Date(
+    localDate.getTime() - localDate.getTimezoneOffset() * 60000
+  );
+  utcDate.setTime(utcDate.getTime() + 4 * 60 * 60 * 1000);
+  return utcDate.toISOString().replace("T", " ").replace(".000Z", "+00");
+};
+
+// Function to initialize the week's start date
+export const initializeWeekStartDate = () => {
+  const currentWeekStart = startOfWeek(new Date(), { weekStartsOn: 1 }); // 1 for Monday
+  currentWeekStart.setHours(0, 0, 0, 0);
+  return currentWeekStart.toISOString();
 };

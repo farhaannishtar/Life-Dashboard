@@ -34,7 +34,6 @@ interface HabitProps {
   calendarBorderColor: string;
   calendarTextColor: string;
   calendarBgColor: string;
-  calendarBubbleBgColorChecked: string;
   calendarBubbleBgColor: string;
   calendarBubbleBorderColor: string;
   streak: number;
@@ -58,6 +57,15 @@ interface CurrentWeek {
   habits: Record<string, HabitWeekData>;
 }
 
+interface LatestWeekData {
+  start_monday_of_week: string;
+  habits: HabitWeekData[];
+}
+
+interface HabitsStreakData {
+  [habit_name: string]: number;
+}
+
 export type {
   SleepScoreProps,
   SleepTimeCardProps,
@@ -66,4 +74,6 @@ export type {
   HabitProps,
   HabitWeekData,
   CurrentWeek,
+  LatestWeekData,
+  HabitsStreakData,
 };

@@ -81,3 +81,37 @@ export const createNewWeekEntry = async (
 
   return data;
 };
+
+// Helper function to update checked_days in the database
+export const updateCheckedDaysInDB = async (
+  newCheckedDays: boolean[],
+  dbCompatibleDate: string,
+  habitName: string
+) => {
+  const { error } = await supabase
+    .from("weekly_habits")
+    .update({ checked_days: newCheckedDays })
+    .eq("start_monday_of_week", dbCompatibleDate)
+    .eq("habit_name", habitName);
+
+  if (error) {
+    console.error("Error updating checked_days:", error);
+    throw error;
+  }
+};
+
+// Helper function to update streak_count in the habits table
+export const updateStreakCountInDB = async (
+  newStreakCount: number,
+  habitName: string
+) => {
+  const { error } = await supabase
+    .from("habits")
+    .update({ streak_count: newStreakCount })
+    .eq("habit_name", habitName);
+
+  if (error) {
+    console.error("Error updating streak_count in habits:", error);
+    throw error;
+  }
+};
