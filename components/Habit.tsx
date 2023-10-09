@@ -4,7 +4,7 @@ import { format, addDays} from 'date-fns';
 import { getDay } from 'date-fns';
 import styles from './Habit.module.css';
 import { calculateCurrentStreak, convertToDBCompatibleDate } from 'helpers/helpers';
-import { HabitProps  } from '../types/uiComponents';
+import { HabitProps } from '../types/uiComponents';
 import { updateCheckedDaysInDB, updateStreakCountInDB } from 'lib/databaseOps';
 import { HabitWeekData } from 'types/uiComponents';
 
