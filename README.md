@@ -1,82 +1,52 @@
-## Example app using MongoDB
+# Life Dashboard
 
-[MongoDB](https://www.mongodb.com/) is a general purpose, document-based, distributed database built for modern application developers and for the cloud era. This example will show you how to connect to and use MongoDB as your backend for your Next.js app.
+## About
 
-If you want to learn more about MongoDB, visit the following pages:
+This full-stack web application provides comprehensive, real-time health and wellness metrics by integrating devices like Oura ring, blood glucose monitors, and Fitbit scales. Designed for health enthusiasts and professionals, it offers a seamless experience in monitoring and analyzing health data.
 
-- [MongoDB Atlas](https://mongodb.com/atlas)
-- [MongoDB Documentation](https://docs.mongodb.com/)
+## Technology Stack
 
-## Deploy
+- **Frontend**: Next.js 12, TypeScript, Tailwind CSS
+- **Backend**: Node.js, Express
+- **Database**: Supabase
+- **APIs**: Oura Ring, Fitbit, Librelink
+- **Deployment**: Vercel
+- **Version Control**: GitHub
+- **Code Editor**: VSCode
 
-Once you have access to the environment variables you'll need, deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example):
+## Features and Functionality
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?project-name=with-mongodb&repository-name=with-mongodb&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-mongodb&integration-ids=oac_jnzmjqM10gllKmSrG0SGrHOH)
+- Real-time data visualization from Oura ring, blood glucose monitors, and Fitbit scales.
+- Customizable dashboard for tracking various health metrics.
+- User authentication and secure data handling.
+- Responsive design for optimal viewing on all device types.
 
-## How to use
+## Screenshots or Demo
 
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
+<img width="927" alt="Screenshot 2023-11-17 at 4 42 11 PM" src="https://github.com/farhaannishtar/Life-Dashboard/assets/89179469/cd929755-b5fd-4b28-a24b-7ff98f00d139">
 
-```bash
-npx create-next-app --example with-mongodb with-mongodb-app
+## Installation and Setup Instructions
+
+## Prerequisites
+- Ensure you have Node.js [version] installed. You can download it from [Node.js official website](https://nodejs.org/).
+- npm [version] or higher must be installed. npm is distributed with Node.js, which means that when you download Node.js, you automatically get npm installed on your computer.
+
+## Cloning the Repository
+Clone the project repository by running:
 ```
-
-```bash
-yarn create next-app --example with-mongodb with-mongodb-app
+git clone https://github.com/your-username/Life-Dashboard.git
+cd Life-Dashboard
 ```
+Inside the project directory, install the required npm packages:
 
-```bash
-pnpm create next-app --example with-mongodb with-mongodb-app
 ```
-
-## Configuration
-
-### Set up a MongoDB database
-
-Set up a MongoDB database either locally or with [MongoDB Atlas for free](https://mongodb.com/atlas).
-
-### Set up environment variables
-
-Copy the `env.local.example` file in this directory to `.env.local` (which will be ignored by Git):
-
-```bash
-cp .env.local.example .env.local
-```
-
-Set each variable on `.env.local`:
-
-- `MONGODB_URI` - Your MongoDB connection string. If you are using [MongoDB Atlas](https://mongodb.com/atlas) you can find this by clicking the "Connect" button for your cluster.
-
-### Run Next.js in development mode
-
-```bash
 npm install
-npm run dev
-
-# or
-
-yarn install
-yarn dev
 ```
 
-Your app should be up and running on [http://localhost:3000](http://localhost:3000)! If it doesn't work, post on [GitHub discussions](https://github.com/vercel/next.js/discussions).
+Environment Setup
+Copy the .env.example file to a new file named .env.
+Fill in the necessary API keys and database URLs in the .env file.
 
-You will either see a message stating "You are connected to MongoDB" or "You are NOT connected to MongoDB". Ensure that you have provided the correct `MONGODB_URI` environment variable.
-
-When you are successfully connected, you can refer to the [MongoDB Node.js Driver docs](https://mongodb.github.io/node-mongodb-native/3.4/tutorials/collections/) for further instructions on how to query your database.
-
-## Deploy on Vercel
-
-You can deploy this app to the cloud with [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
-
-#### Deploy Your Local Project
-
-To deploy your local project to Vercel, push it to GitHub/GitLab/Bitbucket and [import to Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example).
-
-**Important**: When you import your project on Vercel, make sure to click on **Environment Variables** and set them to match your `.env.local` file.
-
-#### Deploy from Our Template
-
-Alternatively, you can deploy using our template by clicking on the Deploy button below.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?project-name=with-mongodb&repository-name=with-mongodb&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-mongodb&integration-ids=oac_jnzmjqM10gllKmSrG0SGrHOH)
+```
+npm run dev
+```
