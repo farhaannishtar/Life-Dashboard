@@ -8,7 +8,7 @@ This full-stack web application provides comprehensive, real-time health and wel
 
 - **Frontend**: Next.js 12, TypeScript, Tailwind CSS
 - **Backend**: Node.js, Express
-- **Database**: MongoDB
+- **Database**: Supabase
 - **APIs**: Oura Ring, Fitbit, Librelink
 - **Deployment**: Vercel
 - **Version Control**: GitHub
@@ -27,9 +27,26 @@ This full-stack web application provides comprehensive, real-time health and wel
 
 ## Installation and Setup Instructions
 
-Clone the repository and install dependencies:
+## Prerequisites
+- Ensure you have Node.js [version] installed. You can download it from [Node.js official website](https://nodejs.org/).
+- npm [version] or higher must be installed. npm is distributed with Node.js, which means that when you download Node.js, you automatically get npm installed on your computer.
 
-```bash
-git clone [repository URL]
-cd [repository directory]
+## Cloning the Repository
+Clone the project repository by running:
+```
+git clone https://github.com/your-username/Life-Dashboard.git
+cd Life-Dashboard
+```
+Inside the project directory, install the required npm packages:
+
+```
 npm install
+```
+
+Environment Setup
+Copy the .env.example file to a new file named .env.
+Fill in the necessary API keys and database URLs in the .env file.
+
+```
+npm run dev
+```
