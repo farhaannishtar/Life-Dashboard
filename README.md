@@ -21,7 +21,7 @@ This full-stack web application provides comprehensive, real-time health and wel
 - User authentication and secure data handling.
 - Responsive design for optimal viewing on all device types.
 
-## Screenshots or Demo
+## Screenshot
 
 <img width="927" alt="Screenshot 2023-11-17 at 4 42 11 PM" src="https://github.com/farhaannishtar/Life-Dashboard/assets/89179469/cd929755-b5fd-4b28-a24b-7ff98f00d139">
 
