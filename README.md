@@ -1,4 +1,4 @@
-# Health Metrics Dashboard
+# Life Dashboard
 
 ## About
 
