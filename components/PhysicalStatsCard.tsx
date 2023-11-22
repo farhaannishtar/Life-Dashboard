@@ -1,7 +1,7 @@
 import { PhysicalStatsCardProps } from "../types/uiComponents";
 import { getTimeSince } from "helpers/helpers";
 
-function PhysicalStatsCard({ emoji, title, body, unit, borderColor, textColor, bgColor }: PhysicalStatsCardProps) {
+function PhysicalStatsCard({ emoji, body, title, unit, borderColor, textColor, bgColor }: PhysicalStatsCardProps) {
   return (
     <div className={`flex flex-col flex-1 justify-start items-center flex-shrink-0 border rounded-3xl m-0`}
     style={{ backgroundColor: bgColor, borderColor: borderColor }}
@@ -13,13 +13,13 @@ function PhysicalStatsCard({ emoji, title, body, unit, borderColor, textColor, b
       <div className="text-xs mr-5"
        style={{ color: textColor }}
       >
-        { unit === "lb" ? getTimeSince(body.date, body.time) : "" }
+        { unit === "lb" ? "3 hours" : "" }
       </div>
     </div>
     <div className={`py-10 font-black text-5xl leading-10 inline-block align-middle`}
       style={{ color: textColor }}
     >
-      { unit === "lb" ? Math.round(body.weight * 2.20462) : body }
+      { body }
       { unit === "mg/dl" ?
         <span className='ml-1 text-xl align-middle leading-4 inline-block font-black'>{unit}</span>
         : 

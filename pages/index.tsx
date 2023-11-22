@@ -10,28 +10,28 @@ import {OuraRingDailySleepData, OuraRingSleepData, OuraRingActivityData} from '.
 import DailyVows from 'components/DailyVows';
 import { getTomorrowsDate } from 'helpers/helpers';
 
-export async function getServerSideProps() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  try {
-    const res = await fetch(`${apiUrl}api/fetchFitbitData`);
-    if (!res.ok) {
-      throw new Error(`Failed to fetch data: ${res.status}`);
-    }
-    const fitbitData = await res.json();
-    return {
-      props: {
-        fitbitData,
-      },
-    };
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    return {
-      notFound: true,
-    };
-  }
-}
+// export async function getServerSideProps() {
+//   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+//   try {
+//     const res = await fetch(`${apiUrl}api/fetchFitbitData`);
+//     if (!res.ok) {
+//       throw new Error(`Failed to fetch data: ${res.status}`);
+//     }
+//     const fitbitData = await res.json();
+//     return {
+//       props: {
+//         fitbitData,
+//       },
+//     };
+//   } catch (error) {
+//     console.error("Error fetching data:", error);
+//     return {
+//       notFound: true,
+//     };
+//   }
+// }
 
-export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function Home() {
 
   const [ouraRingSleepScore, setOuraRingSleepScore] = useState<number | null>(null);
   const [ouraRingDailySleepData, setOuraRingDailySleepData] = useState<OuraRingDailySleepData | null>(null);
@@ -40,7 +40,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
   const [ouraRingActivityData, setOuraRingActivityData] = useState<OuraRingActivityData | null>(null);
   const totalSleep = ouraRingSleepData && formatDuration(Number(ouraRingSleepData.data[ouraRingSleepData.data.length - 1].total_sleep_duration));
   const timeInBed = ouraRingSleepData && formatDuration(Number(ouraRingSleepData.data[ouraRingSleepData.data.length - 1].time_in_bed));
-  const recentFitbitWeightData = fitbitData.data["weight"][fitbitData.data["weight"].length - 1];
+  // const recentFitbitWeightData = fitbitData.data["weight"][fitbitData.data["weight"].length - 1];
   const ouraRingSteps = ouraRingActivityData && formatSteps(Number(ouraRingActivityData[ouraRingActivityData.length - 1].steps));
 
   // // history of oura ring activity log
@@ -148,7 +148,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
         <PhysicalStatsCard 
           emoji={"⚖️"} 
           title={"Weight"} 
-          body={recentFitbitWeightData!}
+          body={142}
           unit={"lb"}
           borderColor={"#D8DCE0"}
           textColor={"#506579"}
