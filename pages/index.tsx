@@ -43,64 +43,64 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
   const recentFitbitWeightData = fitbitData.data["weight"][fitbitData.data["weight"].length - 1];
   const ouraRingSteps = ouraRingActivityData && formatSteps(Number(ouraRingActivityData[ouraRingActivityData.length - 1].steps));
 
-  // history of oura ring activity log
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const currentDate = new Date();
-        currentDate.setDate(currentDate.getDate() + 1);
-        const end_date = currentDate.toISOString().split('T')[0];
+  // // history of oura ring activity log
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const currentDate = new Date();
+  //       currentDate.setDate(currentDate.getDate() + 1);
+  //       const end_date = currentDate.toISOString().split('T')[0];
 
-        fetch(`/api/fetchOuraringDailyActivity?start_date=2023-08-01&end_date=${end_date}`)
-        .then(response => response.json())
-        .then(data => {
-          setOuraRingActivityData(data.data);
-        })
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    };
-    fetchData();
-  }, []);
+  //       fetch(`/api/fetchOuraringDailyActivity?start_date=2023-08-01&end_date=${end_date}`)
+  //       .then(response => response.json())
+  //       .then(data => {
+  //         setOuraRingActivityData(data.data);
+  //       })
+  //     } catch (error) {
+  //       console.error('Error:', error);
+  //     }
+  //   };
+  //   fetchData();
+  // }, []);
 
-  // history of oura ring daily sleep logs
-  useEffect(() => {
-    fetch(`/api/fetchOuraringDailySleep?start_date=2023-09-11`)
-    .then(response => response.json())
-    .then(data => {
-      setOuraRingDailySleepData(data);
-  })
-    .catch(error => console.error('Error:', error));
-  }, []);
+  // // history of oura ring daily sleep logs
+  // useEffect(() => {
+  //   fetch(`/api/fetchOuraringDailySleep?start_date=2023-09-11`)
+  //   .then(response => response.json())
+  //   .then(data => {
+  //     setOuraRingDailySleepData(data);
+  // })
+  //   .catch(error => console.error('Error:', error));
+  // }, []);
 
-  // history of oura ring sleep time logs
-  useEffect(() => {
-    fetch(`/api/fetchOuraringSleepTimes?start_date=2023-09-11`)
-    .then(response => response.json())
-    .then(data => {
-      setOuraringSleepTimesData(data);
-  })
-    .catch(error => console.error('Error:', error));
-  }, []);
+  // // history of oura ring sleep time logs
+  // useEffect(() => {
+  //   fetch(`/api/fetchOuraringSleepTimes?start_date=2023-09-11`)
+  //   .then(response => response.json())
+  //   .then(data => {
+  //     setOuraringSleepTimesData(data);
+  // })
+  //   .catch(error => console.error('Error:', error));
+  // }, []);
 
-  // history of oura ring sleep logs
-  useEffect(() => {
-    const endDate = getTomorrowsDate();
-    fetch(`/api/fetchOuraRingSleep?start_date=2023-08-02&end_date=${endDate}`)
-    .then(response => response.json())
-    .then(data => {
-      setOuraRingSleepData(data);
-  })
-    .catch(error => console.error('Error:', error));
-  }, []);
+  // // history of oura ring sleep logs
+  // useEffect(() => {
+  //   const endDate = getTomorrowsDate();
+  //   fetch(`/api/fetchOuraRingSleep?start_date=2023-08-02&end_date=${endDate}`)
+  //   .then(response => response.json())
+  //   .then(data => {
+  //     setOuraRingSleepData(data);
+  // })
+  //   .catch(error => console.error('Error:', error));
+  // }, []);
 
-  // calculate oura ring sleep score
-  useEffect(() => {
-    if (ouraRingDailySleepData && ouraRingDailySleepData.data.length > 0) {
-      const score = ouraRingDailySleepData.data[ouraRingDailySleepData.data.length - 1].score;
-      setOuraRingSleepScore(score);
-    }
-  }, [ouraRingDailySleepData]);
+  // // calculate oura ring sleep score
+  // useEffect(() => {
+  //   if (ouraRingDailySleepData && ouraRingDailySleepData.data.length > 0) {
+  //     const score = ouraRingDailySleepData.data[ouraRingDailySleepData.data.length - 1].score;
+  //     setOuraRingSleepScore(score);
+  //   }
+  // }, [ouraRingDailySleepData]);
 
   return (
     <div className="w-full max-w-5xl mx-auto px-10">
@@ -125,7 +125,8 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
             bgColor={"#FFFAF8"} 
           />
         </div>
-        <SleepScoreCard score={ouraRingSleepScore || 0} />
+        {/* <SleepScoreCard score={ouraRingSleepScore || 0} /> */}
+        <SleepScoreCard score={77} />
         <div className='flex flex-1 flex-col gap-y-4'>
           <SleepTimeCard 
             title={'Bed Time'} 
@@ -165,7 +166,8 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
         <PhysicalStatsCard 
           emoji={"👟"} 
           title={"Step Count"} 
-          body={ouraRingSteps!}
+          // body={ouraRingSteps!}
+          body={2335}
           unit={""}
           borderColor={"#A9D09B"}
           textColor={"#387238"}
