@@ -113,13 +113,13 @@ export default function Home() {
         <div className='flex flex-1 flex-col gap-y-4'>
           <SleepTimeCard 
             title={'Total Sleep'} 
-            body={totalSleep!} 
+            body={"8:05 hrs"} 
             borderColor={"#ECD3C8"}
             textColor={"#A8440C"}
             bgColor={"#FFFAF8"}  />
           <SleepTimeCard 
             title={'Time in Bed'} 
-            body={timeInBed!} 
+            body={"8:27 hrs"} 
             borderColor={"#ECD3C8"}
             textColor={"#A8440C"}
             bgColor={"#FFFAF8"} 
