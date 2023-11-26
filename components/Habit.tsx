@@ -60,7 +60,9 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
     }
 
     return true;
+  
   };
+
 
   return (
     <div className='w-full flex mt-5 items-center'>

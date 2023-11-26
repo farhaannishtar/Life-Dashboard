@@ -100,6 +100,23 @@ function DailyVows() {
     }
   };
   
+  const meditationHabitData = {
+    checked_days: [true, false, true, false, true, false, true],
+    habit_name: "Meditation",
+    streak_count: 46,
+  }
+  const liftHabitData = {
+    checked_days: [true, false, true, false, true, false, true],
+    habit_name: "Lift Weights",
+    streak_count: 46,
+  }
+  const journalHabitData = {
+    checked_days: [true, false, true, false, true, false, true],
+    habit_name: "Journal",
+    streak_count: 11,
+  }
+
+  console.log(currentWeek)
 
   return (
     <div className='pb-12'>
@@ -123,8 +140,10 @@ function DailyVows() {
             streakTextColor={"#506579"}
             streakBgColor={"#FCFEFF"}
             lineColor={"#B6C8DA"}
-            habitData={meditationHabit}
-            start_monday_of_week={currentWeek?.start_monday_of_week}
+            // habitData={meditationHabit}
+            habitData={meditationHabitData}
+            start_monday_of_week={new Date("2023-10-02T04:00:00.000Z")}
+            // start_monday_of_week={currentWeek?.start_monday_of_week}
             updateCurrentWeek={updateCurrentWeek}
           />
           <Habit 
@@ -141,7 +160,7 @@ function DailyVows() {
             streakTextColor={"#634D2C"}
             streakBgColor={"#FFFFFC"}
             lineColor={"#DAD6B6"}
-            habitData={liftWeightsHabit}
+            habitData={liftHabitData}
             start_monday_of_week={currentWeek?.start_monday_of_week}
             updateCurrentWeek={updateCurrentWeek}
           />
@@ -159,7 +178,7 @@ function DailyVows() {
             streakTextColor={"#632C2C"}
             streakBgColor={"#FFFCFC"}
             lineColor={"#DAB6B6"}
-            habitData={journalHabit}
+            habitData={journalHabitData}
             start_monday_of_week={currentWeek?.start_monday_of_week}
             updateCurrentWeek={updateCurrentWeek}
           />
