@@ -86,8 +86,13 @@ export const createNewWeekEntry = async (
 export const updateCheckedDaysInDB = async (
   newCheckedDays: boolean[],
   dbCompatibleDate: string,
-  habitName: string
+  habitName: string | undefined
 ) => {
+  if (!habitName) {
+    console.error("habitName is undefined");
+    // Handle the undefined case
+    return;
+  }
   const { error } = await supabase
     .from("weekly_habits")
     .update({ checked_days: newCheckedDays })
@@ -103,8 +108,13 @@ export const updateCheckedDaysInDB = async (
 // Helper function to update streak_count in the habits table
 export const updateStreakCountInDB = async (
   newStreakCount: number,
-  habitName: string
+  habitName: string | undefined
 ) => {
+  if (!habitName) {
+    console.error("habitName is undefined");
+    // Handle the undefined case
+    return;
+  }
   const { error } = await supabase
     .from("habits")
     .update({ streak_count: newStreakCount })

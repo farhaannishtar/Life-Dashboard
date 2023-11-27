@@ -85,8 +85,13 @@ export const getTimeSince = (date: string, time: string): string => {
 export function calculateCurrentStreak(
   checked_days: boolean[],
   currentStreak: number,
-  habitName: string
+  habitName: string | undefined
 ): number {
+  if (!habitName) {
+    console.error("habitName is undefined");
+    // Handle the undefined case
+    return 5;
+  }
   const todayIndex = (new Date().getDay() - 1 + 7) % 7;
   let newStreak = currentStreak;
 
