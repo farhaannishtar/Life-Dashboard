@@ -15,13 +15,16 @@ function DailyVows() {
     habitsStreakData: HabitsStreakData
   ): void => {
     const habitsObject = latestWeekData.habits.reduce((acc, habit) => {
-      acc[habit.habit_name] = {
-        habit_name: habit.habit_name,
-        checked_days: habit.checked_days,
-        streak_count: habitsStreakData[habit.habit_name] || 0,
-      };
+      if (habit.habit_name) {
+        acc[habit.habit_name] = {
+          habit_name: habit.habit_name,
+          checked_days: habit.checked_days,
+          streak_count: habitsStreakData[habit.habit_name] || 0,
+        };
+      }
       return acc;
     }, {} as Record<string, HabitWeekData>);
+    
 
     setCurrentWeek({
       start_monday_of_week: new Date(latestWeekData.start_monday_of_week),
@@ -83,40 +86,24 @@ function DailyVows() {
   }, []);
 
   const updateCurrentWeek = (updatedHabitData: HabitWeekData) => {
-    // Check if 'currentWeek' and 'currentWeek.habits' exist
-    if (currentWeek && currentWeek.habits) {
-      // Create a new 'habits' object with the updated habit data
+    if (currentWeek && currentWeek.habits && updatedHabitData.habit_name) {
       const newHabits = {
         ...currentWeek.habits,
         [updatedHabitData.habit_name]: updatedHabitData,
       };
   
-      // Update 'currentWeek' state
       setCurrentWeek({
         ...currentWeek,
         habits: newHabits,
-        start_monday_of_week: currentWeek.start_monday_of_week,
       });
+    } else {
+      console.error("Invalid habit name or currentWeek data");
+      // Handle the error appropriately
     }
   };
   
-  const meditationHabitData = {
-    checked_days: [true, false, true, false, true, false, true],
-    habit_name: "Meditation",
-    streak_count: 46,
-  }
-  const liftHabitData = {
-    checked_days: [true, false, true, false, true, false, true],
-    habit_name: "Lift Weights",
-    streak_count: 46,
-  }
-  const journalHabitData = {
-    checked_days: [true, false, true, false, true, false, true],
-    habit_name: "Journal",
-    streak_count: 11,
-  }
-
-  console.log(currentWeek)
+  // console.log("currentweek: ", currentWeek)
+  // console.log(meditationHabit);
 
   return (
     <div className='pb-12'>
@@ -135,15 +122,13 @@ function DailyVows() {
             calendarBgColor={"#FCFEFF"}
             calendarBubbleBgColor={"#FFF"}
             calendarBubbleBorderColor={"#ADBCCB"}
-            streak={24}
+            streak={26}
             streakBorderColor={"#B6C8DA"}
             streakTextColor={"#506579"}
             streakBgColor={"#FCFEFF"}
             lineColor={"#B6C8DA"}
-            // habitData={meditationHabit}
-            habitData={meditationHabitData}
-            start_monday_of_week={new Date("2023-10-02T04:00:00.000Z")}
-            // start_monday_of_week={currentWeek?.start_monday_of_week}
+            habitData={meditationHabit}
+            start_monday_of_week={currentWeek?.start_monday_of_week}
             updateCurrentWeek={updateCurrentWeek}
           />
           <Habit 
@@ -160,7 +145,7 @@ function DailyVows() {
             streakTextColor={"#634D2C"}
             streakBgColor={"#FFFFFC"}
             lineColor={"#DAD6B6"}
-            habitData={liftHabitData}
+            habitData={liftWeightsHabit}
             start_monday_of_week={currentWeek?.start_monday_of_week}
             updateCurrentWeek={updateCurrentWeek}
           />
@@ -173,12 +158,12 @@ function DailyVows() {
             calendarBgColor={"#FFFCFC"}
             calendarBubbleBgColor={"#FFFBFB"}
             calendarBubbleBorderColor={"#CBADAD"}
-            streak={4}
+            streak={11}
             streakBorderColor={"#DAB6B6"}
             streakTextColor={"#632C2C"}
             streakBgColor={"#FFFCFC"}
             lineColor={"#DAB6B6"}
-            habitData={journalHabitData}
+            habitData={journalHabit}
             start_monday_of_week={currentWeek?.start_monday_of_week}
             updateCurrentWeek={updateCurrentWeek}
           />

@@ -16,36 +16,38 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
     if (!validateToggle(dayIndex, habitData!)) {
       return;
     }
-  
+    // Clone the checked_days array and toggle the day
     const newCheckedDays = [...habitData!.checked_days];
     newCheckedDays[dayIndex] = !newCheckedDays[dayIndex];
   
+    // Convert date to a format compatible with your database
     const dbCompatibleDate = convertToDBCompatibleDate(new Date(start_monday_of_week!));
   
     try {
+      // Update checked days in the database
       await updateCheckedDaysInDB(newCheckedDays, dbCompatibleDate, habitData!.habit_name);
   
+      // Calculate the updated streak
+      const updatedStreak = calculateCurrentStreak(newCheckedDays, habitData!.streak_count as number, habitData!.habit_name as string);
+      
+      // Update the streak count in the database
+      await updateStreakCountInDB(updatedStreak, habitData!.habit_name);
+  
+      // Update the local habit data state
       const updatedHabitData = {
-        ...habitData!,
+        ...habitData,
         checked_days: newCheckedDays,
+        streak_count: updatedStreak, // Update the streak count here
       };
   
+      // Update the parent component's state
       updateCurrentWeek(updatedHabitData);
-  
-      const updatedStreak = calculateCurrentStreak(newCheckedDays, habitData!.streak_count, habitData!.habit_name);
-      await updateStreakCountInDB(updatedStreak, habitData!.habit_name);
   
     } catch (error) {
       console.error('An error occurred while toggling the check:', error);
     }
   };
   
-  let newStreak = 0;
-  if (habitData) {
-    newStreak = calculateCurrentStreak(habitData.checked_days, habitData.streak_count, habitData.habit_name);
-  }
-
-  // Function to validate the day index and habit data
   const validateToggle = (dayIndex: number, habitData: HabitWeekData | null) => {
     const todayIndex = getDay(new Date()) - 1; // Assuming 0 is Monday
     if (dayIndex > todayIndex) {
@@ -60,9 +62,51 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
     }
 
     return true;
-  
   };
 
+  // Initialize the checked_days for the habit
+  const initializeCheckedDays = () => {
+    if (!habitData) {
+      console.error("habitData is undefined");
+      return; // Exit the function early if habitData is undefined
+    }
+  
+    const todayIndex = new Date().getDay(); // Assuming 0 is Sunday, 1 is Monday, etc.
+    const newCheckedDays = habitData.checked_days.map((_, index) => index <= todayIndex);
+  
+    // Update the habitData with the new checked_days
+    const updatedHabitData = {
+      ...habitData,
+      checked_days: newCheckedDays,
+    };
+
+    // Propagate the change to the parent component
+    updateCurrentWeek(updatedHabitData!);
+  };
+
+  function calculateCurrentStreak(checkedDays: boolean[], currentStreak: number, habitName: string): number {
+    const todayIndex = (new Date().getDay() - 1 + 7) % 7; // Assuming 0 is Monday
+    let newStreak = 0;
+    let baseStreak = currentStreak - checkedDays.filter((checked, i) => i < todayIndex && checked).length;
+  
+    for (let i = 0; i <= todayIndex; i++) {
+      if (checkedDays[i]) {
+        newStreak = baseStreak + i + 1;
+      } else {
+        baseStreak = 0;
+      }
+    }
+  
+    return newStreak;
+  }
+
+  let newStreak = 0;
+
+  if (habitData && habitData.checked_days) {
+    newStreak = calculateCurrentStreak(habitData.checked_days, streak, habitData.habit_name);
+  }
+
+  console.log("habitData: ", habitData);
 
   return (
     <div className='w-full flex mt-5 items-center'>
@@ -119,7 +163,7 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
       </div>
       <div className="flex-grow flex-shrink">
         <HabitStreakCard 
-          streak={newStreak} 
+          streak={newStreak || streak} 
           borderColor={streakBorderColor}
           textColor={streakTextColor}
           bgColor={streakBgColor} 

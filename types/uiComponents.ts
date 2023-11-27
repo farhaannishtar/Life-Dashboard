@@ -47,9 +47,9 @@ interface HabitProps {
 }
 
 interface HabitWeekData {
-  habit_name: string;
-  streak_count: number;
   checked_days: boolean[];
+  habit_name?: string | undefined;
+  streak_count?: number | undefined;
 }
 
 interface CurrentWeek {
