@@ -89,6 +89,7 @@ export function calculateCurrentStreak(
 ): number {
   const todayIndex = (new Date().getDay() - 1 + 7) % 7; // Assuming 0 is Monday
 
+  // Special logic for the "Lift Weights" habit
   if (habitName === "Lift Weights") {
     let uncheckedDayCount = checkedDays
       .slice(0, todayIndex + 1)
@@ -96,9 +97,9 @@ export function calculateCurrentStreak(
     let daysPassedInWeek = todayIndex + 1;
 
     if (uncheckedDayCount >= 3) {
-      return checkedDays[todayIndex] ? 1 : 0; // Reset streak for Lift Weights if 3 days are unchecked
+      return checkedDays[todayIndex] ? 1 : 0;
     } else {
-      return baseStreak + daysPassedInWeek; // Default streak plus days passed in week
+      return baseStreak + daysPassedInWeek;
     }
   } else {
     // Logic for daily habits
@@ -106,10 +107,24 @@ export function calculateCurrentStreak(
       .slice(0, todayIndex)
       .some((day) => !day);
 
-    if (dayMissedBeforeToday) {
+    // Reset streak to 1 if previous day is unchecked but today is checked
+    if (
+      todayIndex > 0 &&
+      !checkedDays[todayIndex - 1] &&
+      checkedDays[todayIndex]
+    ) {
+      return 1;
+    } else if (dayMissedBeforeToday) {
       return 0; // Reset streak to 0 if any day before today is missed
     } else {
-      return baseStreak + todayIndex + (checkedDays[todayIndex] ? 1 : 0); // Continue streak including today if it's checked
+      // Continue streak including today if it's checked
+      return (
+        baseStreak +
+        (checkedDays.slice(0, todayIndex).every((day) => day)
+          ? todayIndex
+          : 0) +
+        (checkedDays[todayIndex] ? 1 : 0)
+      );
     }
   }
 }
