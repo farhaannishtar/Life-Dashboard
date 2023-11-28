@@ -60,9 +60,37 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
       console.error('habitData or habit_name is not defined');
       return false;
     }
-
     return true;
   };
+
+  function calculateCurrentStreak(checkedDays: boolean[], baseStreak: number, habitName: string): number {
+    const todayIndex = (new Date().getDay() - 1 + 7) % 7; // Assuming 0 is Monday
+    let currentStreak = baseStreak;
+    let dayMissed = false;
+  
+    for (let i = 0; i <= todayIndex; i++) {
+      if (checkedDays[i]) {
+        if (dayMissed) {
+          currentStreak = 1; // Reset streak to 1 if a day was missed previously
+        } else {
+          currentStreak++; // Increment streak
+        }
+      } else {
+        if (i < todayIndex) {
+          dayMissed = true; // Mark that a day was missed if it's before today
+        }
+      }
+    }
+  
+    return currentStreak;
+  }
+  
+
+  let newStreak = 0;
+
+  if (habitData && habitData.checked_days && habitData.habit_name) {
+    newStreak = calculateCurrentStreak(habitData.checked_days, streak, habitData.habit_name);
+  }
 
   // Initialize the checked_days for the habit
   const initializeCheckedDays = () => {
@@ -84,30 +112,8 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
     updateCurrentWeek(updatedHabitData!);
   };
 
-  function calculateCurrentStreak(checkedDays: boolean[], currentStreak: number, habitName: string): number {
-    const todayIndex = (new Date().getDay() - 1 + 7) % 7; // Assuming 0 is Monday
-    let newStreak = 0;
-    let baseStreak = currentStreak - checkedDays.filter((checked, i) => i < todayIndex && checked).length;
-  
-    for (let i = 0; i <= todayIndex; i++) {
-      if (checkedDays[i]) {
-        newStreak = baseStreak + i + 1;
-      } else {
-        baseStreak = 0;
-      }
-    }
-  
-    return newStreak;
-  }
-
-  let newStreak = 0;
-
-  if (habitData && habitData.checked_days) {
-    newStreak = calculateCurrentStreak(habitData.checked_days, streak, habitData.habit_name);
-  }
-
   console.log("habitData: ", habitData);
-
+  console.log("new streak: ", newStreak)
   return (
     <div className='w-full flex mt-5 items-center'>
       <div className="flex-grow-2 flex-shrink">
