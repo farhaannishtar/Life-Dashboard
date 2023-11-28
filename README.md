@@ -1,5 +1,9 @@
 # Life Dashboard
 
+## Screenshot
+
+<img width="505" alt="Screenshot 2023-11-28 at 12 32 59 PM" src="https://github.com/farhaannishtar/Life-Dashboard/assets/89179469/f3061a89-50f3-4df6-89b4-210063b15f1d">
+
 ## About
 
 This full-stack web application provides comprehensive, real-time health and wellness metrics by integrating devices like Oura ring, blood glucose monitors, and Fitbit scales. Designed for health enthusiasts and professionals, it offers a seamless experience in monitoring and analyzing health data.
@@ -20,10 +24,6 @@ This full-stack web application provides comprehensive, real-time health and wel
 - Customizable dashboard for tracking various health metrics.
 - User authentication and secure data handling.
 - Responsive design for optimal viewing on all device types.
-
-## Screenshot
-
-<img width="749" alt="Screenshot 2023-11-28 at 12 31 33 PM" src="https://github.com/farhaannishtar/Life-Dashboard/assets/89179469/d742782a-eb68-44ac-bc23-7d9e47cef5a6">
 
 ## Installation and Setup Instructions
 
