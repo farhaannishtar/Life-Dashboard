@@ -129,7 +129,7 @@ export const convertToDBCompatibleDate = (localDate: Date) => {
   const utcDate = new Date(
     localDate.getTime() - localDate.getTimezoneOffset() * 60000
   );
-  utcDate.setTime(utcDate.getTime() + 4 * 60 * 60 * 1000);
+  utcDate.setTime(utcDate.getTime() + 5 * 60 * 60 * 1000);
   return utcDate.toISOString().replace("T", " ").replace(".000Z", "+00");
 };
 

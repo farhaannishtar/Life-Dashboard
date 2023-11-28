@@ -13,6 +13,11 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
   const [shake, setShake] = useState<number | null>(null);
 
   const toggleCheck = async (dayIndex: number) => {
+
+    console.log("habit name:", habitData?.habit_name)
+
+    console.log('start monday of the week: ', start_monday_of_week)
+
     if (!validateToggle(dayIndex, habitData!)) {
       return;
     }
@@ -22,7 +27,9 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
   
     // Convert date to a format compatible with your database
     const dbCompatibleDate = convertToDBCompatibleDate(new Date(start_monday_of_week!));
-  
+ 
+    console.log("dbCompatibleDate: ", )
+
     try {
       // Update checked days in the database
       await updateCheckedDaysInDB(newCheckedDays, dbCompatibleDate, habitData!.habit_name);
@@ -89,8 +96,8 @@ function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColo
     updateCurrentWeek(updatedHabitData!);
   };
 
-  console.log("habitData: ", habitData);
-  console.log("new streak: ", newStreak)
+  // console.log("habitData: ", habitData);
+  // console.log("new streak: ", newStreak)
   return (
     <div className='w-full flex mt-5 items-center'>
       <div className="flex-grow-2 flex-shrink">

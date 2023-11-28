@@ -102,7 +102,7 @@ function DailyVows() {
     }
   };
   
-  // console.log("currentweek: ", currentWeek)
+  console.log("currentweek start monday ", currentWeek?.start_monday_of_week)
   // console.log(meditationHabit);
 
   return (
