@@ -83,51 +83,35 @@ export const getTimeSince = (date: string, time: string): string => {
 };
 
 export function calculateCurrentStreak(
-  checked_days: boolean[],
-  currentStreak: number | undefined,
-  habitName: string | undefined
+  checkedDays: boolean[],
+  baseStreak: number,
+  habitName: string
 ): number {
-  if (currentStreak === undefined) {
-    console.error("currentStreak is undefined");
-    // Handle the undefined case
-    return 5;
-  }
-  if (!habitName) {
-    console.error("habitName is undefined");
-    // Handle the undefined case
-    return 5;
-  }
-  const todayIndex = (new Date().getDay() - 1 + 7) % 7;
-  let newStreak = currentStreak;
+  const todayIndex = (new Date().getDay() - 1 + 7) % 7; // Assuming 0 is Monday
 
   if (habitName === "Lift Weights") {
-    // For 5-day-a-week habits
-    let count = 0;
-    for (let i = 0; i <= todayIndex; i++) {
-      if (checked_days[i]) {
-        count++;
-      }
-    }
+    let uncheckedDayCount = checkedDays
+      .slice(0, todayIndex + 1)
+      .filter((day) => !day).length;
+    let daysPassedInWeek = todayIndex + 1;
 
-    if (count >= 5) {
-      newStreak += 5; // Add 5 days to the streak if 5 or more days are checked off
-    } else if (todayIndex >= 5 && count < 5) {
-      newStreak = 0; // Reset the streak if today is the 6th day or later and fewer than 5 days are checked
+    if (uncheckedDayCount >= 3) {
+      return checkedDays[todayIndex] ? 1 : 0; // Reset streak for Lift Weights if 3 days are unchecked
     } else {
-      // Do not reset the streak, just add the days that are checked off
-      newStreak += count;
+      return baseStreak + daysPassedInWeek; // Default streak plus days passed in week
     }
   } else {
-    // For daily habits
-    for (let i = 0; i <= todayIndex; i++) {
-      if (checked_days[i]) {
-        newStreak++;
-      } else {
-        newStreak = 0;
-      }
+    // Logic for daily habits
+    let dayMissedBeforeToday = checkedDays
+      .slice(0, todayIndex)
+      .some((day) => !day);
+
+    if (dayMissedBeforeToday) {
+      return 0; // Reset streak to 0 if any day before today is missed
+    } else {
+      return baseStreak + todayIndex + (checkedDays[todayIndex] ? 1 : 0); // Continue streak including today if it's checked
     }
   }
-  return newStreak;
 }
 
 export const setMidnightTimer = (callback: Function): NodeJS.Timeout => {
