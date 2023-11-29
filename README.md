@@ -6,7 +6,14 @@
 
 ## About
 
-This full-stack web application provides comprehensive, real-time health and wellness metrics by integrating devices like Oura ring, blood glucose monitors, and Fitbit scales. Designed for health enthusiasts and professionals, it offers a seamless experience in monitoring and analyzing health data.
+Born out of a personal need, this full-stack web application was my answer to a challenge faced by my brother. Struggling to keep track of his health metrics scattered across various devices – the Oura ring, Fitbit scale and Librelink, a blood glucose monitor – he needed something that could bring it all together. That's where I decided to leverage my skillsets. As a developer and a caring brother, I saw an opportunity to not only help him centralize his health data, but also to create something that could benefit others facing similar challenges.
+
+The application is tailored to offer a user-friendly experience in monitoring and analyzing health data, providing real-time health and wellness metrics by integrating seamlessly with various devices. 
+
+Life Dash board currently supports the following health devices:
+- **Oura Ring**
+- **Librelink** 
+- **Fitbit Scale**
 
 ## Technology Stack
 
