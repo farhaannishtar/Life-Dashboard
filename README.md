@@ -8,7 +8,7 @@
 
 Born out of a personal need, I created this full-stack web application as a solution to a problem faced by my brother, Faraaz. Struggling to keep track of his health metrics scattered across various devices – the Oura ring, Fitbit scale and Librelink, a blood glucose monitor – he needed something that could bring it all together. That's where I decided to leverage my skillsets. As a developer, I saw an opportunity to not only help him centralize his health data, but also to create something that could benefit others facing similar challenges.
 
-The application is tailored to offer a user-friendly experience in monitoring and analyzing health data, providing real-time health and wellness metrics by integrating seamlessly with various devices. 
+The application is tailored to offer a user-friendly experience in monitoring and analyzing health data, providing real-time health and wellness metrics by integrating seamlessly with various devices, as well as a customizable habit tracker. 
 
 Life Dash board currently supports the following health devices:
 - **Oura Ring**
