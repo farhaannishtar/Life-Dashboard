@@ -10,9 +10,9 @@ export const getCurrentDate = (): string => {
   return currentDate;
 };
 
-export const get2WeeksAgoDate = (): string => {
+export const getLastWeeksDate = (): string => {
   const now = new Date();
-  const twoWeeksAgo = new Date(now.setDate(now.getDate() - 14));
+  const twoWeeksAgo = new Date(now.setDate(now.getDate() - 7));
   const year = twoWeeksAgo.getFullYear().toString();
   const month = (twoWeeksAgo.getMonth() + 1).toString().padStart(2, "0");
   const day = twoWeeksAgo.getDate().toString().padStart(2, "0");

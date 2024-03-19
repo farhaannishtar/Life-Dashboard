@@ -18,7 +18,7 @@ if (!supabaseUrl || !supabaseKey) {
   console.error("Environment variables for Supabase are not set.");
 }
 
-console.log("supabaseUrl", supabaseUrl);
-console.log("supabaseKey", supabaseKey);
+// console.log("supabaseUrl", supabaseUrl);
+// console.log("supabaseKey", supabaseKey);
 
 export const supabase = createClient(supabaseUrl ?? "", supabaseKey ?? "");
