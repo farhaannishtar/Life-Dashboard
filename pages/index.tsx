@@ -1,14 +1,13 @@
 import Head from 'next/head'
-import React, {useState, useEffect} from 'react'
-import {InferGetServerSidePropsType} from 'next'
-import {formatDuration, formatSteps} from 'helpers/helpers';
+import React, { useState, useEffect } from 'react'
+import { InferGetServerSidePropsType } from 'next'
+import { formatDuration, formatSteps } from 'helpers/helpers';
+import useOuraData from 'hooks/useOuraData';
 import UserGreetingHeader from 'components/UserGreetingHeader';
+import PhysicalStatsCard from 'components/PhysicalStatsCard';
 import SleepTimeCard from 'components/SleepTimeCard';
 import SleepScoreCard from 'components/SleepScoreCard';
-import PhysicalStatsCard from 'components/PhysicalStatsCard';
-import {OuraRingDailySleepData, OuraRingSleepData, OuraRingActivityData} from '../types/ouraring';
 import DailyVows from 'components/DailyVows';
-import { getTomorrowsDate } from 'helpers/helpers';
 
 export async function getServerSideProps() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -18,6 +17,7 @@ export async function getServerSideProps() {
       throw new Error(`Failed to fetch data: ${res.status}`);
     }
     const fitbitData = await res.json();
+    console.log('fitbitData', fitbitData);
     return {
       props: {
         fitbitData,
@@ -30,77 +30,18 @@ export async function getServerSideProps() {
     };
   }
 }
-
 export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-
-  const [ouraRingSleepScore, setOuraRingSleepScore] = useState<number | null>(null);
-  const [ouraRingDailySleepData, setOuraRingDailySleepData] = useState<OuraRingDailySleepData | null>(null);
-  const [ouraringSleepTimesData, setOuraringSleepTimesData] = useState<OuraRingDailySleepData | null>(null); // 
-  const [ouraRingSleepData, setOuraRingSleepData] = useState<OuraRingSleepData | null>(null);
-  const [ouraRingActivityData, setOuraRingActivityData] = useState<OuraRingActivityData | null>(null);
-  const totalSleep = ouraRingSleepData && formatDuration(Number(ouraRingSleepData.data[ouraRingSleepData.data.length - 1].total_sleep_duration));
-  const timeInBed = ouraRingSleepData && formatDuration(Number(ouraRingSleepData.data[ouraRingSleepData.data.length - 1].time_in_bed));
+  // oura ring data
+  const { ouraData, loading, error } = useOuraData();
+  const totalSleep = ouraData.sleep && formatDuration(Number(ouraData.sleep.data[ouraData.sleep.data.length - 1].total_sleep_duration));
+  const timeInBed = ouraData.sleep && formatDuration(Number(ouraData.sleep.data[ouraData.sleep.data.length - 1].time_in_bed));
+  const sleepScore = ouraData.sleepScore && ouraData.sleepScore.data[ouraData.sleepScore.data.length - 1].score;
+  const ouraRingSteps = ouraData.activity && formatSteps(Number(ouraData.activity.data[ouraData.activity.data.length - 1].steps));
+  
+  // fitbit weight data
   const recentFitbitWeightData = fitbitData.data["weight"][fitbitData.data["weight"].length - 1];
-  const ouraRingSteps = ouraRingActivityData && formatSteps(Number(ouraRingActivityData[ouraRingActivityData.length - 1].steps));
-
-  // history of oura ring activity log
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const currentDate = new Date();
-        currentDate.setDate(currentDate.getDate() + 1);
-        const end_date = currentDate.toISOString().split('T')[0];
-
-        fetch(`/api/fetchOuraringDailyActivity?start_date=2023-08-01&end_date=${end_date}`)
-        .then(response => response.json())
-        .then(data => {
-          setOuraRingActivityData(data.data);
-        })
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    };
-    fetchData();
-  }, []);
-
-  // history of oura ring daily sleep logs
-  useEffect(() => {
-    fetch(`/api/fetchOuraringDailySleep?start_date=2023-09-11`)
-    .then(response => response.json())
-    .then(data => {
-      setOuraRingDailySleepData(data);
-  })
-    .catch(error => console.error('Error:', error));
-  }, []);
-
-  // history of oura ring sleep time logs
-  useEffect(() => {
-    fetch(`/api/fetchOuraringSleepTimes?start_date=2023-09-11`)
-    .then(response => response.json())
-    .then(data => {
-      setOuraringSleepTimesData(data);
-  })
-    .catch(error => console.error('Error:', error));
-  }, []);
-
-  // history of oura ring sleep logs
-  useEffect(() => {
-    const endDate = getTomorrowsDate();
-    fetch(`/api/fetchOuraRingSleep?start_date=2023-08-02&end_date=${endDate}`)
-    .then(response => response.json())
-    .then(data => {
-      setOuraRingSleepData(data);
-  })
-    .catch(error => console.error('Error:', error));
-  }, []);
-
-  // calculate oura ring sleep score
-  useEffect(() => {
-    if (ouraRingDailySleepData && ouraRingDailySleepData.data.length > 0) {
-      const score = ouraRingDailySleepData.data[ouraRingDailySleepData.data.length - 1].score;
-      setOuraRingSleepScore(score);
-    }
-  }, [ouraRingDailySleepData]);
+  
+  console.log('ouraData', ouraData);
 
   return (
     <div className="w-full max-w-5xl mx-auto px-10">
@@ -125,7 +66,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
             bgColor={"#FFFAF8"} 
           />
         </div>
-        <SleepScoreCard score={ouraRingSleepScore || 0} />
+        <SleepScoreCard score={sleepScore || 0} />
         <div className='flex flex-1 flex-col gap-y-4'>
           <SleepTimeCard 
             title={'Bed Time'} 
@@ -143,7 +84,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           />
         </div>
       </div>
-      <div className='w-full flex space-x-6 mt-6 justify-between'>
+      {/* <div className='w-full flex space-x-6 mt-6 justify-between'>
         <PhysicalStatsCard 
           emoji={"⚖️"} 
           title={"Weight"} 
@@ -171,7 +112,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           textColor={"#387238"}
           bgColor={"#F1FFF1"} 
         />
-      </div>
+      </div> */}
       <DailyVows />
     </div>
   )

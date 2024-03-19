@@ -16,10 +16,10 @@ const useOuraData = (): UseOuraDataReturnType => {
     setError([]);
 
     const results = await Promise.allSettled([
-      fetch(`/api/fetchOuraringDailySleep?start_date=${startDate}&end_date=${endDate}`),
-      fetch(`/api/fetchOuraRingSleep?start_date=${startDate}&end_date=${endDate}`),
-      fetch(`/api/fetchOuraringDailyActivity?start_date=${startDate}&end_date=${endDate}`),
-      fetch(`/api/fetchOuraringSleepTimes?start_date=${startDate}&end_date=${endDate}`)
+      fetch(`/api/fetchOuraSleepScore?start_date=${startDate}&end_date=${endDate}`),
+      fetch(`/api/fetchOuraSleep?start_date=${startDate}&end_date=${endDate}`),
+      fetch(`/api/fetchOuraActivity?start_date=${startDate}&end_date=${endDate}`),
+      fetch(`/api/fetchOuraRecommendedSleepTime?start_date=${startDate}&end_date=${endDate}`)
     ]);
 
     const newData: CombinedOuraData = {};
