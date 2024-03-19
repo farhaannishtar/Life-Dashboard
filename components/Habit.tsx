@@ -5,7 +5,7 @@ import { getDay } from 'date-fns';
 import styles from './Habit.module.css';
 import { calculateCurrentStreak, convertToDBCompatibleDate } from 'helpers/helpers';
 import { HabitProps } from '../types/uiComponents';
-import { updateCheckedDaysInDB, updateStreakCountInDB } from 'lib/databaseOps';
+import { updateCheckedDaysInDB, updateStreakCountInDB } from 'utils/databaseOps';
 import { HabitWeekData } from 'types/uiComponents';
 
 function Habit( { emoji, habit, frequency, calendarBorderColor, calendarTextColor, calendarBgColor, calendarBubbleBgColor, calendarBubbleBorderColor, streak, streakBorderColor, streakTextColor, streakBgColor, lineColor, habitData, start_monday_of_week, updateCurrentWeek }: HabitProps) {
