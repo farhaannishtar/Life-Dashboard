@@ -5,7 +5,7 @@ let supabaseKey: string | undefined;
 
 // Server-side context
 if (typeof window === "undefined") {
-  supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  supabaseUrl = process.env.SUPABASE_URL;
   supabaseKey = process.env.SUPABASE_SERVICE_KEY;
 }
 // Client-side context
@@ -17,5 +17,8 @@ else {
 if (!supabaseUrl || !supabaseKey) {
   console.error("Environment variables for Supabase are not set.");
 }
+
+console.log("supabaseUrl", supabaseUrl);
+console.log("supabaseKey", supabaseKey);
 
 export const supabase = createClient(supabaseUrl ?? "", supabaseKey ?? "");

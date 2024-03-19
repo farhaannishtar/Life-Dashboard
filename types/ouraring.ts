@@ -23,9 +23,24 @@ type OuraRingActivityData = Array<{
   steps: number;
 }>;
 
+// Combined data type
+interface CombinedOuraRingData {
+  dailySleep?: OuraRingDailySleepData;
+  sleep?: OuraRingSleepData;
+  // dailySleepChart?: OuraRingDailySleepDataChart;
+  activity?: OuraRingActivityData;
+}
+
+interface UseOuraDataReturnType {
+  ouraData: CombinedOuraRingData;
+  loading: boolean;
+  error: string[];
+}
+
 export type {
   OuraRingDailySleepData,
   OuraRingSleepData,
-  OuraRingDailySleepDataChart,
+  UseOuraDataReturnType,
   OuraRingActivityData,
+  CombinedOuraRingData
 };
