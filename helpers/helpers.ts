@@ -21,15 +21,7 @@ export const getLastWeeksDate = (): string => {
 };
 
 // Format Recommended Sleep Time Data
-export const formatRecommendedSleepTime = (
-  recommendedSleepTime: string
-): string => {
-  const date = new Date(recommendedSleepTime);
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const formattedTime = `${hours}:${minutes}`;
-  return formattedTime;
-};
+
 
 export const getTomorrowsDate = (): string => {
   const now = new Date();

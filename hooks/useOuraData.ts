@@ -2,20 +2,37 @@ import { useState, useEffect } from 'react';
 import { OuraSleepScoreData, OuraSleepDurationData, OuraRecommendedSleepTimeData, OuraActivityData, CombinedOuraData, UseOuraDataReturnType } from '../types/ouraring';
 import { getLastWeeksDate, getTomorrowsDate } from '../helpers/helpers';
 
-function secondsToHHMM(seconds: number) {
-  const date = new Date(1970, 0, 1);
-  date.setSeconds(seconds);
-  return date.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+
+// Calculate Bedtime Function move to helpers/helpers.ts later
+function calculateBedtime(end_offset: number, start_offset: number): {startTime: string, endTime: string} {
+  // Set timezone offset for EST (Eastern Standard Time)
+  const tzOffsetHours = -5;
+
+  // Convert offsets to hours, adjust for timezone, and wrap around 24 hours if necessary
+  let startHour = (start_offset / 3600 + tzOffsetHours) % 24;
+  let endHour = (end_offset / 3600 + tzOffsetHours) % 24;
+
+  // If the hour is negative, adjust it to be within 0-23
+  if (startHour < 0) startHour += 24;
+  if (endHour < 0) endHour += 24;
+
+  // Calculate minutes
+  const startMinutes = Math.round((startHour % 1) * 60);
+  const endMinutes = Math.round((endHour % 1) * 60);
+
+  // Convert hours to 12-hour format with AM/PM
+  const startTime = `${Math.floor(startHour) > 12 ? Math.floor(startHour) - 12 : Math.floor(startHour) === 0 ? 12 : Math.floor(startHour)}:${startMinutes.toString().padStart(2, '0')} ${startHour >= 12 ? 'PM' : 'AM'}`;
+  const endTime = `${Math.floor(endHour) > 12 ? Math.floor(endHour) - 12 : Math.floor(endHour) === 0 ? 12 : Math.floor(endHour)}:${endMinutes.toString().padStart(2, '0')} ${endHour >= 12 ? 'PM' : 'AM'}`;
+
+  return {startTime, endTime};
 }
 
-const start_offset = 1800; // replace with actual value
-const end_offset = 5400; // replace with actual value
+const bedtime = calculateBedtime(5400, 1800);
+// console.log(`Start Time: ${bedtime.startTime}`);
+// console.log(`End Time: ${bedtime.endTime}`);
 
-const startTime = secondsToHHMM(start_offset);
-const endTime = secondsToHHMM(end_offset);
 
-console.log(`Start Time: ${startTime}`);
-console.log(`End Time: ${endTime}`);
+
 
 const useOuraData = (): UseOuraDataReturnType => {
   const [ouraData, setOuraData] = useState<CombinedOuraData>({});
@@ -55,9 +72,6 @@ const useOuraData = (): UseOuraDataReturnType => {
               newData.activity = jsonResponse as OuraActivityData;
               break;
             case 3:
-              console.log('jsonResponse', jsonResponse);
-              console.log('Start time: ', secondsToHHMM(jsonResponse.data[jsonResponse.data.length - 1].optimal_bedtime.start_offset));
-              const formattedRecommendedSleepTime = null;
               newData.recommendedSleepTime = jsonResponse as OuraRecommendedSleepTimeData;
               break;
             default:
