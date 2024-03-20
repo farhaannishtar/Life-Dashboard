@@ -1,7 +1,7 @@
 import Habit from './Habit'
 import React, { useState, useEffect } from 'react';
 import { isSameWeek } from 'date-fns';
-import { getLatestWeekData, getHabitsStreakData, createNewWeekEntry } from 'lib/databaseOps';
+import { getLatestWeekData, getHabitsStreakData, createNewWeekEntry } from 'utils/databaseOps';
 import { HabitWeekData, CurrentWeek, LatestWeekData, HabitsStreakData } from 'types/uiComponents';
 import { setMidnightTimer, initializeWeekStartDate } from 'helpers/helpers';
 

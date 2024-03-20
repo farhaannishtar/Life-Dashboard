@@ -1,31 +1,49 @@
-interface OuraRingDailySleepData {
+interface OuraSleepScoreData {
   data: Array<{
     score: number;
     day: string;
   }>;
 }
 
-interface OuraRingSleepData {
+interface OuraSleepDurationData {
   data: Array<{
     time_in_bed: number;
     total_sleep_duration: string;
   }>;
 }
 
-interface OuraRingDailySleepDataChart {
+interface OuraActivityData {
   data: {
-    score: number;
-    day: number;
+    steps: number;
   }[];
 }
 
-type OuraRingActivityData = Array<{
-  steps: number;
-}>;
+interface OuraRecommendedSleepTimeData {
+  data: {
+    bed_time_start: string;
+    bed_time_end: string;
+  }[];
+}
+
+// Combined data type
+interface CombinedOuraData {
+  sleepScore?: OuraSleepScoreData;
+  sleep?: OuraSleepDurationData;
+  activity?: OuraActivityData;
+  recommendedSleepTime?: OuraRecommendedSleepTimeData;
+}
+
+interface UseOuraDataReturnType {
+  ouraData: CombinedOuraData;
+  loading: boolean;
+  error: string[];
+}
 
 export type {
-  OuraRingDailySleepData,
-  OuraRingSleepData,
-  OuraRingDailySleepDataChart,
-  OuraRingActivityData,
+  UseOuraDataReturnType,
+  OuraSleepScoreData,
+  OuraSleepDurationData,
+  OuraActivityData,
+  OuraRecommendedSleepTimeData,
+  CombinedOuraData
 };
