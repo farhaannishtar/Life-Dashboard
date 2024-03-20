@@ -2,6 +2,21 @@ import { useState, useEffect } from 'react';
 import { OuraSleepScoreData, OuraSleepDurationData, OuraRecommendedSleepTimeData, OuraActivityData, CombinedOuraData, UseOuraDataReturnType } from '../types/ouraring';
 import { getLastWeeksDate, getTomorrowsDate } from '../helpers/helpers';
 
+function secondsToHHMM(seconds: number) {
+  const date = new Date(1970, 0, 1);
+  date.setSeconds(seconds);
+  return date.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+}
+
+const start_offset = 1800; // replace with actual value
+const end_offset = 5400; // replace with actual value
+
+const startTime = secondsToHHMM(start_offset);
+const endTime = secondsToHHMM(end_offset);
+
+console.log(`Start Time: ${startTime}`);
+console.log(`End Time: ${endTime}`);
+
 const useOuraData = (): UseOuraDataReturnType => {
   const [ouraData, setOuraData] = useState<CombinedOuraData>({});
   const [loading, setLoading] = useState<boolean>(false);
@@ -40,6 +55,9 @@ const useOuraData = (): UseOuraDataReturnType => {
               newData.activity = jsonResponse as OuraActivityData;
               break;
             case 3:
+              console.log('jsonResponse', jsonResponse);
+              console.log('Start time: ', secondsToHHMM(jsonResponse.data[jsonResponse.data.length - 1].optimal_bedtime.start_offset));
+              const formattedRecommendedSleepTime = null;
               newData.recommendedSleepTime = jsonResponse as OuraRecommendedSleepTimeData;
               break;
             default:
