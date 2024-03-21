@@ -2,17 +2,17 @@
 
 ## Screenshot
 
-<img width="505" alt="Screenshot 2023-11-28 at 12 32 59 PM" src="https://github.com/farhaannishtar/Life-Dashboard/assets/89179469/f3061a89-50f3-4df6-89b4-210063b15f1d">
+<img width="494" alt="Screenshot 2024-03-21 at 11 39 02 AM" src="https://github.com/farhaannishtar/Life-Dashboard/assets/89179469/f3f4809a-f40b-411e-8760-43da817dcf21">
+
 
 ## About
 
-Born out of a personal need, I created this full-stack web application as a solution to a problem faced by my brother, Faraaz. Struggling to keep track of his health metrics scattered across various devices – the Oura ring, Fitbit scale and Librelink, a blood glucose monitor – he needed something that could bring it all together. That's where I decided to leverage my skillsets. As a developer, I saw an opportunity to not only help him centrally monitor his health data, but also to create something that could benefit others facing similar challenges.
+Born out of a personal need, I created this full-stack web application as a solution to keep track of all my health metrics scattered across various devices and platforms – the Oura ring, Fitbit scale, and data from meditation and habit-tracking apps. I needed something that could bring it all together. As a developer, I saw an opportunity to not only help myself centrally monitor my health data but also to create something that could benefit others facing similar challenges.
 
-The application is tailored to offer a user-friendly experience in monitoring and analyzing health data, providing real-time health and wellness metrics by integrating seamlessly with various devices, as well as a customizable habit tracker. 
+The application is tailored to offer a user-friendly experience in monitoring and analyzing health data, providing real-time health and wellness metrics by integrating seamlessly with various devices, as well as offering a customizable habit tracker.
 
-Life Dash board currently supports the following health devices:
+Life Dashboard currently supports the following health devices:
 - **Oura Ring**
-- **Librelink** 
 - **Fitbit Scale**
 
 ## Technology Stack
@@ -20,14 +20,14 @@ Life Dash board currently supports the following health devices:
 - **Frontend**: Next.js 12, TypeScript, Tailwind CSS
 - **Backend**: Node.js, Express
 - **Database**: Supabase
-- **APIs**: Oura Ring, Fitbit, Librelink
+- **APIs**: Oura Ring, Fitbit
 - **Deployment**: Vercel
 - **Version Control**: GitHub
 - **Code Editor**: VSCode
 
 ## Features and Functionality
 
-- Real-time data visualization from Oura ring, blood glucose monitors, and Fitbit scales.
+- Real-time data visualization from Oura ring and Fitbit scale Aria 2.
 - Customizable dashboard for tracking various health metrics.
 - User authentication and secure data handling.
 - Responsive design for optimal viewing on all device types.
