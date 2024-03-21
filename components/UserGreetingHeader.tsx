@@ -12,7 +12,7 @@ const UserGreetingHeader: React.FC = () => {
   } else {
     greeting += 'Evening,';
   }
-  greeting += ' Faraaz';
+  greeting += ' Farhaan';
 
   return (
     <div className='flex justify-between w-full'>
