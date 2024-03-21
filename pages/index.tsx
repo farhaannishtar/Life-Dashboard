@@ -30,6 +30,7 @@ export async function getServerSideProps() {
     };
   }
 }
+
 export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   // oura ring data
   const { ouraData, loading, error } = useOuraData();
@@ -38,11 +39,10 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
   const sleepScore = ouraData.sleepScore && ouraData.sleepScore.data[ouraData.sleepScore.data.length - 1].score;
   const ouraRingSteps = ouraData.activity && formatSteps(Number(ouraData.activity.data[ouraData.activity.data.length - 1].steps));
   
+  // test 
   // fitbit weight data
   const recentFitbitWeightData = fitbitData.data["weight"][fitbitData.data["weight"].length - 1];
   
-  console.log('ouraData', ouraData);
-
   return (
     <div className="w-full max-w-5xl mx-auto px-10">
       <Head>
@@ -84,7 +84,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           />
         </div>
       </div>
-      {/* <div className='w-full flex space-x-6 mt-6 justify-between'>
+      <div className='w-full flex space-x-6 mt-6 justify-between'>
         <PhysicalStatsCard 
           emoji={"⚖️"} 
           title={"Weight"} 
@@ -112,7 +112,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
           textColor={"#387238"}
           bgColor={"#F1FFF1"} 
         />
-      </div> */}
+      </div>
       <DailyVows />
     </div>
   )

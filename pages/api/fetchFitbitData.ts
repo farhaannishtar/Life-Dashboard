@@ -98,6 +98,8 @@ async function refreshFitbitToken() {
 async function fetchFitbitData(access_token: string) {
   let date = getCurrentDate();
   let twoWeeksAgo = getLastWeeksDate();
+  console.log("date", date);
+  console.log("twoWeeksAgo", twoWeeksAgo);
   const fitbitApiUrl = `https://api.fitbit.com/1/user/-/body/log/weight/date/${twoWeeksAgo}/${date}.json`;
   const response = await axios.get(fitbitApiUrl, {
     headers: {
