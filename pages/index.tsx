@@ -39,6 +39,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
   const sleepScore = ouraData.sleepScore && ouraData.sleepScore.data[ouraData.sleepScore.data.length - 1].score;
   const ouraRingSteps = ouraData.activity && formatSteps(Number(ouraData.activity.data[ouraData.activity.data.length - 1].steps));
   
+  // test 
   // fitbit weight data
   const recentFitbitWeightData = fitbitData.data["weight"][fitbitData.data["weight"].length - 1];
   
