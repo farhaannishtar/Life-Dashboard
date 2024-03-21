@@ -106,6 +106,5 @@ async function fetchFitbitData(access_token: string) {
       Authorization: `Bearer ${access_token}`,
     },
   });
-  console.log("response.data", response.data);
   return response.data;
 }
