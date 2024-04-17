@@ -40,7 +40,7 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
   const ouraRingSteps = ouraData.activity && formatSteps(Number(ouraData.activity.data[ouraData.activity.data.length - 1].steps));
   
   // fitbit weight data
-  const recentFitbitWeightData = fitbitData.data["weight"][fitbitData.data["weight"].length - 1];
+  // const recentFitbitWeightData = fitbitData.data["weight"][fitbitData.data["weight"].length - 1];
   
   return (
     <div className="w-full max-w-5xl mx-auto px-10">
@@ -87,7 +87,8 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
         <PhysicalStatsCard 
           emoji={"⚖️"} 
           title={"Weight"} 
-          body={recentFitbitWeightData!}
+          // body={recentFitbitWeightData!}
+          body={150}
           unit={"lb"}
           borderColor={"#D8DCE0"}
           textColor={"#506579"}

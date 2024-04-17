@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-// test comment 2
+
 let supabaseUrl: string | undefined;
 let supabaseKey: string | undefined;
 
