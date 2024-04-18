@@ -14,6 +14,8 @@ module.exports = {
         "blue-border": "#C8D8EC",
         "blue-bg": "#F8FBFF",
         "blue-text": "#164FA4",
+        'fitbit-text': '#00B0B9',
+        'fitbit-bg': '#002A3A',
       },
       fontFamily: {
         sans: ["Nunito", "sans-serif"],
