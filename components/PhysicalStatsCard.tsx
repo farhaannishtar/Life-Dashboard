@@ -2,6 +2,14 @@ import { PhysicalStatsCardProps } from "../types/uiComponents";
 import { getTimeSince } from "helpers/helpers";
 import Image from "next/image";
 
+const clientId = process.env.NEXT_PUBLIC_FITBIT_CLIENT_ID;
+const redirectUri = `${process.env.NEXT_PUBLIC_NGROK_URL}/api/fitbitcallback`;
+const scope = encodeURIComponent('activity nutrition heartrate location nutrition profile settings sleep social weight'); // Adjust the scope according to your needs
+const responseType = 'code';
+
+const fitbitAuthUrl = `https://www.fitbit.com/oauth2/authorize?response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&prompt=login`;
+
+
 function PhysicalStatsCard({ emoji, title, body, unit, borderColor, textColor, bgColor }: PhysicalStatsCardProps) {
   return (
     <div className={`flex flex-col flex-1 justify-start items-center flex-shrink-0 border rounded-3xl m-0`}
@@ -38,6 +46,7 @@ function PhysicalStatsCard({ emoji, title, body, unit, borderColor, textColor, b
         {title === "Connect" ?
           <button
             className="-mt-2 bg-fitbit-bg text-white font-bold py-1 px-2 rounded-lg shadow transition-transform duration-200 ease-in-out transform active:scale-95"
+            onClick={() => window.location.href = fitbitAuthUrl}
           >
             {title}
           </button>
