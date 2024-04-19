@@ -1,3 +1,4 @@
+import { bg } from "date-fns/locale";
 import { PhysicalStatsCardProps } from "../types/uiComponents";
 import { getTimeSince } from "helpers/helpers";
 import Image from "next/image";
@@ -45,8 +46,9 @@ function PhysicalStatsCard({ emoji, title, body, unit, borderColor, textColor, b
       >
         {title === "Connect" ?
           <button
-            className="-mt-2 bg-fitbit-bg text-white font-bold py-1 px-2 rounded-lg shadow transition-transform duration-200 ease-in-out transform active:scale-95"
-            onClick={() => window.location.href = fitbitAuthUrl}
+            className="-mt-2 font-bold py-1 px-2 rounded-lg shadow transition-transform duration-200 ease-in-out transform active:scale-95 border border-2"
+            style={{ borderColor: borderColor, backgroundColor: bgColor, color: textColor}}
+            // onClick={() => window.location.href = fitbitAuthUrl}
           >
             {title}
           </button>
