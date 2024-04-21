@@ -29,7 +29,7 @@ export default async function handler(
 async function refreshFitbitToken() {
   const { data, error } = await supabase
     .from("fitbit_tokens")
-    .select("*")
+    .select("id, access_token, refresh_token, expires_at")
     .limit(1);
 
   if (error) {
@@ -38,7 +38,7 @@ async function refreshFitbitToken() {
   }
 
   const { access_token, refresh_token, expires_at } = data![0];
-  
+
   console.log("access_token", access_token);
 
   const currentTime = Math.floor(Date.now() / 1000);
@@ -62,22 +62,28 @@ async function refreshFitbitToken() {
 
       const newAccessToken = fitbitResponse.data.access_token;
       const newRefreshToken = fitbitResponse.data.refresh_token;
-      const newExpiresIn = fitbitResponse.data.expires_in;
-      const newExpiresAt = Math.floor(Date.now() / 1000) + newExpiresIn;
+      // Calculate the absolute expiration timestamp for the new access token.
+      const expiresIn = fitbitResponse.data.expires_in;  // This is typically returned as seconds from the API.
+      const newExpiresAt = Math.floor(Date.now() / 1000) + expiresIn;  // Add the seconds to the current timestamp.
 
+      // Update the tokens in the database.
       const { error: updateError, data: updateData } = await supabase
         .from("fitbit_tokens")
         .update({
           access_token: newAccessToken,
           refresh_token: newRefreshToken,
-          expires_at: newExpiresAt,
+          expires_at: newExpiresAt  // Assuming your column name is "expires_at" as per previous context.
         })
-        .eq("id", data[0].id);
+        .eq("id", data[0].id);  // Ensure this 'id' is correctly fetched and used.
 
       if (updateError) {
         console.error("Failed to update tokens:", updateError);
         return { error: updateError };
       }
+
+      // Return the new access token if the update was successful.
+      return { access_token: newAccessToken };
+
 
       return { access_token: newAccessToken };
     } catch (err: any) {

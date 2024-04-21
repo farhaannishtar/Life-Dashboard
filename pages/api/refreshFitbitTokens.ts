@@ -1,11 +1,11 @@
 // /pages/api/refreshFitbitTokens.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-// import { refreshTokenIfNeeded } from '../../lib/refreshToken'; 
+// import { refreshToken } from '../../utils/refreshToken'; 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     try {
-      // await refreshTokenIfNeeded();
+      // await refreshToken();
       res.status(200).json({ message: 'Token refreshed successfully' });
     } catch (error) {
       console.error('Error refreshing token:', error);
