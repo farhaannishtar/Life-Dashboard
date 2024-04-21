@@ -1,0 +1,57 @@
+// pages/api/fitbitcallback.ts
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { supabase } from '../../utils/supabaseClient';
+import bcrypt from 'bcryptjs';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { code } = req.query;
+
+  if (!code) {
+    return res.status(400).json({ error: 'Code is missing' });
+  }
+
+  try {
+    // Exchange the code for tokens
+    const response = await fetch('https://api.fitbit.com/oauth2/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${Buffer.from(`${process.env.NEXT_PUBLIC_FITBIT_CLIENT_ID}:${process.env.NEXT_PUBLIC_FITBIT_CLIENT_SECRET}`).toString('base64')}`,
+      },
+      body: new URLSearchParams({
+        code: code as string,
+        grant_type: 'authorization_code',
+        redirect_uri: `${process.env.NEXT_PUBLIC_NGROK_URL}/api/fitbitcallback`,
+        client_id: process.env.NEXT_PUBLIC_FITBIT_CLIENT_ID!,
+      }).toString(),
+    });
+    
+    const data = await response.json();
+    console.log('data', data);
+
+    // Handle the data, typically saving the tokens
+    if (data.access_token && data.refresh_token) {
+      // Encrypt tokens before storing them
+      const hashedAccessToken = await bcrypt.hash(data.access_token, 10);
+      const hashedRefreshToken = await bcrypt.hash(data.refresh_token, 10);
+
+      // Update the tokens in the database
+      const { error } = await supabase
+        .from('fitbit_tokens')
+        .update({
+          access_token: hashedAccessToken,
+          refresh_token: hashedRefreshToken,
+          expires_at: new Date().getTime() + (data.expires_in * 1000)  // converting expires_in to milliseconds
+        })
+        .eq('id', 1);  // Assuming 'id' is known and fixed since it's a single-user setup
+
+      if (error) throw error;
+
+      res.redirect('/'); // Redirect after successful update
+    } else {
+      throw new Error('Token exchange failed');
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to exchange token' });
+  }
+}

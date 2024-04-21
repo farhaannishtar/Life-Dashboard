@@ -57,3 +57,8 @@ Fill in the necessary API keys and database URLs in the .env file.
 ```
 npm run dev
 ```
+
+To run ngrok tunnel to connect your local development server to public URL
+```
+ngrok http 3000
+```
