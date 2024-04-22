@@ -83,9 +83,6 @@ async function refreshFitbitToken() {
 
       // Return the new access token if the update was successful.
       return { access_token: newAccessToken };
-
-
-      return { access_token: newAccessToken };
     } catch (err: any) {
       if (err && err.response && err.response.data) {
         console.error("Error refreshing Fitbit token:", err.response.data);

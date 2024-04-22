@@ -1,7 +1,6 @@
 // pages/api/fitbitcallback.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabase } from '../../utils/supabaseClient';
-import bcrypt from 'bcryptjs';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { code } = req.query;
@@ -32,15 +31,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Handle the data, typically saving the tokens
     if (data.access_token && data.refresh_token) {
       // Encrypt tokens before storing them
-      const hashedAccessToken = await bcrypt.hash(data.access_token, 10);
-      const hashedRefreshToken = await bcrypt.hash(data.refresh_token, 10);
-
       // Update the tokens in the database
       const { error } = await supabase
         .from('fitbit_tokens')
         .update({
-          access_token: hashedAccessToken,
-          refresh_token: hashedRefreshToken,
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
           expires_at: new Date().getTime() + (data.expires_in * 1000)  // converting expires_in to milliseconds
         })
         .eq('id', 1);  // Assuming 'id' is known and fixed since it's a single-user setup

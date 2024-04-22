@@ -10,7 +10,7 @@ import SleepScoreCard from 'components/SleepScoreCard';
 import DailyVows from 'components/DailyVows';
 
 // export async function getServerSideProps() {
-//   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+//   const apiUrl = process.env.NEXT_PUBLIC_NGROK_URL;
 //   try {
 //     const res = await fetch(`${apiUrl}api/fetchFitbitData`);
 //     if (!res.ok) {

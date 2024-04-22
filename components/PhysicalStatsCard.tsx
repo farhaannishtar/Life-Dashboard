@@ -48,7 +48,7 @@ function PhysicalStatsCard({ emoji, title, body, unit, borderColor, textColor, b
           <button
             className="-mt-2 font-bold py-1 px-2 rounded-lg shadow transition-transform duration-200 ease-in-out transform active:scale-95 border border-2"
             style={{ borderColor: borderColor, backgroundColor: bgColor, color: textColor}}
-            // onClick={() => window.location.href = fitbitAuthUrl}
+            onClick={() => window.location.href = fitbitAuthUrl}
           >
             {title}
           </button>
