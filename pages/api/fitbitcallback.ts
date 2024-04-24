@@ -30,7 +30,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Handle the data, typically saving the tokens
     if (data.access_token && data.refresh_token) {
-      // Encrypt tokens before storing them
       // Update the tokens in the database
       const { error } = await supabase
         .from('fitbit_tokens')
@@ -42,7 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .eq('id', 1);  // Assuming 'id' is known and fixed since it's a single-user setup
 
       if (error) throw error;
-
+      console.log('Token exchange successful in callback route', data.access_token, data.refresh_token);
       res.redirect('/'); // Redirect after successful update
     } else {
       throw new Error('Token exchange failed');
