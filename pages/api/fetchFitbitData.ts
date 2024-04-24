@@ -35,23 +35,46 @@ async function refreshFitbitTokenIfNeeded() {
 
   const now = new Date().getTime();
   if (data.expires_at < now) {
-    // Assume a function `refreshToken` that handles the API call to refresh the token
-    // const refreshedData = await refreshToken(data.refresh_token);
+    // Fetch new tokens using the refresh token
+    const refreshedData = await refreshToken(data.refresh_token);
+    if (!refreshedData.access_token || !refreshedData.refresh_token) {
+      throw new Error('Failed to refresh token');
+    }
     await supabase
       .from('fitbit_tokens')
       .update({
-        // access_token: refreshedData.access_token,
-        // refresh_token: refreshedData.refresh_token,
-        // expires_at: new Date().getTime() + (refreshedData.expires_in * 1000)
-        access_token: data.access_token,
-        refresh_token: data.refresh_token,
-        expires_at: new Date().getTime() + (data.expires_in * 1000)
+        access_token: refreshedData.access_token,
+        refresh_token: refreshedData.refresh_token,
+        expires_at: new Date().getTime() + (refreshedData.expires_in * 1000)
       })
       .eq('id', data.id);
 
-    // return refreshedData.access_token;
-    return data.access_token;
+    return refreshedData.access_token;
   }
   return data.access_token;
 }
 
+async function refreshToken(refreshToken: any) {
+  const response = await fetch('https://api.fitbit.com/oauth2/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': `Basic ${Buffer.from(`${process.env.FITBIT_CLIENT_ID}:${process.env.FITBIT_CLIENT_SECRET}`).toString('base64')}`,
+    },
+    body: new URLSearchParams({
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+    }).toString(),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to refresh token: ${response.statusText}`);
+  }
+
+  const refreshedData = await response.json();
+  return {
+    access_token: refreshedData.access_token,
+    refresh_token: refreshedData.refresh_token || refreshToken, // Use old refresh token if not provided anew
+    expires_in: refreshedData.expires_in,
+  };
+}
