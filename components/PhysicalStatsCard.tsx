@@ -4,7 +4,7 @@ import { getTimeSince } from "helpers/helpers";
 import Image from "next/image";
 
 const clientId = process.env.NEXT_PUBLIC_FITBIT_CLIENT_ID;
-const redirectUri = `${process.env.NEXT_PUBLIC_NGROK_URL}/api/fitbitcallback`;
+const redirectUri = `${process.env.NEXT_PUBLIC_API_URL}/api/fitbitcallback`;
 const scope = encodeURIComponent('activity nutrition heartrate location nutrition profile settings sleep social weight'); // Adjust the scope according to your needs
 const responseType = 'code';
 

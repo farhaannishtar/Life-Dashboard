@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       body: new URLSearchParams({
         code: code as string,
         grant_type: 'authorization_code',
-        redirect_uri: `${process.env.NEXT_PUBLIC_NGROK_URL}/api/fitbitcallback`,
+        redirect_uri: `${process.env.NEXT_PUBLIC_API_URL}/api/fitbitcallback`,
         client_id: process.env.FITBIT_CLIENT_ID!,
       }).toString(),
     });
