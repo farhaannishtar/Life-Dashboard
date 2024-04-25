@@ -9,30 +9,29 @@ import SleepTimeCard from 'components/SleepTimeCard';
 import SleepScoreCard from 'components/SleepScoreCard';
 import DailyVows from 'components/DailyVows';
 
-// export async function getServerSideProps() {
-//   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-//   try {
-//     const res = await fetch(`${apiUrl}api/fetchFitbitData`);
-//     if (!res.ok) {
-//       throw new Error(`Failed to fetch data: ${res.status}`);
-//     }
-//     const fitbitData = await res.json();
-//     console.log('fitbitData', fitbitData);
-//     return {
-//       props: {
-//         fitbitData,
-//       },
-//     };
-//   } catch (error) {
-//     console.error("Error fetching data:", error);
-//     return {
-//       notFound: true,
-//     };
-//   }
-// }
+export async function getServerSideProps() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  try {
+    const res = await fetch(`${apiUrl}/api/fetchFitbitData`);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch data: ${res.status}`);
+    }
+    const fitbitData = await res.json();
+    console.log('fitbitData', fitbitData);
+    return {
+      props: {
+        fitbitData,
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return {
+      notFound: true,
+    };
+  }
+}
 
-// export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-export default function Home() {
+export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   // oura ring data
   const { ouraData, loading, error } = useOuraData();
   const totalSleep = ouraData.sleep && formatDuration(Number(ouraData.sleep.data[ouraData.sleep.data.length - 1].total_sleep_duration));
@@ -41,8 +40,7 @@ export default function Home() {
   const ouraRingSteps = ouraData.activity && formatSteps(Number(ouraData.activity.data[ouraData.activity.data.length - 1].steps));
 
   // fitbit weight data
-  // const recentFitbitWeightData = fitbitData.data["weight"][fitbitData.data["weight"].length - 1];
-  const recentFitbitWeightData = null;
+  const recentFitbitWeightData = fitbitData["weight"][fitbitData["weight"].length - 1];
 
   return (
     <div className="w-full max-w-5xl mx-auto px-10">
