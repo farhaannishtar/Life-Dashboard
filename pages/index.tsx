@@ -5,7 +5,7 @@ import { formatDuration, formatSteps } from 'helpers/helpers';
 import useOuraData from 'hooks/useOuraData';
 import UserGreetingHeader from 'components/UserGreetingHeader';
 import PhysicalStatsCard from 'components/PhysicalStatsCard';
-import SleepTimeCard from 'components/SleepTimeCard';
+import TimeCard from 'components/TimeCard';
 import SleepScoreCard from 'components/SleepScoreCard';
 import DailyVows from 'components/DailyVows';
 
@@ -51,13 +51,13 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
       <UserGreetingHeader />
       <div className='mt-8 flex space-x-6 justify-between'>
         <div className='flex flex-1 flex-col gap-y-4'>
-          <SleepTimeCard
+          <TimeCard
             title={'Total Sleep'}
             body={totalSleep!}
             borderColor={"#ECD3C8"}
             textColor={"#A8440C"}
             bgColor={"#FFFAF8"} />
-          <SleepTimeCard
+          <TimeCard
             title={'Time in Bed'}
             body={timeInBed!}
             borderColor={"#ECD3C8"}
@@ -67,14 +67,14 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
         </div>
         <SleepScoreCard score={sleepScore || 0} />
         <div className='flex flex-1 flex-col gap-y-4'>
-          <SleepTimeCard
+          <TimeCard
             title={'Bed Time'}
             body={"1:15 am"}
             borderColor={"#ECC8E4"}
             textColor={"#A80C73"}
             bgColor={"#FBF8FA"}
           />
-          <SleepTimeCard
+          <TimeCard
             title={'Wake up'}
             body={"10:15 am"}
             borderColor={"#ECC8C8"}

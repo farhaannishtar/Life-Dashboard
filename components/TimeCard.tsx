@@ -1,6 +1,6 @@
-import { SleepTimeCardProps } from "types/uiComponents";
+import { TimeCardProps } from "types/uiComponents";
 
-function SleepTimeCard({ title, body, borderColor, textColor, bgColor }: SleepTimeCardProps) {
+function TimeCard({ title, body, borderColor, textColor, bgColor }: TimeCardProps) {
   return (
     <div className={`flex flex-col justify-start items-start flex-shrink-0 border rounded-3xl`} 
       style={{ backgroundColor: bgColor, borderColor: borderColor }}
@@ -19,4 +19,4 @@ function SleepTimeCard({ title, body, borderColor, textColor, bgColor }: SleepTi
   )
 }
 
-export default SleepTimeCard;
+export default TimeCard;
