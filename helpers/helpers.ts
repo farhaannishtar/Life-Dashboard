@@ -148,3 +148,9 @@ export const initializeWeekStartDate = () => {
   currentWeekStart.setHours(0, 0, 0, 0);
   return currentWeekStart.toISOString();
 };
+
+// Helper function to process mindful minutes data
+export const sumAndRoundQty = (data: { qty: number; date: string }[]): number => {
+  const totalQty = data.reduce((sum, record) => sum + record.qty, 0);
+  return Math.floor(totalQty);
+}

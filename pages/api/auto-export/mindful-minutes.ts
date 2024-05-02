@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { notifyClients } from '../sse';
+import { sumAndRoundQty } from 'helpers/helpers';
 
 let latestMindfulMinutesData: number;
 
@@ -12,8 +13,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const data = req.body;
 
-  latestMindfulMinutesData = data.data.metrics[0].data[0].qty;
-  console.log('mindful minutes: ', latestMindfulMinutesData);
+  latestMindfulMinutesData = sumAndRoundQty(data.data.metrics[0].data);
   notifyClients(latestMindfulMinutesData);
 
   // Respond with a success message
