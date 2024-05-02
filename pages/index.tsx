@@ -75,8 +75,8 @@ export default function Home({ fitbitData }: InferGetServerSidePropsType<typeof 
             bgColor={"#FBF8FA"}
           />
           <TimeCard
-            title={'Wake up'}
-            body={"10:15 am"}
+            title={'Minutes Meditated'}
+            body={"0 min"}
             borderColor={"#ECC8C8"}
             textColor={"#A80C0C"}
             bgColor={"#FFF8F8"}

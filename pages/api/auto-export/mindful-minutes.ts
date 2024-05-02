@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import { notifyClients } from '../sse';
 
 let latestMindfulMinutesData: number;
 
@@ -11,15 +12,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const data = req.body;
 
-  // Handle the mindful minutes data (e.g., log it for now)
-  console.log(`Received mindful minutes`);
-
   latestMindfulMinutesData = data.data.metrics[0].data[0].qty;
-  console.log(latestMindfulMinutesData);
-  
+  console.log('mindful minutes: ', latestMindfulMinutesData);
+  notifyClients(latestMindfulMinutesData);
 
   // Respond with a success message
-  res.status(200).json({ message: 'Mindful minutes received successfully' });
+  res.status(200).json({ message: 'Data received and clients notified', data: latestMindfulMinutesData });
 }
 
 export { latestMindfulMinutesData };
