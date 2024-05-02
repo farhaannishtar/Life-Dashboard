@@ -2,7 +2,7 @@ type SleepScoreProps = {
   score: number;
 };
 
-type SleepTimeCardProps = {
+type TimeCardProps = {
   title: string;
   body: string;
   borderColor: string;
@@ -68,7 +68,7 @@ interface HabitsStreakData {
 
 export type {
   SleepScoreProps,
-  SleepTimeCardProps,
+  TimeCardProps,
   PhysicalStatsCardProps,
   HabitStreakCardProps,
   HabitProps,
