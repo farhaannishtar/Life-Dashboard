@@ -22,6 +22,3 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
 export { latestMindfulMinutesData };
 
-// api URL path
-// https://a5fa-2603-7000-3300-4340-d8b5-70c6-ff6d-87d4.ngrok-free.app/api/auto-export/mindful-minutes
-
