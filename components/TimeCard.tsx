@@ -12,6 +12,7 @@ function TimeCard({ title, body, borderColor, textColor, bgColor }: TimeCardProp
       try {
         const parsedData: number = JSON.parse(event.data);
         setMindfulMinutes(parsedData);
+        console.log('Mindful minutes inside timecard:', parsedData);
       } catch (error) {
         console.error('Failed to parse SSE data:', error);
       }
@@ -22,6 +23,8 @@ function TimeCard({ title, body, borderColor, textColor, bgColor }: TimeCardProp
       eventSource.close();
     };
   }, []);
+
+  console.log('Mindful minutes:', mindfulMinutes, "Title:", title, "Body:", body);
 
   return (
     <div className={`flex flex-col justify-start items-start flex-shrink-0 border rounded-3xl`} 
