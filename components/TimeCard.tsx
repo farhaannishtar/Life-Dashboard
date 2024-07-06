@@ -35,7 +35,8 @@ function TimeCard({ title, body, borderColor, textColor, bgColor }: TimeCardProp
       <div className={`px-12 lg:px-20 py-6 h-full w-full leading-5 text-3xl font-black text-center`}
         style={{ color: textColor }}  
       >
-        {title === "Minutes Meditated" ? `${mindfulMinutes} min` : body}
+        {/* {title === "Minutes Meditated" ? `${mindfulMinutes} min` : body} */}
+        {title === "Minutes Meditated" ? `10 min` : body}
       </div>
     </div>
   )
